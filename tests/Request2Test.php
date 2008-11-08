@@ -215,5 +215,21 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
             $req->getBody()
         );
     }
+
+    public function testUpload()
+    {
+        $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
+        $req->addUpload('upload', dirname(__FILE__) . '/_files/plaintext.txt');
+
+        $headers = $req->getHeaders();
+        $this->assertEquals('multipart/form-data', $headers['content-type']);
+
+        try {
+            $req->addUpload('upload_2', 'missing file');
+        } catch (HTTP_Request2_Exception $e) {
+            return;
+        }
+        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+    }
 }
 ?>

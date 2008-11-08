@@ -162,7 +162,7 @@ class HTTP_Request2 implements SplSubject
     * Array of file uploads (for multipart/form-data POST requests) 
     * @var  array
     */
-    protected $files = array();
+    protected $uploads = array();
 
 
    /**
@@ -441,13 +441,12 @@ class HTTP_Request2 implements SplSubject
    /**
     * Returns the request body
     *
-    * @return   string|resource
-    * @todo     Handle the multipart/form-data body
+    * @return   string|resource|HTTP_Request2_MultipartBody
     */
     public function getBody()
     {
         if (self::METHOD_POST == $this->method && 
-            (!empty($this->postParams) || !empty($this->files))
+            (!empty($this->postParams) || !empty($this->uploads))
         ) {
             if ('application/x-www-form-urlencoded' == $this->headers['content-type']) {
                 $body = http_build_query($this->postParams, '', '&');
@@ -457,8 +456,10 @@ class HTTP_Request2 implements SplSubject
                 return $body;
 
             } elseif ('multipart/form-data' == $this->headers['content-type']) {
-                // handle multipart encoding, via extra class
-                throw new HTTP_Request2_Exception('Not implemented');
+                require_once 'HTTP/Request2/MultipartBody.php';
+                return new HTTP_Request2_MultipartBody(
+                    $this->postParams, $this->uploads, $this->getConfigValue('use_brackets')
+                );
             }
         }
         return $this->body;
@@ -476,15 +477,48 @@ class HTTP_Request2 implements SplSubject
     * @param    string  name of file-upload field
     * @param    mixed   full name of local file
     * @param    string  filename to send in the request 
-    * @param    mixed   content-type of file being uploaded
+    * @param    string  content-type of file being uploaded
     * @return   HTTP_Request2
     * @throws   HTTP_Request2_Exception
-    * @todo     Implement the method...
     */
-    public function addUpload($fieldName, $filename, $sendFilename,
-                              $contentType = 'application/octet-stream')
+    public function addUpload($fieldName, $filename, $sendFilename = null,
+                              $contentType = null)
     {
-        throw new HTTP_Request2_Exception('Not implemented');
+        if (!is_array($filename)) {
+            if (!($fp = @fopen($filename, 'rb'))) {
+                throw new HTTP_Request2_Exception("Cannot open file {$filename}");
+            }
+            $this->uploads[$fieldName] = array(
+                'fp'        => $fp,
+                'filename'  => empty($sendFilename)? basename($filename): $sendFilename,
+                'size'      => filesize($filename),
+                'type'      => empty($contentType)? self::detectMimeType($filename): $contentType
+            );
+        } else {
+            $fps = $names = $sizes = $types = array();
+            foreach ($filename as $f) {
+                if (!is_array($f)) {
+                    $f = array($f);
+                }
+                if (!($fp = @fopen($f[0], 'rb'))) {
+                    throw new HTTP_Request2_Exception("Cannot open file {$f[0]}");
+                }
+                $fps[]   = $fp;
+                $names[] = empty($f[1])? basename($f[0]): $f[1];
+                $sizes[] = filesize($f[0]);
+                $types[] = empty($f[2])? self::detectMimeType($f[0]): $f[2];
+            }
+            $this->uploads[$fieldName] = array(
+                'fp' => $fps, 'filename' => $names, 'size' => $sizes, 'type' => $types
+            );
+        }
+        if (empty($this->headers['content-type']) ||
+            'application/x-www-form-urlencoded' == $this->headers['content-type']
+        ) {
+            $this->setHeader('content-type', 'multipart/form-data');
+        }
+
+        return $this;
     }
 
    /**

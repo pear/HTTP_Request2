@@ -42,7 +42,7 @@
  */
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'HTTP_Request2_AllTests::main');
+    define('PHPUnit_MAIN_METHOD', 'Request2_AllTests::main');
 }
 
 require_once 'PHPUnit/Framework/TestSuite.php';
@@ -50,10 +50,9 @@ require_once 'PHPUnit/TextUI/TestRunner.php';
 
 chdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR);
 
-require_once dirname(__FILE__) . '/Request2Test.php';
-require_once dirname(__FILE__) . '/Request2/AllTests.php';
+require_once dirname(__FILE__) . '/MultipartBodyTest.php';
 
-class HTTP_Request2_AllTests
+class Request2_AllTests
 {
     public static function main()
     {
@@ -62,16 +61,15 @@ class HTTP_Request2_AllTests
 
     public static function suite()
     {
-        $suite = new PHPUnit_Framework_TestSuite('HTTP_Request2 package');
+        $suite = new PHPUnit_Framework_TestSuite('HTTP_Request2 package - Request2');
 
-        $suite->addTest(Request2_AllTests::suite());
-        $suite->addTestSuite('HTTP_Request2Test');
+        $suite->addTestSuite('HTTP_Request2_MultipartBodyTest');
 
         return $suite;
     }
 }
 
-if (PHPUnit_MAIN_METHOD == 'HTTP_Request2_AllTests::main') {
-    HTTP_Request2_AllTests::main();
+if (PHPUnit_MAIN_METHOD == 'Request2_AllTests::main') {
+    Request2_AllTests::main();
 }
 ?>
