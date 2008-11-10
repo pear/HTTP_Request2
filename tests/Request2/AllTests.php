@@ -51,6 +51,7 @@ require_once 'PHPUnit/TextUI/TestRunner.php';
 chdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR);
 
 require_once dirname(__FILE__) . '/MultipartBodyTest.php';
+require_once dirname(__FILE__) . '/ResponseTest.php';
 
 class Request2_AllTests
 {
@@ -64,6 +65,7 @@ class Request2_AllTests
         $suite = new PHPUnit_Framework_TestSuite('HTTP_Request2 package - Request2');
 
         $suite->addTestSuite('HTTP_Request2_MultipartBodyTest');
+        $suite->addTestSuite('HTTP_Request2_ResponseTest');
 
         return $suite;
     }

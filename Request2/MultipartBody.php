@@ -62,13 +62,13 @@ class HTTP_Request2_MultipartBody
     private $_boundary;
 
    /**
-    * Form parameters added via {@see HTTP_Request2::addPostParameter()}
+    * Form parameters added via {@link HTTP_Request2::addPostParameter()}
     * @var  array
     */
     private $_params = array();
 
    /**
-    * File uploads added via {@see HTTP_Request2::addUpload()}
+    * File uploads added via {@link HTTP_Request2::addUpload()}
     * @var  array
     */
     private $_uploads = array();
@@ -99,8 +99,8 @@ class HTTP_Request2_MultipartBody
    /**
     * Constructor. Sets the arrays with POST data.
     *
-    * @param    array   values of form fields set via {@see HTTP_Request2::addPostParameter()}
-    * @param    array   file uploads set via {@see HTTP_Request2::addUpload()}
+    * @param    array   values of form fields set via {@link HTTP_Request2::addPostParameter()}
+    * @param    array   file uploads set via {@link HTTP_Request2::addUpload()}
     * @param    bool    whether to append brackets to array variable names
     */
     public function __construct(array $params, array $uploads, $useBrackets = true)
@@ -147,7 +147,7 @@ class HTTP_Request2_MultipartBody
    /**
     * Returns the boundary to use in Content-Type header
     *
-    * @var  string
+    * @return   string
     */
     public function getBoundary()
     {
