@@ -1,11 +1,11 @@
 <?php
 /**
- * Unit tests for HTTP_Request2 package
+ * Interface for HTTP_Request2 adapters
  *
  * PHP version 5
  *
  * LICENSE:
- * 
+ *
  * Copyright (c) 2008, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
@@ -16,9 +16,9 @@
  *    * Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright
- *      notice, this list of conditions and the following disclaimer in the 
+ *      notice, this list of conditions and the following disclaimer in the
  *      documentation and/or other materials provided with the distribution.
- *    * The names of the authors may not be used to endorse or promote products 
+ *    * The names of the authors may not be used to endorse or promote products
  *      derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
@@ -41,37 +41,32 @@
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
-if (!defined('PHPUnit_MAIN_METHOD')) {
-    define('PHPUnit_MAIN_METHOD', 'Request2_AllTests::main');
-}
+/**
+ * Class representing a HTTP response
+ */
+require_once 'HTTP/Request2/Response.php';
 
-require_once 'PHPUnit/Framework/TestSuite.php';
-require_once 'PHPUnit/TextUI/TestRunner.php';
-
-require_once dirname(__FILE__) . '/MultipartBodyTest.php';
-require_once dirname(__FILE__) . '/ResponseTest.php';
-require_once dirname(__FILE__) . '/Adapter/AllTests.php';
-
-class Request2_AllTests
+/**
+ * Interface for HTTP_Request2 adapters
+ *
+ * HTTP_Request2 class itself only defines methods for aggregating the request
+ * data, all actual work of sending the request to the remote server and 
+ * receiving its response is performed by adapters.
+ *
+ * @category   HTTP
+ * @package    HTTP_Request2
+ * @author     Alexey Borzov <avb@php.net>
+ * @version    Release: @package_version@
+ */
+interface HTTP_Request2_Adapter
 {
-    public static function main()
-    {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
-    }
-
-    public static function suite()
-    {
-        $suite = new PHPUnit_Framework_TestSuite('HTTP_Request2 package - Request2');
-
-        $suite->addTestSuite('HTTP_Request2_MultipartBodyTest');
-        $suite->addTestSuite('HTTP_Request2_ResponseTest');
-        $suite->addTest(Request2_Adapter_AllTests::suite());
-
-        return $suite;
-    }
-}
-
-if (PHPUnit_MAIN_METHOD == 'Request2_AllTests::main') {
-    Request2_AllTests::main();
+   /**
+    * Sends request to the remote server and returns its response
+    *
+    * @param    HTTP_Request2
+    * @return   HTTP_Request2_Response
+    * @throws   HTTP_Request2_Exception
+    */
+    public function sendRequest(HTTP_Request2 $request);
 }
 ?>

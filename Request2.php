@@ -164,6 +164,12 @@ class HTTP_Request2 implements SplSubject
     */
     protected $uploads = array();
 
+   /**
+    * Adapter used to perform actual HTTP request
+    * @var  HTTP_Request2_Adapter
+    */
+    protected $adapter;
+
 
    /**
     * Constructor. Can set request URL, method and configuration array.
@@ -615,15 +621,84 @@ class HTTP_Request2 implements SplSubject
     }
 
    /**
+    * Sets the adapter used to actually perform the request
+    *
+    * You can pass either an instance of a class implementing HTTP_Request2_Adapter
+    * or a class name. The method will only try to include a file if the class
+    * name starts with HTTP_Request2_Adapter_, it will also try to prepend this
+    * prefix to the class name if it doesn't contain any underscores, so that
+    * <code>
+    * $request->setAdapter('curl');
+    * </code>
+    * will work.
+    *
+    * @param    string|HTTP_Request2_Adapter
+    * @return   HTTP_Request2
+    * @throws   HTTP_Request2_Exception
+    */
+    public function setAdapter($adapter)
+    {
+        if (is_string($adapter)) {
+            if (!class_exists($adapter, false)) {
+                if (false === strpos($adapter, '_')) {
+                    $adapter = 'HTTP_Request2_Adapter_' . ucfirst($adapter);
+                }
+                if (preg_match('/^HTTP_Request2_Adapter_([a-zA-Z0-9]+)$/', $adapter)) {
+                    include_once str_replace('_', DIRECTORY_SEPARATOR, $adapter) . '.php';
+                }
+                if (!class_exists($adapter, false)) {
+                    throw new HTTP_Request2_Exception("Class {$adapter} not found");
+                }
+            }
+            $adapter = new $adapter;
+        }
+        if (!$adapter instanceof HTTP_Request2_Adapter) {
+            throw new HTTP_Request2_Exception('Parameter is not a HTTP request adapter');
+        }
+        $this->adapter = $adapter;
+
+        return $this;
+    }
+
+   /**
     * Sends the request and returns the response
     *
     * @throws   HTTP_Request2_Exception
     * @return   HTTP_Request2_Response
-    * @todo     Implement the method...
     */
     public function send()
     {
-        throw new HTTP_Request2_Exception('Not implemented');
+        if (empty($this->adapter)) {
+            $this->setAdapter($this->getConfigValue('adapter'));
+        }
+        // magic_quotes_runtime may break file uploads and chunked response
+        // processing; see bug #4543
+        if ($magicQuotes = ini_get('magic_quotes_runtime')) {
+            ini_set('magic_quotes_runtime', false);
+        }
+        // force using single byte encoding if mbstring extension overloads
+        // strlen() and substr(); see bug #1781, bug #10605
+        if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
+            $oldEncoding = mb_internal_encoding();
+            mb_internal_encoding('iso-8859-1');
+        }
+
+        try {
+            $response = $this->adapter->sendRequest($this);
+        } catch (Exception $e) {
+        }
+        // cleanup in either case (poor man's "finally" clause)
+        if ($magicQuotes) {
+            ini_set('magic_quotes_runtime', true);
+        }
+        if (!empty($oldEncoding)) {
+            mb_internal_encoding($oldEncoding);
+        }
+        // rethrow the exception
+        if (!empty($e)) {
+            throw $e;
+        }
+        return $response;
     }
 
    /**
