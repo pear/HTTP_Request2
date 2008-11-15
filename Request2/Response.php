@@ -421,7 +421,7 @@ class HTTP_Request2_Response
     * @throws   HTTP_Request2_Exception
     * @link     http://tools.ietf.org/html/rfc1952
     */
-    protected static function decodeGzip($data)
+    public static function decodeGzip($data)
     {
         $length = strlen($data);
         // If it doesn't look like gzip-encoded data, don't bother
@@ -512,7 +512,7 @@ class HTTP_Request2_Response
     * @return   string  decoded data
     * @throws   HTTP_Request2_Exception
     */
-    protected static function decodeDeflate($data)
+    public static function decodeDeflate($data)
     {
         if (!function_exists('gzuncompress')) {
             throw new HTTP_Request2_Exception('Unable to decode body: gzip extension not available');

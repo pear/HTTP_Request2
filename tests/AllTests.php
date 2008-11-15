@@ -51,6 +51,7 @@ require_once 'PHPUnit/TextUI/TestRunner.php';
 chdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR);
 
 require_once dirname(__FILE__) . '/Request2Test.php';
+require_once dirname(__FILE__) . '/ObserverTest.php';
 require_once dirname(__FILE__) . '/Request2/AllTests.php';
 
 class HTTP_Request2_AllTests
@@ -66,6 +67,7 @@ class HTTP_Request2_AllTests
 
         $suite->addTest(Request2_AllTests::suite());
         $suite->addTestSuite('HTTP_Request2Test');
+        $suite->addTestSuite('HTTP_Request2_ObserverTest');
 
         return $suite;
     }

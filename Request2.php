@@ -125,14 +125,21 @@ class HTTP_Request2 implements SplSubject
     protected $headers = array();
 
    /**
-    * Cobfiguration parameters
+    * Configuration parameters
     * @var  array
     * @see  setConfig()
     */
     protected $config = array(
-        'adapter'      => 'HTTP_Request2_Adapter_Socket',
-        'timeout'      => 10,
-        'use_brackets' => true
+        'adapter'           => 'HTTP_Request2_Adapter_Socket',
+        'timeout'           => 10,
+        'use_brackets'      => true,
+        'protocol_version'  => '1.1',
+        'buffer_size'       => 16384,
+        'proxy_host'        => '',
+        'proxy_port'        => '',
+        'proxy_user'        => '',
+        'proxy_password'    => '',
+        'proxy_auth_scheme' => self::AUTH_BASIC
     );
 
    /**
@@ -150,7 +157,7 @@ class HTTP_Request2 implements SplSubject
     * @var  string|resource
     * @see  setBody()
     */
-    protected $body;
+    protected $body = '';
 
    /**
     * Array of POST parameters
@@ -198,7 +205,8 @@ class HTTP_Request2 implements SplSubject
     * Sets the URL for this request
     *
     * If the URL has userinfo part (username & password) these will be removed
-    * and converted to auth data.
+    * and converted to auth data. If the URL does not have a path component,
+    * that will be set to '/'.
     *
     * @param    string|Net_URL2 Request URL
     * @return   HTTP_Request2
@@ -218,6 +226,9 @@ class HTTP_Request2 implements SplSubject
             $password = $url->getPassword();
             $this->setAuth(rawurldecode($username), $password? rawurldecode($password): '');
             $url->setUserinfo('');
+        }
+        if ('' == $url->getPath()) {
+            $url->setPath('/');
         }
         $this->url = $url;
 
@@ -264,6 +275,20 @@ class HTTP_Request2 implements SplSubject
 
    /**
     * Sets the configuration parameters
+    *
+    * $config array can have the following keys:
+    * <ul>
+    *   <li> 'adapter'           - adapter to use (string)</li>
+    *   <li> 'timeout'           - Connection timeout in seconds (float)</li>
+    *   <li> 'use_brackets'      - Whether to append [] to array variable names (bool)</li>
+    *   <li> 'protocol_version'  - HTTP Version to use, '1.0' or '1.1' (string)</li>
+    *   <li> 'buffer_size'       - Buffer size to use for reading and writing (int)</li>
+    *   <li> 'proxy_host'        - Proxy server host (string)</li>
+    *   <li> 'proxy_port'        - Proxy server port (integer)</li>
+    *   <li> 'proxy_user'        - Proxy auth username (string)</li>
+    *   <li> 'proxy_password'    - Proxy auth password (string)</li>
+    *   <li> 'proxy_auth_scheme' - Proxy auth scheme, one of HTTP_Request2::AUTH_* constants (string)</li>
+    * </ul>
     *
     * @param    array   array of the form ('param name' => 'param value')
     * @return   HTTP_Request2
@@ -430,7 +455,7 @@ class HTTP_Request2 implements SplSubject
     public function setBody($body, $isFilename = false)
     {
         if (!$isFilename) {
-            $this->body = $body;
+            $this->body = (string)$body;
         } else {
             if (!($fp = @fopen($body, 'rb'))) {
                 throw new HTTP_Request2_Exception("Cannot open file {$body}");
@@ -557,12 +582,12 @@ class HTTP_Request2 implements SplSubject
     */
     public function attach(SplObserver $observer)
     {
-        foreach ($this->_observers as $attached) {
+        foreach ($this->observers as $attached) {
             if ($attached === $observer) {
                 return;
             }
         }
-        $this->_observers[] = $observer;
+        $this->observers[] = $observer;
     }
 
    /**
@@ -572,9 +597,9 @@ class HTTP_Request2 implements SplSubject
     */
     public function detach(SplObserver $observer)
     {
-        foreach ($this->_observers as $key => $attached) {
+        foreach ($this->observers as $key => $attached) {
             if ($attached === $observer) {
-                unset($this->_observers[$key]);
+                unset($this->observers[$key]);
                 return;
             }
         }
@@ -585,7 +610,7 @@ class HTTP_Request2 implements SplSubject
     */
     public function notify()
     {
-        foreach ($this->_observers as $observer) {
+        foreach ($this->observers as $observer) {
             $observer->update($this);
         }
     }
@@ -612,6 +637,26 @@ class HTTP_Request2 implements SplSubject
     * Returns the last event
     *
     * Observers should use this method to access the last change in request.
+    * The following event names are possible:
+    * <ul>
+    *   <li>'connect'                 - after connection to remote server,
+    *                                   data is the destination (string)</li>
+    *   <li>'disconnect'              - after disconnection from server</li>
+    *   <li>'sentHeaders'             - after sending the request headers,
+    *                                   data is the headers sent (string)</li>
+    *   <li>'sentBodyPart'            - after sending a part of the request body, 
+    *                                   data is the length of that part (int)</li>
+    *   <li>'receivedHeaders'         - after receiving the response headers,
+    *                                   data is HTTP_Request2_Response object</li>
+    *   <li>'receivedBodyPart'        - after receiving a part of the response
+    *                                   body, data is that part (string)</li>
+    *   <li>'receivedEncodedBodyPart' - as 'receivedBodyPart', but data is still
+    *                                   encoded by Content-Encoding</li>
+    *   <li>'receivedBody'            - after receiving the complete response
+    *                                   body, data is HTTP_Request2_Response object</li>
+    * </ul>
+    * Different adapters may not send all the event types. Mock adapter does
+    * not send any events to the observers.
     *
     * @return   array   The array has two keys: 'name' and 'data'
     */
@@ -668,6 +713,14 @@ class HTTP_Request2 implements SplSubject
     */
     public function send()
     {
+        // Sanity check for URL
+        if (!$this->url instanceof Net_URL2) {
+            throw new HTTP_Request2_Exception('No URL given');
+        } elseif (!$this->url->isAbsolute()) {
+            throw new HTTP_Request2_Exception('Absolute URL required');
+        } elseif (!in_array(strtolower($this->url->getScheme()), array('https', 'http'))) {
+            throw new HTTP_Request2_Exception('Not a HTTP URL');
+        }
         if (empty($this->adapter)) {
             $this->setAdapter($this->getConfigValue('adapter'));
         }

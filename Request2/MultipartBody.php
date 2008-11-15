@@ -248,6 +248,7 @@ class HTTP_Request2_MultipartBody
     *
     * @param    string  name for item
     * @param    mixed   item's values
+    * @param    bool    whether to append [] to array variables' names
     * @return   array   array with the following items: array('item name', 'item value');
     */
     private static function _flattenArray($name, $values, $useBrackets)

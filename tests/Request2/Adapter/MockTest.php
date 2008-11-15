@@ -80,7 +80,7 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
             "\r\n" .
             "This is a string"
         );
-        $req = new HTTP_Request2();
+        $req = new HTTP_Request2('http://www.example.com/');
         $req->setAdapter($mock);
 
         $response = $req->send();
@@ -95,7 +95,7 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
         $mock->addResponse(fopen(dirname(dirname(dirname(__FILE__))) . 
                            '/_files/response_headers', 'rb'));
 
-        $req = new HTTP_Request2();
+        $req = new HTTP_Request2('http://www.example.com/');
         $req->setAdapter($mock);
 
         $response = $req->send();
@@ -120,7 +120,7 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
             "This is a string"
         );
 
-        $req = new HTTP_Request2();
+        $req = new HTTP_Request2('http://www.example.com/');
         $req->setAdapter($mock);
         $this->assertEquals(301, $req->send()->getStatus());
         $this->assertEquals(200, $req->send()->getStatus());
