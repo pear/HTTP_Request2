@@ -59,11 +59,11 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     public function testConstructorSetsDefaults()
     {
         $url = new Net_URL2('http://www.example.com/foo');
-        $req = new HTTP_Request2($url, HTTP_Request2::METHOD_POST, array('timeout' => 666));
+        $req = new HTTP_Request2($url, HTTP_Request2::METHOD_POST, array('connect_timeout' => 666));
 
         $this->assertSame($url, $req->getUrl());
         $this->assertEquals(HTTP_Request2::METHOD_POST, $req->getMethod());
-        $this->assertEquals(666, $req->getConfigValue('timeout'));
+        $this->assertEquals(666, $req->getConfigValue('connect_timeout'));
     }
 
     public function testSetUrl()
@@ -117,8 +117,8 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     public function testSetConfig()
     {
         $req = new HTTP_Request2();
-        $req->setConfig(array('timeout' => 123));
-        $this->assertEquals(123, $req->getConfigValue('timeout'));
+        $req->setConfig(array('connect_timeout' => 123));
+        $this->assertEquals(123, $req->getConfigValue('connect_timeout'));
         try {
             $req->setConfig(array('foo' => 'unknown parameter'));
         } catch (HTTP_Request2_Exception $e) {

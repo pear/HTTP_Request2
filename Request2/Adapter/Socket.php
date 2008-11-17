@@ -42,7 +42,7 @@
  */
 
 /**
- * Interface for HTTP_Request2 adapters
+ * Base class for HTTP_Request2 adapters
  */
 require_once 'HTTP/Request2/Adapter.php';
 
@@ -59,8 +59,9 @@ require_once 'HTTP/Request2/Adapter.php';
  * @todo       Implement HTTPS proxy support via stream_socket_enable_crypto()
  * @todo       Implement Digest authentication support
  * @todo       Proper read timeout handling
+ * @todo        Support various SSL options
  */
-class HTTP_Request2_Adapter_Socket implements HTTP_Request2_Adapter
+class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 {
    /**
     * Connected sockets, needed for Keep-Alive support
@@ -68,43 +69,6 @@ class HTTP_Request2_Adapter_Socket implements HTTP_Request2_Adapter
     * @see  connect()
     */
     protected static $sockets;
-
-   /**
-    * A list of methods that MUST NOT have a request body, per RFC 2616
-    * @var  array
-    */
-    protected static $bodyDisallowed = array('TRACE');
-
-   /**
-    * Methods having defined semantics for request body
-    *
-    * Content-Length header (indicating that the body follows, section 4.3 of
-    * RFC 2616) will be sent for these methods even if no body was added
-    *
-    * @var  array
-    * @link http://pear.php.net/bugs/bug.php?id=12900
-    * @link http://pear.php.net/bugs/bug.php?id=14740
-    */
-    protected static $bodyRequired = array('POST', 'PUT');
-
-   /**
-    * Request being sent
-    * @var  HTTP_Request2
-    */
-    protected $request;
-
-   /**
-    * Request body
-    * @var  string|resource|HTTP_Request2_MultipartBody
-    * @see  HTTP_Request2::getBody()
-    */
-    protected $requestBody;
-
-   /**
-    * Length of the request body
-    * @var  integer
-    */
-    protected $contentLength;
 
    /**
     * Connected socket
@@ -215,7 +179,8 @@ class HTTP_Request2_Adapter_Socket implements HTTP_Request2_Adapter
             $this->socket =& self::$sockets[$socketKey];
         } else {
             $this->socket = stream_socket_client(
-                $socketKey, $errno, $errstr, $this->request->getConfigValue('timeout'),
+                $socketKey, $errno, $errstr, 
+                $this->request->getConfigValue('connect_timeout'),
                 STREAM_CLIENT_CONNECT
             );
             if (!$this->socket) {
@@ -308,39 +273,12 @@ class HTTP_Request2_Adapter_Socket implements HTTP_Request2_Adapter
             );
         }
         if ('1.1' == $this->request->getConfigValue('protocol_version') &&
-            extension_loaded('zlib')
+            extension_loaded('zlib') && !isset($headers['accept-encoding'])
         ) {
             $headers['accept-encoding'] = 'gzip, deflate';
         }
 
-        // Determine content-length
-        $this->requestBody = $this->request->getBody();
-        if (is_string($this->requestBody)) {
-            $this->contentLength = strlen($this->requestBody);
-        } elseif (is_resource($this->requestBody)) {
-            $stat = fstat($this->requestBody);
-            $this->contentLength = $stat['size'];
-        } else {
-            $this->contentLength = $this->requestBody->getLength();
-            $headers['content-type'] = 'multipart/form-data; boundary=' .
-                                       $this->requestBody->getBoundary();
-        }
-
-        if (in_array($this->request->getMethod(), self::$bodyDisallowed) ||
-            0 == $this->contentLength
-        ) {
-            unset($headers['content-type']);
-            // No body: send a Content-Length header nonetheless (request #12900),
-            // but do that only for methods that require a body (bug #14740)
-            if (in_array($this->request->getMethod(), self::$bodyRequired)) {
-                $headers['content-length'] = 0;
-            }
-        } else {
-            if (empty($headers['content-type'])) {
-                $headers['content-type'] = 'application/x-www-form-urlencoded';
-            }
-            $headers['content-length'] = $this->contentLength;
-        }
+        $this->calculateRequestLength($headers);
 
         $headersStr = $this->request->getMethod() . ' ' . $requestUrl . ' HTTP/' .
                       $this->request->getConfigValue('protocol_version') . "\r\n";

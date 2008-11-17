@@ -131,7 +131,7 @@ class HTTP_Request2 implements SplSubject
     */
     protected $config = array(
         'adapter'           => 'HTTP_Request2_Adapter_Socket',
-        'timeout'           => 10,
+        'connect_timeout'   => 10,
         'use_brackets'      => true,
         'protocol_version'  => '1.1',
         'buffer_size'       => 16384,
@@ -279,7 +279,7 @@ class HTTP_Request2 implements SplSubject
     * $config array can have the following keys:
     * <ul>
     *   <li> 'adapter'           - adapter to use (string)</li>
-    *   <li> 'timeout'           - Connection timeout in seconds (float)</li>
+    *   <li> 'connect_timeout'   - Connection timeout in seconds (float)</li>
     *   <li> 'use_brackets'      - Whether to append [] to array variable names (bool)</li>
     *   <li> 'protocol_version'  - HTTP Version to use, '1.0' or '1.1' (string)</li>
     *   <li> 'buffer_size'       - Buffer size to use for reading and writing (int)</li>

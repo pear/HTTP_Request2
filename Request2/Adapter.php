@@ -1,6 +1,6 @@
 <?php
 /**
- * Interface for HTTP_Request2 adapters
+ * Base class for HTTP_Request2 adapters
  *
  * PHP version 5
  *
@@ -47,7 +47,7 @@
 require_once 'HTTP/Request2/Response.php';
 
 /**
- * Interface for HTTP_Request2 adapters
+ * Base class for HTTP_Request2 adapters
  *
  * HTTP_Request2 class itself only defines methods for aggregating the request
  * data, all actual work of sending the request to the remote server and 
@@ -58,8 +58,45 @@ require_once 'HTTP/Request2/Response.php';
  * @author     Alexey Borzov <avb@php.net>
  * @version    Release: @package_version@
  */
-interface HTTP_Request2_Adapter
+abstract class HTTP_Request2_Adapter
 {
+   /**
+    * A list of methods that MUST NOT have a request body, per RFC 2616
+    * @var  array
+    */
+    protected static $bodyDisallowed = array('TRACE');
+
+   /**
+    * Methods having defined semantics for request body
+    *
+    * Content-Length header (indicating that the body follows, section 4.3 of
+    * RFC 2616) will be sent for these methods even if no body was added
+    *
+    * @var  array
+    * @link http://pear.php.net/bugs/bug.php?id=12900
+    * @link http://pear.php.net/bugs/bug.php?id=14740
+    */
+    protected static $bodyRequired = array('POST', 'PUT');
+
+   /**
+    * Request being sent
+    * @var  HTTP_Request2
+    */
+    protected $request;
+
+   /**
+    * Request body
+    * @var  string|resource|HTTP_Request2_MultipartBody
+    * @see  HTTP_Request2::getBody()
+    */
+    protected $requestBody;
+
+   /**
+    * Length of the request body
+    * @var  integer
+    */
+    protected $contentLength;
+
    /**
     * Sends request to the remote server and returns its response
     *
@@ -67,6 +104,47 @@ interface HTTP_Request2_Adapter
     * @return   HTTP_Request2_Response
     * @throws   HTTP_Request2_Exception
     */
-    public function sendRequest(HTTP_Request2 $request);
+    abstract public function sendRequest(HTTP_Request2 $request);
+
+   /**
+    * Calculates length of the request body, adds proper headers
+    *
+    * @param    array   associative array of request headers, this method will 
+    *                   add proper 'Content-Length' and 'Content-Type' headers 
+    *                   to this array (or remove them if not needed)
+    */
+    protected function calculateRequestLength(&$headers)
+    {
+        $this->requestBody = $this->request->getBody();
+
+        if (is_string($this->requestBody)) {
+            $this->contentLength = strlen($this->requestBody);
+        } elseif (is_resource($this->requestBody)) {
+            $stat = fstat($this->requestBody);
+            $this->contentLength = $stat['size'];
+        } else {
+            $this->contentLength = $this->requestBody->getLength();
+            $headers['content-type'] = 'multipart/form-data; boundary=' .
+                                       $this->requestBody->getBoundary();
+        }
+
+        if (in_array($this->request->getMethod(), self::$bodyDisallowed) ||
+            0 == $this->contentLength
+        ) {
+            unset($headers['content-type']);
+            // No body: send a Content-Length header nonetheless (request #12900),
+            // but do that only for methods that require a body (bug #14740)
+            if (in_array($this->request->getMethod(), self::$bodyRequired)) {
+                $headers['content-length'] = 0;
+            } else {
+                unset($headers['content-length']);
+            }
+        } else {
+            if (empty($headers['content-type'])) {
+                $headers['content-type'] = 'application/x-www-form-urlencoded';
+            }
+            $headers['content-length'] = $this->contentLength;
+        }
+    }
 }
 ?>

@@ -42,7 +42,7 @@
  */
 
 /**
- * Interface for HTTP_Request2 adapters
+ * Base class for HTTP_Request2 adapters
  */
 require_once 'HTTP/Request2/Adapter.php';
 
@@ -68,7 +68,7 @@ require_once 'HTTP/Request2/Adapter.php';
  * @author     Alexey Borzov <avb@php.net>
  * @version    Release: @package_version@
  */
-class HTTP_Request2_Adapter_Mock implements HTTP_Request2_Adapter
+class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
 {
    /**
     * A queue of responses to be returned by sendRequest()
