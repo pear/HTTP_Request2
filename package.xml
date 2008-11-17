@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<package version="2.0"
+ xmlns="http://pear.php.net/dtd/package-2.0"
+ xmlns:tasks="http://pear.php.net/dtd/tasks-1.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+
+  <name>HTTP_Request2</name>
+  <channel>pear.php.net</channel>
+  <extends>HTTP_Request</extends>
+  <summary>Provides an easy way to perform HTTP requests.</summary>
+  <description>
+PHP5 rewrite of HTTP_Request package. Provides cleaner API and pluggable
+Adapters. Currently available are:
+  * Socket adapter, based on old HTTP_Request code,
+  * Curl adapter, wraps around PHP's cURL extension,
+  * Mock adapter, to use for testing packages dependent on HTTP_Request2.
+Supports POST requests with data and file uploads, authentication, cookies,
+proxies, gzip and deflate encodings, monitoring the request progress with
+Observers...
+  </description>
+  <lead>
+    <name>Alexey Borzov</name>
+    <user>avb</user>
+    <email>avb@php.net</email>
+    <active>yes</active>
+  </lead>
+  <date>2008-11-17</date>
+  <version>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
+  </version>
+  <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+  </stability>
+  <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+  <notes>
+Initial release. The features supported are mostly the same as those of
+HTTP_Request, with the following additional feature requests implemented:
+  * cURL extension support (request #5463)
+  * It is now possible to monitor the file upload progress with Observers
+	(request #7630)
+  * Added 'sentHeaders' notification providing the request headers to the
+    Observers (request #7633)
+  * Added support for 'deflate' encoding (request #11246)
+  </notes>
+  <contents>
+    <dir baseinstalldir="HTTP" name="/">
+      <dir name="Request2">
+        <dir name="Adapter">
+          <file role="php" name="Curl.php">
+            <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
+          <file role="php" name="Mock.php">
+            <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
+          <file role="php" name="Socket.php">
+            <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
+        </dir>
+        <file role="php" name="Adapter.php">
+          <tasks:replace from="@package_version@" to="version" type="package-info" />
+        </file>
+        <file role="php" name="Exception.php">
+          <tasks:replace from="@package_version@" to="version" type="package-info" />
+        </file>
+        <file role="php" name="MultipartBody.php">
+          <tasks:replace from="@package_version@" to="version" type="package-info" />
+        </file>
+        <file role="php" name="Response.php">
+          <tasks:replace from="@package_version@" to="version" type="package-info" />
+        </file>
+	  </dir>
+      <dir name="tests">
+        <dir name="_files">
+		  <file role="test" name="empty.gif" />
+		  <file role="test" name="plaintext.txt" />
+		  <file role="test" name="response_cookies" />
+		  <file role="test" name="response_deflate" />
+		  <file role="test" name="response_gzip" />
+		  <file role="test" name="response_gzip_broken" />
+		  <file role="test" name="response_headers" />
+        </dir>
+        <dir name="Request2">
+          <dir name="Adapter">
+            <file role="test" name="AllTests.php" />
+            <file role="test" name="MockTest.php" />
+          </dir>
+          <file role="test" name="AllTests.php" />
+          <file role="test" name="MultipartBodyTest.php" />
+          <file role="test" name="ResponseTest.php" />
+        </dir>
+        <file role="test" name="AllTests.php" />
+        <file role="test" name="ObserverTest.php" />
+        <file role="test" name="Request2Test.php" />
+      </dir>
+      <file role="php" name="Request2.php">
+      	<tasks:replace from="@package_version@" to="version" type="package-info" />
+      </file>
+    </dir>
+  </contents>
+  <dependencies>
+    <required>
+      <php>
+        <min>5.1.4</min>
+      </php>
+      <pearinstaller>
+        <min>1.4.3</min>
+      </pearinstaller>
+      <package>
+	    <name>Net_URL2</name>
+	    <channel>pear.php.net</channel>
+	    <min>0.2.0</min>
+	  </package>
+    </required>
+    <optional>
+      <extension>
+	    <name>curl</name>
+	  </extension>
+	  <extension>
+	    <name>fileinfo</name>
+	  </extension>
+	  <extension>
+	    <name>zlib</name>
+	  </extension>
+    </optional>
+  </dependencies>
+  <phprelease />
+</package>
