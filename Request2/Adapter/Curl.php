@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,10 +76,10 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     protected $response;
 
    /**
-    * Request headers, needed only for notifying the observers
-    * @var  string
+    * Whether 'sentHeaders' event was sent to observers
+    * @var  boolean
     */
-    protected $requestHeaders;
+    protected $eventSentHeaders = false;
 
    /**
     * Position within request body
@@ -107,19 +107,19 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             throw new HTTP_Request2_Exception('cURL extension not available');
         }
 
-        $this->request  = $request;
-        $this->response = null;
-        $this->position = 0;
-        $ch = $this->createCurlHandle();
+        $this->request          = $request;
+        $this->response         = null;
+        $this->position         = 0;
+        $this->eventSentHeaders = false;
 
-        if (false === curl_exec($ch)) {
+        if (false === curl_exec($ch = $this->createCurlHandle())) {
             throw new HTTP_Request2_Exception('Error sending request: #' .
                                               curl_errno($ch) . ' ' .
                                               curl_error($ch));
         }
         $this->lastInfo = curl_getinfo($ch);
         curl_close($ch);
-        if (strlen($this->response->getBody())) {
+        if (0 < $this->lastInfo['size_download']) {
             $this->request->setLastEvent('receivedBody', $this->response);
         }
 
@@ -238,7 +238,6 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             $headersFmt[]  = $canonicalName . ': ' . $value;
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headersFmt);
-        $this->requestHeaders = implode("\r\n", $headersFmt) . "\r\n\r\n";
 
         return $ch;
     }
@@ -246,16 +245,18 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
    /**
     * Callback function called by cURL for reading the request body
     *
-    * @param    resource    cURL handle (not used)
+    * @param    resource    cURL handle
     * @param    resource    file descriptor (not used)
     * @param    integer     maximum length of data to return
     * @return   string      part of the request body, up to $length bytes 
     */
     protected function callbackReadBody($ch, $fd, $length)
     {
-        if (!empty($this->requestHeaders)) {
-            $this->request->setLastEvent('sentHeaders', $this->requestHeaders);
-            $this->requestHeaders = '';
+        if (!$this->eventSentHeaders) {
+            $this->request->setLastEvent(
+                'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
+            );
+            $this->eventSentHeaders = true;
         }
         if (in_array($this->request->getMethod(), self::$bodyDisallowed) ||
             0 == $this->contentLength || $this->position >= $this->contentLength
@@ -277,16 +278,18 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
    /**
     * Callback function called by cURL for saving the response headers
     *
-    * @param    resource    cURL handle (not used)
+    * @param    resource    cURL handle
     * @param    string      response header (with trailing CRLF)
     * @return   integer     number of bytes saved
     * @see      HTTP_Request2_Response::parseHeaderLine()
     */
     protected function callbackWriteHeader($ch, $string)
     {
-        if (!empty($this->requestHeaders)) {
-            $this->request->setLastEvent('sentHeaders', $this->requestHeaders);
-            $this->requestHeaders = '';
+        if (!$this->eventSentHeaders) {
+            $this->request->setLastEvent(
+                'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
+            );
+            $this->eventSentHeaders = true;
         }
         if (empty($this->response)) {
             $this->response = new HTTP_Request2_Response($string, false);

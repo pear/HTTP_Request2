@@ -68,6 +68,11 @@ HTTP_Request, with the following additional feature requests implemented:
         <file role="php" name="MultipartBody.php">
           <tasks:replace from="@package_version@" to="version" type="package-info" />
         </file>
+        <dir name="Observer">
+          <file role="php" name="Log.php">
+            <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
+        </dir>
         <file role="php" name="Response.php">
           <tasks:replace from="@package_version@" to="version" type="package-info" />
         </file>
