@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008, 2009 Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -132,6 +132,7 @@ class HTTP_Request2 implements SplSubject
     protected $config = array(
         'adapter'           => 'HTTP_Request2_Adapter_Socket',
         'connect_timeout'   => 10,
+        'timeout'           => 0,
         'use_brackets'      => true,
         'protocol_version'  => '1.1',
         'buffer_size'       => 16384,
@@ -279,7 +280,10 @@ class HTTP_Request2 implements SplSubject
     * $config array can have the following keys:
     * <ul>
     *   <li> 'adapter'           - adapter to use (string)</li>
-    *   <li> 'connect_timeout'   - Connection timeout in seconds (float)</li>
+    *   <li> 'connect_timeout'   - Connection timeout in seconds (integer)</li>
+    *   <li> 'timeout'           - Total number of seconds a request can take.
+    *                              Use 0 for no limit, should be greater than 
+    *                              'connect_timeout' if set (integer)</li>
     *   <li> 'use_brackets'      - Whether to append [] to array variable names (bool)</li>
     *   <li> 'protocol_version'  - HTTP Version to use, '1.0' or '1.1' (string)</li>
     *   <li> 'buffer_size'       - Buffer size to use for reading and writing (int)</li>

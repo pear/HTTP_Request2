@@ -54,7 +54,6 @@ require_once 'HTTP/Request2/Adapter.php';
  * @author      Alexey Borzov <avb@php.net>
  * @version     Release: @package_version@
  * @todo        Support various SSL options
- * @todo        Timeout support (trivial, need to implement in Socket first)
  */
 class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
 {
@@ -162,6 +161,11 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             // request url
             CURLOPT_URL            => $this->request->getUrl()->getUrl()
         ));
+
+        // request timeout
+        if ($timeout = $this->request->getConfigValue('timeout')) {
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        }
 
         // set HTTP version
         switch ($this->request->getConfigValue('protocol_version')) {

@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008, 2009 Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,13 +52,12 @@ require_once 'HTTP/Request2/Adapter.php';
  * This adapter uses only PHP sockets and will work on almost any PHP
  * environment. Code is based on original HTTP_Request PEAR package.
  *
- * @category   HTTP
- * @package    HTTP_Request2
- * @author     Alexey Borzov <avb@php.net>
- * @version    Release: @package_version@
- * @todo       Implement HTTPS proxy support via stream_socket_enable_crypto()
- * @todo       Implement Digest authentication support
- * @todo       Proper read timeout handling
+ * @category    HTTP
+ * @package     HTTP_Request2
+ * @author      Alexey Borzov <avb@php.net>
+ * @version     Release: @package_version@
+ * @todo        Implement HTTPS proxy support via stream_socket_enable_crypto()
+ * @todo        Implement Digest authentication support
  * @todo        Support various SSL options
  */
 class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
@@ -76,6 +75,12 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     * @see  connect()
     */
     protected $socket;
+
+   /**
+    * Global timeout, exception will be raised if request continues past this time
+    * @var  integer
+    */
+    protected $timeout = null;
 
    /**
     * Remaining length of the current chunk, when reading chunked response
@@ -97,6 +102,13 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         $keepAlive     = $this->connect();
         $headers       = $this->prepareHeaders();
 
+        // Use global request timeout if given, see feature requests #5735, #8964 
+        if ($timeout = $request->getConfigValue('timeout')) {
+            $this->timeout = time() + $timeout;
+        } else {
+            $this->timeout = null;
+        }
+
         try {
             if (false === @fwrite($this->socket, $headers, strlen($headers))) {
                 throw new HTTP_Request2_Exception('Error writing request');
@@ -104,6 +116,13 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             // provide request headers to the observer, see request #7633
             $this->request->setLastEvent('sentHeaders', $headers);
             $this->writeBody();
+
+            if ($this->timeout && time() > $this->timeout) {
+                throw new HTTP_Request2_Exception(
+                    'Request timed out after ' . 
+                    $request->getConfigValue('timeout') . ' second(s)'
+                );
+            }
 
             $response = $this->readResponse();
 
@@ -178,10 +197,10 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         if ($keepAlive && !empty(self::$sockets[$socketKey])) {
             $this->socket =& self::$sockets[$socketKey];
         } else {
-            $this->socket = stream_socket_client(
+            $this->socket = @stream_socket_client(
                 $socketKey, $errno, $errstr, 
                 $this->request->getConfigValue('connect_timeout'),
-                STREAM_CLIENT_CONNECT
+                STREAM_CLIENT_CONNECT, $context
             );
             if (!$this->socket) {
                 throw new HTTP_Request2_Exception(
@@ -363,9 +382,9 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 if ($chunked) {
                     $data = $this->readChunked($bufferSize);
                 } elseif (is_null($toRead)) {
-                    $data = fread($this->socket, $bufferSize);
+                    $data = $this->fread($bufferSize);
                 } else {
-                    $data    = fread($this->socket, min($toRead, $bufferSize));
+                    $data    = $this->fread(min($toRead, $bufferSize));
                     $toRead -= strlen($data);
                 }
                 if ('' == $data && (!$this->chunkLength || feof($this->socket))) {
@@ -391,22 +410,56 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
    /**
     * Reads until either the end of the socket or a newline, whichever comes first 
     *
-    * Strips the trailing newline from the returned data. Method borrowed from
-    * Net_Socket PEAR package.
+    * Strips the trailing newline from the returned data, handles global 
+    * request timeout. Method idea borrowed from Net_Socket PEAR package. 
     *
     * @param    int     buffer size to use for reading
     * @return   Available data up to the newline (not including newline)
+    * @throws   HTTP_Request2_Exception     In case of timeout
     */
     protected function readLine($bufferSize)
     {
         $line = '';
         while (!feof($this->socket)) {
+            if ($this->timeout) {
+                stream_set_timeout($this->socket, max($this->timeout - time(), 1));
+            }
             $line .= @fgets($this->socket, $bufferSize);
+            $info  = stream_get_meta_data($this->socket);
+            if ($info['timed_out'] || $this->timeout && time() > $this->timeout) {
+                throw new HTTP_Request2_Exception(
+                    'Request timed out after ' . 
+                    $this->request->getConfigValue('timeout') . ' second(s)'
+                );
+            }
             if (substr($line, -1) == "\n") {
                 return rtrim($line, "\r\n");
             }
         }
         return $line;
+    }
+
+   /**
+    * Wrapper around fread(), handles global request timeout
+    *
+    * @param    int     Reads up to this number of bytes
+    * @return   Data read from socket
+    * @throws   HTTP_Request2_Exception     In case of timeout
+    */
+    protected function fread($length)
+    {
+        if ($this->timeout) {
+            stream_set_timeout($this->socket, max($this->timeout - time(), 1));
+        }
+        $data = fread($this->socket, $length);
+        $info = stream_get_meta_data($this->socket);
+        if ($info['timed_out'] || $this->timeout && time() > $this->timeout) {
+            throw new HTTP_Request2_Exception(
+                'Request timed out after ' . 
+                $this->request->getConfigValue('timeout') . ' second(s)'
+            );
+        }
+        return $data;
     }
 
    /**
@@ -434,7 +487,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 }
             }
         }
-        $data = fread($this->socket, min($this->chunkLength, $bufferSize));
+        $data = $this->fread(min($this->chunkLength, $bufferSize));
         $this->chunkLength -= strlen($data);
         if (0 == $this->chunkLength) {
             $this->readLine($bufferSize); // Trailing CRLF
