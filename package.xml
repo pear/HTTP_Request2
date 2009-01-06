@@ -79,6 +79,7 @@ HTTP_Request, with the following additional feature requests implemented:
 	  </dir>
       <dir name="tests">
         <dir name="_files">
+		  <file role="test" name="bug_15305" />
 		  <file role="test" name="empty.gif" />
 		  <file role="test" name="plaintext.txt" />
 		  <file role="test" name="response_cookies" />

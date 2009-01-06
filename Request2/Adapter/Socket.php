@@ -200,7 +200,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $this->socket = @stream_socket_client(
                 $socketKey, $errno, $errstr, 
                 $this->request->getConfigValue('connect_timeout'),
-                STREAM_CLIENT_CONNECT, $context
+                STREAM_CLIENT_CONNECT
             );
             if (!$this->socket) {
                 throw new HTTP_Request2_Exception(

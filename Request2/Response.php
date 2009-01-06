@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -517,7 +517,12 @@ class HTTP_Request2_Response
         if (!function_exists('gzuncompress')) {
             throw new HTTP_Request2_Exception('Unable to decode body: gzip extension not available');
         }
-        return gzuncompress($data);
+        // RFC 2616 defines 'deflate' encoding as zlib format from RFC 1950,
+        // while many applications send raw deflate stream from RFC 1951.
+        // We should check for presence of zlib header and use gzuncompress() or
+        // gzinflate() as needed. See bug #15305
+        $header = unpack('n', substr($data, 0, 2));
+        return (0 == $header[1] % 31)? gzuncompress($data): gzinflate($data);
     }
 }
 ?>

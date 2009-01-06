@@ -125,6 +125,12 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('0e964e9273c606c46afbd311b5ad4d77', md5($response->getBody()));
     }
 
+    public function testBug15305()
+    {
+        $response = $this->readResponseFromFile('bug_15305');
+        $this->assertEquals('c8c5088fc8a7652afef380f086c010a6', md5($response->getBody()));
+    }
+
     protected function readResponseFromFile($filename)
     {
         $fp       = fopen(dirname(dirname(__FILE__)) . '/_files/' . $filename, 'rb');
