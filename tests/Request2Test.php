@@ -6,7 +6,7 @@
  *
  * LICENSE:
  * 
- * Copyright (c) 2008, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008, 2009 Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $this->assertSame($url, $req->getUrl());
         $this->assertEquals(HTTP_Request2::METHOD_POST, $req->getMethod());
-        $this->assertEquals(666, $req->getConfigValue('connect_timeout'));
+        $this->assertEquals(666, $req->getConfig('connect_timeout'));
     }
 
     public function testSetUrl()
@@ -114,16 +114,18 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->fail('Expected HTTP_Request2_Exception was not thrown');
     }
 
-    public function testSetConfig()
+    public function testSetAndGetConfig()
     {
         $req = new HTTP_Request2();
+        $this->assertArrayHasKey('connect_timeout', $req->getConfig());
+        
         $req->setConfig(array('connect_timeout' => 123));
-        $this->assertEquals(123, $req->getConfigValue('connect_timeout'));
+        $this->assertEquals(123, $req->getConfig('connect_timeout'));
         try {
             $req->setConfig(array('foo' => 'unknown parameter'));
         } catch (HTTP_Request2_Exception $e) {
             try {
-                $req->getConfigValue('bar');
+                $req->getConfig('bar');
             } catch (HTTP_Request2_Exception $e) {
                 return;
             }

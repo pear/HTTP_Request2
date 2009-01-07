@@ -136,11 +136,19 @@ class HTTP_Request2 implements SplSubject
         'use_brackets'      => true,
         'protocol_version'  => '1.1',
         'buffer_size'       => 16384,
+
         'proxy_host'        => '',
         'proxy_port'        => '',
         'proxy_user'        => '',
         'proxy_password'    => '',
-        'proxy_auth_scheme' => self::AUTH_BASIC
+        'proxy_auth_scheme' => self::AUTH_BASIC,
+
+        'ssl_verify_peer'   => true,
+        'ssl_verify_host'   => true,
+        'ssl_cafile'        => null,
+        'ssl_capath'        => null,
+        'ssl_local_cert'    => null,
+        'ssl_passphrase'    => null
     );
 
    /**
@@ -275,9 +283,9 @@ class HTTP_Request2 implements SplSubject
     }
 
    /**
-    * Sets the configuration parameters
+    * Sets the configuration parameter(s)
     *
-    * $config array can have the following keys:
+    * The following parameters are available:
     * <ul>
     *   <li> 'adapter'           - adapter to use (string)</li>
     *   <li> 'connect_timeout'   - Connection timeout in seconds (integer)</li>
@@ -292,36 +300,75 @@ class HTTP_Request2 implements SplSubject
     *   <li> 'proxy_user'        - Proxy auth username (string)</li>
     *   <li> 'proxy_password'    - Proxy auth password (string)</li>
     *   <li> 'proxy_auth_scheme' - Proxy auth scheme, one of HTTP_Request2::AUTH_* constants (string)</li>
+    *   <li> 'ssl_verify_peer'   - Whether to verify peer's SSL certificate (bool)</li>
+    *   <li> 'ssl_verify_host'   - Whether to check that Common Name in SSL
+    *                              certificate matches host name (bool)</li>
+    *   <li> 'ssl_cafile'        - Cerificate Authority file to verify the peer
+    *                              with (use with 'ssl_verify_peer') (string)</li>
+    *   <li> 'ssl_capath'        - Directory holding multiple Certificate 
+    *                              Authority files (string)</li>
+    *   <li> 'ssl_local_cert'    - Name of a file containing local cerificate (string)</li>
+    *   <li> 'ssl_passphrase'    - Passphrase with which local certificate
+    *                              was encoded (string)</li>
     * </ul>
     *
-    * @param    array   array of the form ('param name' => 'param value')
+    * @param    string|array    configuration parameter name or array
+    *                           ('parameter name' => 'parameter value')
+    * @param    mixed           parameter value if $nameOrConfig is not an array
     * @return   HTTP_Request2
     * @throws   HTTP_Request2_Exception If the parameter is unknown
     */
-    public function setConfig(array $config = array())
+    public function setConfig($nameOrConfig, $value = null)
     {
-        foreach ($config as $k => $v) {
-            if (!array_key_exists($k, $this->config)) {
-                throw new HTTP_Request2_Exception("Unknown configuration parameter '{$k}'");
+        if (is_array($nameOrConfig)) {
+            foreach ($nameOrConfig as $name => $value) {
+                $this->setConfig($name, $value);
             }
-            $this->config[$k] = $v;
+
+        } else {
+            if (!array_key_exists($nameOrConfig, $this->config)) {
+                throw new HTTP_Request2_Exception(
+                    "Unknown configuration parameter '{$nameOrConfig}'"
+                );
+            }
+            $this->config[$nameOrConfig] = $value;
         }
 
         return $this;
     }
 
    /**
-    * Returns the value of the configuration parameter
+    * Returns the value(s) of the configuration parameter(s)
     *
+    * @param    string  parameter name
+    * @return   mixed   value of $name parameter, array of all configuration 
+    *                   parameters if $name is not given
+    * @throws   HTTP_Request2_Exception If the parameter is unknown
+    */
+    public function getConfig($name = null)
+    {
+        if (null === $name) {
+            return $this->config;
+        } elseif (!array_key_exists($name, $this->config)) {
+            throw new HTTP_Request2_Exception(
+                "Unknown configuration parameter '{$name}'"
+            );
+        }
+        return $this->config[$name];
+    }
+
+
+   /**
+    * Returns the value of the configuration parameter (DEPRECATED)
+    *
+    * @param    string  parameter name
     * @return   mixed
     * @throws   HTTP_Request2_Exception If the parameter is unknown
+    * @deprecated   deprecated since 0.2.0, use getConfig()
     */
     public function getConfigValue($name)
     {
-        if (!array_key_exists($name, $this->config)) {
-            throw new HTTP_Request2_Exception("Unknown configuration parameter '{$name}'");
-        }
-        return $this->config[$name];
+        return $this->getConfig($name);
     }
 
    /**
@@ -485,7 +532,7 @@ class HTTP_Request2 implements SplSubject
         ) {
             if ('application/x-www-form-urlencoded' == $this->headers['content-type']) {
                 $body = http_build_query($this->postParams, '', '&');
-                if (!$this->getConfigValue('use_brackets')) {
+                if (!$this->getConfig('use_brackets')) {
                     $body = preg_replace('/%5B\d+%5D=/', '=', $body);
                 }
                 return $body;
@@ -493,7 +540,7 @@ class HTTP_Request2 implements SplSubject
             } elseif ('multipart/form-data' == $this->headers['content-type']) {
                 require_once 'HTTP/Request2/MultipartBody.php';
                 return new HTTP_Request2_MultipartBody(
-                    $this->postParams, $this->uploads, $this->getConfigValue('use_brackets')
+                    $this->postParams, $this->uploads, $this->getConfig('use_brackets')
                 );
             }
         }
@@ -726,7 +773,7 @@ class HTTP_Request2 implements SplSubject
             throw new HTTP_Request2_Exception('Not a HTTP URL');
         }
         if (empty($this->adapter)) {
-            $this->setAdapter($this->getConfigValue('adapter'));
+            $this->setAdapter($this->getConfig('adapter'));
         }
         // magic_quotes_runtime may break file uploads and chunked response
         // processing; see bug #4543

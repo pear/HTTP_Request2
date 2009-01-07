@@ -53,7 +53,6 @@ require_once 'HTTP/Request2/Adapter.php';
  * @package     HTTP_Request2
  * @author      Alexey Borzov <avb@php.net>
  * @version     Release: @package_version@
- * @todo        Support various SSL options
  */
 class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
 {
@@ -67,6 +66,18 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         'referer'         => CURLOPT_REFERER,
         'user-agent'      => CURLOPT_USERAGENT
     );
+
+   /**
+    * Mapping of SSL context options to cURL options
+    * @var  array
+    */
+    protected static $sslContextMap = array(
+        'ssl_verify_peer' => CURLOPT_SSL_VERIFYPEER,
+        'ssl_cafile'      => CURLOPT_CAINFO,
+        'ssl_capath'      => CURLOPT_CAPATH,
+        'ssl_local_cert'  => CURLOPT_SSLCERT,
+        'ssl_passphrase'  => CURLOPT_SSLCERTPASSWD
+   );
 
    /**
     * Response being received
@@ -153,9 +164,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             // disallow redirects
             CURLOPT_FOLLOWLOCATION => false,
             // buffer size
-            CURLOPT_BUFFERSIZE     => $this->request->getConfigValue('buffer_size'),
+            CURLOPT_BUFFERSIZE     => $this->request->getConfig('buffer_size'),
             // connection timeout
-            CURLOPT_CONNECTTIMEOUT => $this->request->getConfigValue('connect_timeout'),
+            CURLOPT_CONNECTTIMEOUT => $this->request->getConfig('connect_timeout'),
             // save full outgoing headers, in case someone is interested
             CURLINFO_HEADER_OUT    => true,
             // request url
@@ -163,12 +174,12 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         ));
 
         // request timeout
-        if ($timeout = $this->request->getConfigValue('timeout')) {
+        if ($timeout = $this->request->getConfig('timeout')) {
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         }
 
         // set HTTP version
-        switch ($this->request->getConfigValue('protocol_version')) {
+        switch ($this->request->getConfig('protocol_version')) {
             case '1.0':
                 curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
                 break;
@@ -189,15 +200,15 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         }
 
         // set proxy, if needed
-        if ($host = $this->request->getConfigValue('proxy_host')) {
-            if (!($port = $this->request->getConfigValue('proxy_port'))) {
+        if ($host = $this->request->getConfig('proxy_host')) {
+            if (!($port = $this->request->getConfig('proxy_port'))) {
                 throw new HTTP_Request2_Exception('Proxy port not provided');
             }
             curl_setopt($ch, CURLOPT_PROXY, $host . ':' . $port);
-            if ($user = $this->request->getConfigValue('proxy_user')) {
+            if ($user = $this->request->getConfig('proxy_user')) {
                 curl_setopt($ch, CURLOPT_PROXYUSERPWD, $user . ':' .
-                            $this->request->getConfigValue('proxy_password'));
-                switch ($this->request->getConfigValue('proxy_auth_scheme')) {
+                            $this->request->getConfig('proxy_password'));
+                switch ($this->request->getConfig('proxy_auth_scheme')) {
                     case HTTP_Request2::AUTH_BASIC:
                         curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_BASIC);
                         break;
@@ -216,6 +227,17 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                     break;
                 case HTTP_Request2::AUTH_DIGEST:
                     curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
+            }
+        }
+
+        // set SSL options
+        if (0 == strcasecmp($this->request->getUrl()->getScheme(), 'https')) {
+            foreach ($this->request->getConfig() as $name => $value) {
+                if ('ssl_verify_host' == $name && null !== $value) {
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $value? 2: 0);
+                } elseif (isset(self::$sslContextMap[$name]) && null !== $value) {
+                    curl_setopt($ch, self::$sslContextMap[$name], $value);
+                }
             }
         }
 

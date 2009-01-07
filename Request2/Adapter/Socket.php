@@ -58,7 +58,6 @@ require_once 'HTTP/Request2/Adapter.php';
  * @version     Release: @package_version@
  * @todo        Implement HTTPS proxy support via stream_socket_enable_crypto()
  * @todo        Implement Digest authentication support
- * @todo        Support various SSL options
  */
 class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 {
@@ -103,7 +102,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         $headers       = $this->prepareHeaders();
 
         // Use global request timeout if given, see feature requests #5735, #8964 
-        if ($timeout = $request->getConfigValue('timeout')) {
+        if ($timeout = $request->getConfig('timeout')) {
             $this->timeout = time() + $timeout;
         } else {
             $this->timeout = null;
@@ -120,7 +119,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             if ($this->timeout && time() > $this->timeout) {
                 throw new HTTP_Request2_Exception(
                     'Request timed out after ' . 
-                    $request->getConfigValue('timeout') . ' second(s)'
+                    $request->getConfig('timeout') . ' second(s)'
                 );
             }
 
@@ -151,8 +150,8 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     */
     protected function connect()
     {
-        if ($host = $this->request->getConfigValue('proxy_host')) {
-            if (!($port = $this->request->getConfigValue('proxy_port'))) {
+        if ($host = $this->request->getConfig('proxy_host')) {
+            if (!($port = $this->request->getConfig('proxy_port'))) {
                 throw new HTTP_Request2_Exception('Proxy port not provided');
             }
             $proxy = true;
@@ -166,49 +165,72 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $proxy = false;
         }
 
-        if (0 == strcasecmp($this->request->getUrl()->getScheme(), 'https')) {
+        $options = array();
+        if (0 != strcasecmp($this->request->getUrl()->getScheme(), 'https')) {
+            $host = 'tcp://' . $host;
+        } else {
             if ($proxy) {
                 throw new HTTP_Request2_Exception('HTTPS proxy support not yet implemented');
             } elseif (!in_array('ssl', stream_get_transports())) {
                 throw new HTTP_Request2_Exception('Need OpenSSL support for https:// requests');
             }
             $host = 'ssl://' . $host;
-        } else {
-            $host = 'tcp://' . $host;
+            foreach ($this->request->getConfig() as $name => $value) {
+                if ('ssl_' == substr($name, 0, 4) && null !== $value) {
+                    if ('ssl_verify_host' == $name) {
+                        if ($value) {
+                            $options['CN_match'] = $this->request->getUrl()->getHost();
+                        }
+                    } else {
+                        $options[substr($name, 4)] = $value;
+                    }
+                }
+            }
+            ksort($options);
         }
 
         $headers = $this->request->getHeaders();
 
         // RFC 2068, section 19.7.1: A client MUST NOT send the Keep-Alive
         // connection token to a proxy server...
-        if ($proxy && !empty($headers['connection']) && 'Keep-Alive' == $headers['connection'])
-        {
+        if ($proxy && !empty($headers['connection']) && 'Keep-Alive' == $headers['connection']) {
             $this->request->setHeader('connection');
         }
 
-        $keepAlive = ('1.1' == $this->request->getConfigValue('protocol_version') && 
+        $keepAlive = ('1.1' == $this->request->getConfig('protocol_version') && 
                       empty($headers['connection'])) ||
                      (!empty($headers['connection']) &&
                       'Keep-Alive' == $headers['connection']);
-        $socketKey = $host . ':' . $port;
+        // Changing SSL context options after connection is established does *not*
+        // work, we need a new connection if options change
+        $remote    = $host . ':' . $port;
+        $socketKey = $remote . (empty($options)? '': ':' . serialize($options));
         unset($this->socket);
 
         // We use persistent connections and have a connected socket?
         if ($keepAlive && !empty(self::$sockets[$socketKey])) {
             $this->socket =& self::$sockets[$socketKey];
         } else {
+            // Set SSL context options if doing HTTPS request
+            $context = stream_context_create();
+            foreach ($options as $name => $value) {
+                if (!stream_context_set_option($context, 'ssl', $name, $value)) {
+                    throw new HTTP_Request2_Exception(
+                        "Error setting SSL context option '{$name}'"
+                    );
+                }
+            }
             $this->socket = @stream_socket_client(
-                $socketKey, $errno, $errstr, 
-                $this->request->getConfigValue('connect_timeout'),
-                STREAM_CLIENT_CONNECT
+                $remote, $errno, $errstr,
+                $this->request->getConfig('connect_timeout'),
+                STREAM_CLIENT_CONNECT, $context
             );
             if (!$this->socket) {
                 throw new HTTP_Request2_Exception(
-                    'Unable to connect to ' . $socketKey . '. Error #' . $errno .
-                    ': ' . $errstr
+                    "Unable to connect to {$remote}. Error #{$errno}: {$errstr}"
                 );
             }
-            $this->request->setLastEvent('connect', $socketKey);
+            $this->request->setLastEvent('connect', $remote);
             self::$sockets[$socketKey] =& $this->socket;
         }
         return $keepAlive;
@@ -271,13 +293,13 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         }
         $headers['host'] = $host;
 
-        if (!$this->request->getConfigValue('proxy_host')) {
+        if (!$this->request->getConfig('proxy_host')) {
             $requestUrl = '';
         } else {
-            if ($user = $this->request->getConfigValue('proxy_user')) {
+            if ($user = $this->request->getConfig('proxy_user')) {
                 $headers['proxy-authorization'] = $this->createAuthHeader(
-                    $user, $this->request->getConfigValue('proxy_password'),
-                    $this->request->getConfigValue('proxy_auth_scheme')
+                    $user, $this->request->getConfig('proxy_password'),
+                    $this->request->getConfig('proxy_auth_scheme')
                 );
             }
             $requestUrl = $url->getScheme() . '://' . $host;
@@ -291,7 +313,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 $auth['user'], $auth['password'], $auth['scheme']
             );
         }
-        if ('1.1' == $this->request->getConfigValue('protocol_version') &&
+        if ('1.1' == $this->request->getConfig('protocol_version') &&
             extension_loaded('zlib') && !isset($headers['accept-encoding'])
         ) {
             $headers['accept-encoding'] = 'gzip, deflate';
@@ -300,7 +322,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         $this->calculateRequestLength($headers);
 
         $headersStr = $this->request->getMethod() . ' ' . $requestUrl . ' HTTP/' .
-                      $this->request->getConfigValue('protocol_version') . "\r\n";
+                      $this->request->getConfig('protocol_version') . "\r\n";
         foreach ($headers as $name => $value) {
             $canonicalName = implode('-', array_map('ucfirst', explode('-', $name)));
             $headersStr   .= $canonicalName . ': ' . $value . "\r\n";
@@ -322,7 +344,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         }
 
         $position   = 0;
-        $bufferSize = $this->request->getConfigValue('buffer_size');
+        $bufferSize = $this->request->getConfig('buffer_size');
         while ($position < $this->contentLength) {
             if (is_string($this->requestBody)) {
                 $str = substr($this->requestBody, $position, $bufferSize);
@@ -348,7 +370,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     */
     protected function readResponse()
     {
-        $bufferSize = $this->request->getConfigValue('buffer_size');
+        $bufferSize = $this->request->getConfig('buffer_size');
 
         do {
             $response = new HTTP_Request2_Response($this->readLine($bufferSize), true);
@@ -429,7 +451,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             if ($info['timed_out'] || $this->timeout && time() > $this->timeout) {
                 throw new HTTP_Request2_Exception(
                     'Request timed out after ' . 
-                    $this->request->getConfigValue('timeout') . ' second(s)'
+                    $this->request->getConfig('timeout') . ' second(s)'
                 );
             }
             if (substr($line, -1) == "\n") {
@@ -456,7 +478,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         if ($info['timed_out'] || $this->timeout && time() > $this->timeout) {
             throw new HTTP_Request2_Exception(
                 'Request timed out after ' . 
-                $this->request->getConfigValue('timeout') . ' second(s)'
+                $this->request->getConfig('timeout') . ' second(s)'
             );
         }
         return $data;
