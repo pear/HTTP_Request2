@@ -25,10 +25,10 @@ Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2008-11-17</date>
+  <date>2009-01-07</date>
   <version>
-    <release>0.1.0</release>
-    <api>0.1.0</api>
+    <release>0.2.0</release>
+    <api>0.2.0</api>
   </version>
   <stability>
     <release>alpha</release>
@@ -36,14 +36,28 @@ Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-Initial release. The features supported are mostly the same as those of
-HTTP_Request, with the following additional feature requests implemented:
-  * cURL extension support (request #5463)
-  * It is now possible to monitor the file upload progress with Observers
-	(request #7630)
-  * Added 'sentHeaders' notification providing the request headers to the
-    Observers (request #7633)
-  * Added support for 'deflate' encoding (request #11246)
+ API changes:
+  * HTTP_Request2::getConfigValue() is deprecated and will be removed in next 
+    release. Use HTTP_Request2::getConfig().
+  * Changed HTTP_Request2::setConfig() to accept a pair of parameter name and
+    parameter value in addition to array('parameter name' =&gt; 'value')
+  * Added HTTP_Request2::getConfig() method that can return a single 
+    configuration parameter or the whole configuration array
+
+Other additions and changes:
+  * Added a debug Observer that can log request progress to a file or an 
+    instance of PEAR::Log (thanks to David Jean Louis, request #15424)
+  * Added a new 'timeout' parameter that limits total number of seconds
+    a request can take (see requests #5735 and #8964)
+  * Added various SSL protocol options: 'ssl_verify_peer', 'ssl_verify_host',
+    'ssl_cafile', 'ssl_capath', 'ssl_local_cert', 'ssl_passphrase'. Note that
+    'ssl_verify_host' option behaves differently in Socket and Curl Adapters:
+    http://bugs.php.net/bug.php?id=47030
+
+Fixes:
+  * Fixed 'data error' when processing response encoded by 'deflate'
+    encoding (bug #15305)
+  * Curl Adapter now passes full request headers in 'sentHeaders' event
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -133,4 +147,28 @@ HTTP_Request, with the following additional feature requests implemented:
     </optional>
   </dependencies>
   <phprelease />
+    <changelog>
+      <release>
+      <version>
+        <release>0.1.0</release>
+        <api>0.1.0</api>
+      </version>
+      <stability>
+        <release>alpha</release>
+        <api>alpha</api>
+      </stability>
+      <date>2008-11-17</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+Initial release. The features supported are mostly the same as those of
+HTTP_Request, with the following additional feature requests implemented:
+  * cURL extension support (request #5463)
+  * It is now possible to monitor the file upload progress with Observers
+	(request #7630)
+  * Added 'sentHeaders' notification providing the request headers to the
+    Observers (request #7633)
+  * Added support for 'deflate' encoding (request #11246)
+      </notes>
+    </release>
+  </changelog>
 </package>
