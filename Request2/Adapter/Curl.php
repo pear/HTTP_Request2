@@ -287,7 +287,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         if (in_array($this->request->getMethod(), self::$bodyDisallowed) ||
             0 == $this->contentLength || $this->position >= $this->contentLength
         ) {
-            return false;
+            return '';
         }
         if (is_string($this->requestBody)) {
             $string = substr($this->requestBody, $this->position, $length);
