@@ -122,17 +122,25 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         $this->position         = 0;
         $this->eventSentHeaders = false;
 
-        if (false === curl_exec($ch = $this->createCurlHandle())) {
-            throw new HTTP_Request2_Exception('Error sending request: #' .
-                                              curl_errno($ch) . ' ' .
-                                              curl_error($ch));
+        try {
+            if (false === curl_exec($ch = $this->createCurlHandle())) {
+                $errorMessage = 'Error sending request: #' . curl_errno($ch) .
+                                                       ' ' . curl_error($ch);
+            }
+        } catch (Exception $e) {
         }
         $this->lastInfo = curl_getinfo($ch);
         curl_close($ch);
+
+        if (!empty($e)) {
+            throw $e;
+        } elseif (!empty($errorMessage)) {
+            throw new HTTP_Request2_Exception($errorMessage);
+        }
+
         if (0 < $this->lastInfo['size_download']) {
             $this->request->setLastEvent('receivedBody', $this->response);
         }
-
         return $this->response;
     }
 
@@ -338,6 +346,11 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     */
     protected function callbackWriteBody($ch, $string)
     {
+        // cURL calls WRITEFUNCTION callback without calling HEADERFUNCTION if 
+        // response doesn't start with proper HTTP status line (see bug #15716)
+        if (empty($this->response)) {
+            throw new HTTP_Request2_Exception("Malformed response: {$string}");
+        }
         $this->response->appendBody($string);
         $this->request->setLastEvent('receivedBodyPart', $string);
         return strlen($string);
