@@ -79,15 +79,26 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
    /**
     * Returns the next response from the queue built by addResponse()
     *
-    * If the queue is empty will return default empty response with status 400
+    * If the queue is empty will return default empty response with status 400,
+    * if an Exception object was added to the queue it will be thrown.
     *
     * @param    HTTP_Request2
     * @return   HTTP_Request2_Response
+    * @throws   Exception
     */
     public function sendRequest(HTTP_Request2 $request)
     {
         if (count($this->responses) > 0) {
-            return array_shift($this->responses);
+            $response = array_shift($this->responses);
+            if ($response instanceof HTTP_Request2_Response) {
+                return $response;
+            } else {
+                // rethrow the exception,
+                $class   = get_class($response);
+                $message = $response->getMessage();
+                $code    = $response->getCode();
+                throw new $class($message, $code);
+            }
         } else {
             return self::createResponseFromString("HTTP/1.1 400 Bad Request\r\n\r\n");
         }
@@ -96,8 +107,8 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
    /**
     * Adds response to the queue
     *
-    * @param    mixed   either a string, a pointer to an open file or
-    *                   HTTP_Request2_Response object
+    * @param    mixed   either a string, a pointer to an open file,
+    *                   a HTTP_Request2_Response or Exception object
     * @throws   HTTP_Request2_Exception
     */
     public function addResponse($response)
@@ -106,7 +117,9 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
             $response = self::createResponseFromString($response);
         } elseif (is_resource($response)) {
             $response = self::createResponseFromFile($response);
-        } elseif (!$response instanceof HTTP_Request2_Response) {
+        } elseif (!$response instanceof HTTP_Request2_Response &&
+                  !$response instanceof Exception
+        ) {
             throw new HTTP_Request2_Exception('Parameter is not a valid response');
         }
         $this->responses[] = $response;

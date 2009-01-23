@@ -218,6 +218,13 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testRequest15368()
+    {
+        $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
+        $req->addPostParameter('foo', 'te~st');
+        $this->assertContains('~', $req->getBody());
+    }
+
     public function testUpload()
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);

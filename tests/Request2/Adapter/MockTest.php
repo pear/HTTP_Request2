@@ -126,5 +126,22 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(200, $req->send()->getStatus());
         $this->assertEquals(400, $req->send()->getStatus());
     }
+
+    public function testResponseException()
+    {
+        $mock = new HTTP_Request2_Adapter_Mock();
+        $mock->addResponse(
+            new HTTP_Request2_Exception('Shit happens')
+        );
+        $req = new HTTP_Request2('http://www.example.com/');
+        $req->setAdapter($mock);
+        try {
+            $req->send();
+        } catch (Exception $e) {
+            $this->assertEquals('Shit happens', $e->getMessage());
+            return;
+        }
+        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+    }
 }
 ?>

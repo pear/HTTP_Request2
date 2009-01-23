@@ -87,6 +87,19 @@ class HTTP_Request2 implements SplSubject
    /**#@-*/
 
    /**
+    * Regular expression used to check for invalid symbols in RFC 2616 tokens
+    * @link http://pear.php.net/bugs/bug.php?id=15630
+    */
+    const REGEXP_INVALID_TOKEN = '![\x00-\x1f\x7f-\xff()<>@,;:\\\\"/\[\]?={}\s]!';
+
+   /**
+    * Regular expression used to check for invalid symbols in cookie strings
+    * @link http://pear.php.net/bugs/bug.php?id=15630
+    * @link http://cgi.netscape.com/newsref/std/cookie_spec.html
+    */
+    const REGEXP_INVALID_COOKIE = '/[\s,;]/';
+
+   /**
     * Fileinfo magic database resource
     * @var  resource
     * @see  detectMimeType()
@@ -264,7 +277,7 @@ class HTTP_Request2 implements SplSubject
     public function setMethod($method)
     {
         // Method name should be a token: http://tools.ietf.org/html/rfc2616#section-5.1.1
-        if (preg_match('![\x00-\x1f\x7f-\xff()<>@,;:\\\\"/\[\]?={}\s]!', $method)) {
+        if (preg_match(self::REGEXP_INVALID_TOKEN, $method)) {
             throw new HTTP_Request2_Exception("Invalid request method '{$method}'");
         }
         $this->method = $method;
@@ -446,7 +459,7 @@ class HTTP_Request2 implements SplSubject
                 list($name, $value) = array_map('trim', explode(':', $name, 2));
             }
             // Header name should be a token: http://tools.ietf.org/html/rfc2616#section-4.2
-            if (preg_match('![\x00-\x1f\x7f-\xff()<>@,;:\\\\"/\[\]?={}\s]!', $name)) {
+            if (preg_match(self::REGEXP_INVALID_TOKEN, $name)) {
                 throw new HTTP_Request2_Exception("Invalid header name '{$name}'");
             }
             // Header names are case insensitive anyway
@@ -485,8 +498,7 @@ class HTTP_Request2 implements SplSubject
     public function addCookie($name, $value)
     {
         $cookie = $name . '=' . $value;
-        // Disallowed characters: http://cgi.netscape.com/newsref/std/cookie_spec.html
-        if (preg_match('/[\s,;]/', $cookie)) {
+        if (preg_match(self::REGEXP_INVALID_COOKIE, $cookie)) {
             throw new HTTP_Request2_Exception("Invalid cookie: '{$cookie}'");
         }
         $cookies = empty($this->headers['cookie'])? '': $this->headers['cookie'] . '; ';
@@ -535,7 +547,8 @@ class HTTP_Request2 implements SplSubject
                 if (!$this->getConfig('use_brackets')) {
                     $body = preg_replace('/%5B\d+%5D=/', '=', $body);
                 }
-                return $body;
+                // support RFC 3986 by not encoding '~' symbol (request #15368)
+                return str_replace('%7E', '~', $body);
 
             } elseif ('multipart/form-data' == $this->headers['content-type']) {
                 require_once 'HTTP/Request2/MultipartBody.php';
