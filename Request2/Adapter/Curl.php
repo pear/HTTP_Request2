@@ -92,6 +92,12 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     protected $eventSentHeaders = false;
 
    /**
+    * Whether 'receivedHeaders' event was sent to observers
+    * @var boolean
+    */
+    protected $eventReceivedHeaders = false;
+
+   /**
     * Position within request body
     * @var  integer
     * @see  callbackReadBody()
@@ -117,10 +123,11 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             throw new HTTP_Request2_Exception('cURL extension not available');
         }
 
-        $this->request          = $request;
-        $this->response         = null;
-        $this->position         = 0;
-        $this->eventSentHeaders = false;
+        $this->request              = $request;
+        $this->response             = null;
+        $this->position             = 0;
+        $this->eventSentHeaders     = false;
+        $this->eventReceivedHeaders = false;
 
         try {
             if (false === curl_exec($ch = $this->createCurlHandle())) {
@@ -319,11 +326,17 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     */
     protected function callbackWriteHeader($ch, $string)
     {
-        if (!$this->eventSentHeaders) {
+        // we may receive a second set of headers if doing e.g. digest auth
+        if ($this->eventReceivedHeaders || !$this->eventSentHeaders) {
             $this->request->setLastEvent(
                 'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
             );
             $this->eventSentHeaders = true;
+            // we'll need a new response object
+            if ($this->eventReceivedHeaders) {
+                $this->eventReceivedHeaders = false;
+                $this->response             = null;
+            }
         }
         if (empty($this->response)) {
             $this->response = new HTTP_Request2_Response($string, false);
@@ -331,6 +344,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             $this->response->parseHeaderLine($string);
             if ('' == trim($string)) {
                 $this->request->setLastEvent('receivedHeaders', $this->response);
+                $this->eventReceivedHeaders = true;
             }
         }
         return strlen($string);
