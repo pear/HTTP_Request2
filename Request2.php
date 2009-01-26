@@ -161,7 +161,9 @@ class HTTP_Request2 implements SplSubject
         'ssl_cafile'        => null,
         'ssl_capath'        => null,
         'ssl_local_cert'    => null,
-        'ssl_passphrase'    => null
+        'ssl_passphrase'    => null,
+
+        'digest_compat_ie'  => false
     );
 
    /**
@@ -323,6 +325,9 @@ class HTTP_Request2 implements SplSubject
     *   <li> 'ssl_local_cert'    - Name of a file containing local cerificate (string)</li>
     *   <li> 'ssl_passphrase'    - Passphrase with which local certificate
     *                              was encoded (string)</li>
+    *   <li> 'digest_compat_ie'  - Whether to imitate behaviour of MSIE 5 and 6
+    *                              in using URL without query string in digest
+    *                              authentication (boolean)</li>
     * </ul>
     *
     * @param    string|array    configuration parameter name or array

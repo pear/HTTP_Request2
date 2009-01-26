@@ -122,10 +122,12 @@ abstract class HTTP_Request2_Adapter
         } elseif (is_resource($this->requestBody)) {
             $stat = fstat($this->requestBody);
             $this->contentLength = $stat['size'];
+            rewind($this->requestBody);
         } else {
             $this->contentLength = $this->requestBody->getLength();
             $headers['content-type'] = 'multipart/form-data; boundary=' .
                                        $this->requestBody->getBoundary();
+            $this->requestBody->rewind();
         }
 
         if (in_array($this->request->getMethod(), self::$bodyDisallowed) ||

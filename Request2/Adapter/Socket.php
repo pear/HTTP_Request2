@@ -62,11 +62,35 @@ require_once 'HTTP/Request2/Adapter.php';
 class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 {
    /**
+    * Regular expression for 'token' rule from RFC 2616
+    */ 
+    const REGEXP_TOKEN = '[^\x00-\x1f\x7f-\xff()<>@,;:\\\\"/\[\]?={}\s]+';
+
+   /**
+    * Regular expression for 'quoted-string' rule from RFC 2616
+    */
+    const REGEXP_QUOTED_STRING = '"(?:\\\\.|[^\\\\"])*"';
+
+   /**
     * Connected sockets, needed for Keep-Alive support
     * @var  array
     * @see  connect()
     */
-    protected static $sockets;
+    protected static $sockets = array();
+
+   /**
+    * Data for digest authentication scheme
+    *
+    * The keys for the array are URL prefixes. 
+    *
+    * The values are associative arrays with data (realm, nonce, nonce-count, 
+    * opaque...) needed for digest authentication. Stored here to prevent making 
+    * duplicate requests to digest-protected resources after we have already 
+    * received the challenge.
+    *
+    * @var  array
+    */
+    protected static $challenges = array();
 
    /**
     * Connected socket
@@ -74,6 +98,18 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     * @see  connect()
     */
     protected $socket;
+
+   /**
+    * Challenge used for server digest authentication
+    * @var  array
+    */
+    protected $serverChallenge;
+
+   /**
+    * Challenge used for proxy digest authentication
+    * @var  array
+    */
+    protected $proxyChallenge;
 
    /**
     * Global timeout, exception will be raised if request continues past this time
@@ -125,20 +161,28 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
             $response = $this->readResponse();
 
-            // check whether we should keep the connection open
-            $lengthKnown = 'chunked' == strtolower($response->getHeader('transfer-encoding')) ||
-                           null !== $response->getHeader('content-length');
-            $persistent  = 'keep-alive' == strtolower($response->getHeader('connection')) ||
-                           (null === $response->getHeader('connection') &&
-                            '1.1' == $response->getVersion());
-            if (!$keepAlive || !$lengthKnown || !$persistent) {
+            if (!$this->canKeepAlive($keepAlive, $response)) {
                 $this->disconnect();
+            }
+
+            if ($this->shouldUseProxyDigestAuth($response)) {
+                return $this->sendRequest($request);
+            }
+            if ($this->shouldUseServerDigestAuth($response)) {
+                return $this->sendRequest($request);
+            }
+            if ($authInfo = $response->getHeader('authentication-info')) {
+                $this->updateChallenge($this->serverChallenge, $authInfo);
+            }
+            if ($proxyInfo = $response->getHeader('proxy-authentication-info')) {
+                $this->updateChallenge($this->proxyChallenge, $proxyInfo);
             }
 
         } catch (Exception $e) {
             $this->disconnect();
             throw $e;
         }
+
         return $response;
     }
 
@@ -237,6 +281,24 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     }
 
    /**
+    * Checks whether current connection may be reused or should be closed
+    *
+    * @param    boolean                 whether connection could be persistent 
+    *                                   in the first place
+    * @param    HTTP_Request2_Response  response object to check
+    * @return   boolean
+    */
+    protected function canKeepAlive($requestKeepAlive, HTTP_Request2_Response $response)
+    {
+        $lengthKnown = 'chunked' == strtolower($response->getHeader('transfer-encoding')) ||
+                       null !== $response->getHeader('content-length');
+        $persistent  = 'keep-alive' == strtolower($response->getHeader('connection')) ||
+                       (null === $response->getHeader('connection') &&
+                        '1.1' == $response->getVersion());
+        return $requestKeepAlive && $lengthKnown && $persistent;
+    }
+
+   /**
     * Disconnects from the remote server
     */
     protected function disconnect()
@@ -249,27 +311,320 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     }
 
    /**
-    * Creates the value for '[Proxy-]Authorization:' header
+    * Checks whether another request should be performed with server digest auth
+    *
+    * Several conditions should be satisfied for it to return true:
+    *   - response status should be 401
+    *   - auth credentials should be set in the request object
+    *   - response should contain WWW-Authenticate header with digest challenge
+    *   - there is either no challenge stored for this URL or new challenge
+    *     contains stale=true parameter (in other case we probably just failed 
+    *     due to invalid username / password)
+    *
+    * The method stores challenge values in $digestAuth static property
+    *
+    * @param    HTTP_Request2_Response  response to check
+    * @return   boolean whether another request should be performed
+    * @throws   HTTP_Request2_Exception in case of unsupported challenge parameters
+    */
+    protected function shouldUseServerDigestAuth(HTTP_Request2_Response $response)
+    {
+        // no sense repeating a request if we don't have credentials
+        if (401 != $response->getStatus() || !$this->request->getAuth()) {
+            return false;
+        }
+        if (!$challenge = $this->parseDigestChallenge($response->getHeader('www-authenticate'))) {
+            return false;
+        }
+
+        $url    = $this->request->getUrl();
+        $scheme = $url->getScheme();
+        $host   = $scheme . '://' . $url->getHost();
+        if ($port = $url->getPort()) {
+            if ((0 == strcasecmp($scheme, 'http') && 80 != $port) ||
+                (0 == strcasecmp($scheme, 'https') && 443 != $port)
+            ) {
+                $host .= ':' . $port;
+            }
+        }
+
+        if (!empty($challenge['domain'])) {
+            $prefixes = array();
+            foreach (preg_split('/\\s+/', $challenge['domain']) as $prefix) {
+                // don't bother with different servers
+                if ('/' == substr($prefix, 0, 1)) {
+                    $prefixes[] = $host . $prefix;
+                }
+            }
+        }
+        if (empty($prefixes)) {
+            $prefixes = array($host . '/');
+        }
+
+        $ret = true;
+        foreach ($prefixes as $prefix) {
+            if (!empty(self::$challenges[$prefix]) &&
+                (empty($challenge['stale']) || strcasecmp('true', $challenge['stale']))
+            ) {
+                // probably credentials are invalid
+                $ret = false;
+            }
+            self::$challenges[$prefix] =& $challenge;
+        }
+        return $ret;
+    }
+
+   /**
+    * Checks whether another request should be performed with proxy digest auth
+    *
+    * Several conditions should be satisfied for it to return true:
+    *   - response status should be 407
+    *   - proxy auth credentials should be set in the request object
+    *   - response should contain Proxy-Authenticate header with digest challenge
+    *   - there is either no challenge stored for this proxy or new challenge
+    *     contains stale=true parameter (in other case we probably just failed 
+    *     due to invalid username / password)
+    *
+    * The method stores challenge values in $digestAuth static property
+    *
+    * @param    HTTP_Request2_Response  response to check
+    * @return   boolean whether another request should be performed
+    * @throws   HTTP_Request2_Exception in case of unsupported challenge parameters
+    */
+    protected function shouldUseProxyDigestAuth(HTTP_Request2_Response $response)
+    {
+        if (407 != $response->getStatus() || !$this->request->getConfig('proxy_user')) {
+            return false;
+        }
+        if (!($challenge = $this->parseDigestChallenge($response->getHeader('proxy-authenticate')))) {
+            return false;
+        }
+
+        $key = 'proxy://' . $this->request->getConfig('proxy_host') .
+               ':' . $this->request->getConfig('proxy_port');
+
+        if (!empty(self::$challenges[$key]) &&
+            (empty($challenge['stale']) || strcasecmp('true', $challenge['stale']))
+        ) {
+            $ret = false;
+        } else {
+            $ret = true;
+        }
+        self::$challenges[$key] = $challenge;
+        return $ret;
+    }
+
+   /**
+    * Extracts digest method challenge from (WWW|Proxy)-Authenticate header value
+    *
+    * @param    string  value of WWW-Authenticate or Proxy-Authenticate header
+    * @return   mixed   associative array with challenge parameters, false if
+    *                   no challenge is present in header value
+    * @throws   HTTP_Request2_Exception in case of unsupported challenge parameters
+    */
+    protected function parseDigestChallenge($headerValue)
+    {
+        $authParam   = '(' . self::REGEXP_TOKEN . ')\\s*=\\s*(' .
+                       self::REGEXP_TOKEN . '|' . self::REGEXP_QUOTED_STRING . ')';
+        $challenge   = "!(?<=^|\\s|,)Digest ({$authParam}\\s*(,\\s*|$))+!";
+        if (!preg_match($challenge, $headerValue, $matches)) {
+            return false;
+        }
+
+        preg_match_all('!' . $authParam . '!', $matches[0], $params);
+        $paramsAry   = array();
+        $knownParams = array('realm', 'domain', 'nonce', 'opaque', 'stale',
+                             'algorithm', 'qop');
+        for ($i = 0; $i < count($params[0]); $i++) {
+            // section 3.2.1: Any unrecognized directive MUST be ignored.
+            if (in_array($params[1][$i], $knownParams)) {
+                if ('"' == substr($params[2][$i], 0, 1)) {
+                    $paramsAry[$params[1][$i]] = stripslashes(substr($params[2][$i], 1, -1));
+                } else {
+                    $paramsAry[$params[1][$i]] = $params[2][$i];
+                }
+            }
+        }
+        // we only support qop=auth
+        if (!empty($paramsAry['qop']) && 
+            !in_array('auth', array_map('trim', explode(',', $paramsAry['qop'])))
+        ) {
+            throw new HTTP_Request2_Exception(
+                "Only 'auth' qop is currently supported in digest authentication, " .
+                "server requested '{$paramsAry['qop']}'"
+            );
+        }
+        // we only support algorithm=MD5
+        if (!empty($paramsAry['algorithm']) && 'MD5' != $paramsAry['algorithm']) {
+            throw new HTTP_Request2_Exception(
+                "Only 'MD5' algorithm is currently supported in digest authentication, " .
+                "server requested '{$paramsAry['algorithm']}'"
+            );
+        }
+
+        return $paramsAry; 
+    }
+
+   /**
+    * Parses [Proxy-]Authentication-Info header value and updates challenge
+    *
+    * @param    array   challenge to update
+    * @param    string  value of [Proxy-]Authentication-Info header
+    * @todo     validate server rspauth response
+    */ 
+    protected function updateChallenge(&$challenge, $headerValue)
+    {
+        $authParam   = '!(' . self::REGEXP_TOKEN . ')\\s*=\\s*(' .
+                       self::REGEXP_TOKEN . '|' . self::REGEXP_QUOTED_STRING . ')!';
+        $paramsAry   = array();
+
+        preg_match_all($authParam, $headerValue, $params);
+        for ($i = 0; $i < count($params[0]); $i++) {
+            if ('"' == substr($params[2][$i], 0, 1)) {
+                $paramsAry[$params[1][$i]] = stripslashes(substr($params[2][$i], 1, -1));
+            } else {
+                $paramsAry[$params[1][$i]] = $params[2][$i];
+            }
+        }
+        // for now, just update the nonce value
+        if (!empty($paramsAry['nextnonce'])) {
+            $challenge['nonce'] = $paramsAry['nextnonce'];
+            $challenge['nc']    = 1;
+        }
+    }
+
+   /**
+    * Creates a value for [Proxy-]Authorization header when using digest authentication
     *
     * @param    string  user name
     * @param    string  password
-    * @param    string  authentication scheme, one of the HTTP_Request2::AUTH_* constants
-    * @return   string  header value
+    * @param    string  request URL
+    * @param    array   digest challenge parameters
+    * @return   string  value of [Proxy-]Authorization request header
+    * @link     http://tools.ietf.org/html/rfc2617#section-3.2.2
+    */ 
+    protected function createDigestResponse($user, $password, $url, &$challenge)
+    {
+        if (false !== ($q = strpos($url, '?') && 
+            $this->request->getConfig('digest_compat_ie'))
+        ) {
+            $url = substr($url, 0, $q);
+        }
+
+        $a1 = md5($user . ':' . $challenge['realm'] . ':' . $password);
+        $a2 = md5($this->request->getMethod() . ':' . $url);
+
+        if (empty($challenge['qop'])) {
+            $digest = md5($a1 . ':' . $challenge['nonce'] . ':' . $a2);
+        } else {
+            $challenge['cnonce'] = 'Req2.' . rand();
+            if (empty($challenge['nc'])) {
+                $challenge['nc'] = 1;
+            }
+            $nc     = sprintf('%08x', $challenge['nc']++);
+            $digest = md5($a1 . ':' . $challenge['nonce'] . ':' . $nc . ':' .
+                          $challenge['cnonce'] . ':auth:' . $a2);
+        }
+        return 'Digest username="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $user) . '", ' .
+               'realm="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $challenge['realm']) . '", ' .
+               'nonce="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $challenge['nonce']) . '", ' .
+               'uri="' . $url . '", ' .
+               'response="' . $digest . '"' .
+               (!empty($challenge['opaque'])? 
+                ', opaque="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $challenge['opaque']) . '"':
+                '') .
+               (!empty($challenge['qop'])?
+                ', qop="auth", nc=' . $nc . ', cnonce="' . $challenge['cnonce'] . '"':
+                '');
+    }
+
+   /**
+    * Adds 'Authorization' header (if needed) to request headers array
+    *
+    * @param    array   request headers
+    * @param    string  request host (needed for digest authentication)
+    * @param    string  request URL (needed for digest authentication)
     * @throws   HTTP_Request2_Exception
     */
-    protected function createAuthHeader($user, $pass, $scheme)
+    protected function addAuthorizationHeader(&$headers, $requestHost, $requestUrl)
     {
-        switch ($scheme) {
+        if (!($auth = $this->request->getAuth())) {
+            return;
+        }
+        switch ($auth['scheme']) {
             case HTTP_Request2::AUTH_BASIC:
-                return 'Basic ' . base64_encode($user . ':' . $pass);
+                $headers['authorization'] = 
+                    'Basic ' . base64_encode($auth['user'] . ':' . $auth['password']);
+                break;
 
             case HTTP_Request2::AUTH_DIGEST:
-                throw new HTTP_Request2_Exception('Digest authentication is not implemented yet.');
+                unset($this->serverChallenge);
+                $fullUrl = ('/' == $requestUrl[0])?
+                           $this->request->getUrl()->getScheme() . '://' .
+                            $requestHost . $requestUrl:
+                           $requestUrl;
+                foreach (array_keys(self::$challenges) as $key) {
+                    if ($key == substr($fullUrl, 0, strlen($key))) {
+                        $headers['authorization'] = $this->createDigestResponse(
+                            $auth['user'], $auth['password'], 
+                            $requestUrl, self::$challenges[$key]
+                        );
+                        $this->serverChallenge =& self::$challenges[$key];
+                        break;
+                    }
+                }
+                break;
 
             default:
-                throw new HTTP_Request2_Exception("Unknown HTTP authentication scheme '{$scheme}'");
+                throw new HTTP_Request2_Exception(
+                    "Unknown HTTP authentication scheme '{$auth['scheme']}'"
+                );
         }
     }
+
+   /**
+    * Adds 'Proxy-Authorization' header (if needed) to request headers array
+    *
+    * @param    array   request headers
+    * @param    string  request URL (needed for digest authentication)
+    * @throws   HTTP_Request2_Exception
+    */
+    protected function addProxyAuthorizationHeader(&$headers, $requestUrl)
+    {
+        if (!$this->request->getConfig('proxy_host') ||
+            !($user = $this->request->getConfig('proxy_user'))
+        ) {
+            return;
+        }
+
+        $password = $this->request->getConfig('proxy_password');
+        switch ($this->request->getConfig('proxy_auth_scheme')) {
+            case HTTP_Request2::AUTH_BASIC:
+                $headers['proxy-authorization'] =
+                    'Basic ' . base64_encode($user . ':' . $password);
+                break;
+
+            case HTTP_Request2::AUTH_DIGEST:
+                unset($this->proxyChallenge);
+                $proxyUrl = 'proxy://' . $this->request->getConfig('proxy_host') .
+                            ':' . $this->request->getConfig('proxy_port');
+                if (!empty(self::$challenges[$proxyUrl])) {
+                    $headers['proxy-authorization'] = $this->createDigestResponse(
+                        $user, $password,
+                        $requestUrl, self::$challenges[$proxyUrl]
+                    );
+                    $this->proxyChallenge =& self::$challenges[$proxyUrl];
+                }
+                break;
+
+            default:
+                throw new HTTP_Request2_Exception(
+                    "Unknown HTTP authentication scheme '" .
+                    $this->request->getConfig('proxy_auth_scheme') . "'"
+                );
+        }
+    }
+
 
    /**
     * Creates the string with the Request-Line and request headers
@@ -296,29 +651,20 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         if (!$this->request->getConfig('proxy_host')) {
             $requestUrl = '';
         } else {
-            if ($user = $this->request->getConfig('proxy_user')) {
-                $headers['proxy-authorization'] = $this->createAuthHeader(
-                    $user, $this->request->getConfig('proxy_password'),
-                    $this->request->getConfig('proxy_auth_scheme')
-                );
-            }
             $requestUrl = $url->getScheme() . '://' . $host;
         }
         $path        = $url->getPath();
         $query       = $url->getQuery();
         $requestUrl .= (empty($path)? '/': $path) . (empty($query)? '': '?' . $query);
 
-        if ($auth = $this->request->getAuth()) {
-            $headers['authorization'] = $this->createAuthHeader(
-                $auth['user'], $auth['password'], $auth['scheme']
-            );
-        }
         if ('1.1' == $this->request->getConfig('protocol_version') &&
             extension_loaded('zlib') && !isset($headers['accept-encoding'])
         ) {
             $headers['accept-encoding'] = 'gzip, deflate';
         }
 
+        $this->addAuthorizationHeader($headers, $host, $requestUrl);
+        $this->addProxyAuthorizationHeader($headers, $requestUrl);
         $this->calculateRequestLength($headers);
 
         $headersStr = $this->request->getMethod() . ' ' . $requestUrl . ' HTTP/' .
