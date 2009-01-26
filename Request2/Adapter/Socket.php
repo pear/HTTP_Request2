@@ -321,7 +321,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     *     contains stale=true parameter (in other case we probably just failed 
     *     due to invalid username / password)
     *
-    * The method stores challenge values in $digestAuth static property
+    * The method stores challenge values in $challenges static property
     *
     * @param    HTTP_Request2_Response  response to check
     * @return   boolean whether another request should be performed
@@ -385,7 +385,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     *     contains stale=true parameter (in other case we probably just failed 
     *     due to invalid username / password)
     *
-    * The method stores challenge values in $digestAuth static property
+    * The method stores challenge values in $challenges static property
     *
     * @param    HTTP_Request2_Response  response to check
     * @return   boolean whether another request should be performed
@@ -505,8 +505,8 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     */ 
     protected function createDigestResponse($user, $password, $url, &$challenge)
     {
-        if (false !== ($q = strpos($url, '?') && 
-            $this->request->getConfig('digest_compat_ie'))
+        if (false !== ($q = strpos($url, '?')) && 
+            $this->request->getConfig('digest_compat_ie')
         ) {
             $url = substr($url, 0, $q);
         }
