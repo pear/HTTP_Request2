@@ -417,6 +417,26 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
    /**
     * Extracts digest method challenge from (WWW|Proxy)-Authenticate header value
     *
+    * There is a problem with implementation of RFC 2617: several of the parameters
+    * here are defined as quoted-string and thus may contain backslash escaped
+    * double quotes (RFC 2616, section 2.2). However, RFC 2617 defines unq(X) as
+    * just value of quoted-string X without surrounding quotes, it doesn't speak
+    * about removing backslash escaping.
+    *
+    * Now realm parameter is user-defined and human-readable, strange things
+    * happen when it contains quotes:
+    *   - Apache allows quotes in realm, but apparently uses realm value without
+    *     backslashes for digest computation
+    *   - Squid allows (manually escaped) quotes there, but it is impossible to
+    *     authorize with either escaped or unescaped quotes used in digest,
+    *     probably it can't parse the response (?)
+    *   - Both IE and Firefox display realm value with backslashes in 
+    *     the password popup and apparently use the same value for digest
+    *
+    * HTTP_Request2 follows IE and Firefox (and hopefully RFC 2617) in
+    * quoted-string handling, unfortunately that means failure to authorize 
+    * sometimes
+    *
     * @param    string  value of WWW-Authenticate or Proxy-Authenticate header
     * @return   mixed   associative array with challenge parameters, false if
     *                   no challenge is present in header value
@@ -439,7 +459,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             // section 3.2.1: Any unrecognized directive MUST be ignored.
             if (in_array($params[1][$i], $knownParams)) {
                 if ('"' == substr($params[2][$i], 0, 1)) {
-                    $paramsAry[$params[1][$i]] = stripslashes(substr($params[2][$i], 1, -1));
+                    $paramsAry[$params[1][$i]] = substr($params[2][$i], 1, -1);
                 } else {
                     $paramsAry[$params[1][$i]] = $params[2][$i];
                 }
@@ -481,7 +501,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         preg_match_all($authParam, $headerValue, $params);
         for ($i = 0; $i < count($params[0]); $i++) {
             if ('"' == substr($params[2][$i], 0, 1)) {
-                $paramsAry[$params[1][$i]] = stripslashes(substr($params[2][$i], 1, -1));
+                $paramsAry[$params[1][$i]] = substr($params[2][$i], 1, -1);
             } else {
                 $paramsAry[$params[1][$i]] = $params[2][$i];
             }
@@ -526,12 +546,12 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                           $challenge['cnonce'] . ':auth:' . $a2);
         }
         return 'Digest username="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $user) . '", ' .
-               'realm="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $challenge['realm']) . '", ' .
-               'nonce="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $challenge['nonce']) . '", ' .
+               'realm="' . $challenge['realm'] . '", ' .
+               'nonce="' . $challenge['nonce'] . '", ' .
                'uri="' . $url . '", ' .
                'response="' . $digest . '"' .
                (!empty($challenge['opaque'])? 
-                ', opaque="' . str_replace(array('\\', '"'), array('\\\\', '\\"'), $challenge['opaque']) . '"':
+                ', opaque="' . $challenge['opaque'] . '"':
                 '') .
                (!empty($challenge['qop'])?
                 ', qop="auth", nc=' . $nc . ', cnonce="' . $challenge['cnonce'] . '"':
