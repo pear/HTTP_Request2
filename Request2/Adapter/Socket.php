@@ -56,8 +56,6 @@ require_once 'HTTP/Request2/Adapter.php';
  * @package     HTTP_Request2
  * @author      Alexey Borzov <avb@php.net>
  * @version     Release: @package_version@
- * @todo        Implement HTTPS proxy support via stream_socket_enable_crypto()
- * @todo        Implement Digest authentication support
  */
 class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 {
@@ -194,36 +192,57 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     */
     protected function connect()
     {
+        $secure  = 0 == strcasecmp($this->request->getUrl()->getScheme(), 'https');
+        $tunnel  = HTTP_Request2::METHOD_CONNECT == $this->request->getMethod();
+        $headers = $this->request->getHeaders();
+        $reqHost = $this->request->getUrl()->getHost();
+        if (!($reqPort = $this->request->getUrl()->getPort())) {
+            $reqPort = $secure? 443: 80;
+        }
+
         if ($host = $this->request->getConfig('proxy_host')) {
             if (!($port = $this->request->getConfig('proxy_port'))) {
                 throw new HTTP_Request2_Exception('Proxy port not provided');
             }
             $proxy = true;
         } else {
-            $host = $this->request->getUrl()->getHost();
-            if (!($port = $this->request->getUrl()->getPort())) {
-                $port = 0 == strcasecmp(
-                            $this->request->getUrl()->getScheme(), 'https'
-                        )? 443: 80;
-            }
+            $host  = $reqHost;
+            $port  = $reqPort;
             $proxy = false;
         }
 
+        if ($tunnel && !$proxy) {
+            throw new HTTP_Request2_Exception(
+                "Trying to perform CONNECT request without proxy"
+            );
+        }
+        if ($secure && !in_array('ssl', stream_get_transports())) {
+            throw new HTTP_Request2_Exception(
+                'Need OpenSSL support for https:// requests'
+            );
+        }
+
+        // RFC 2068, section 19.7.1: A client MUST NOT send the Keep-Alive
+        // connection token to a proxy server...
+        if ($proxy && !$secure && 
+            !empty($headers['connection']) && 'Keep-Alive' == $headers['connection']
+        ) {
+            $this->request->setHeader('connection');
+        }
+
+        $keepAlive = ('1.1' == $this->request->getConfig('protocol_version') && 
+                      empty($headers['connection'])) ||
+                     (!empty($headers['connection']) &&
+                      'Keep-Alive' == $headers['connection']);
+        $host = ((!$secure || $proxy)? 'tcp://': 'ssl://') . $host;
+
         $options = array();
-        if (0 != strcasecmp($this->request->getUrl()->getScheme(), 'https')) {
-            $host = 'tcp://' . $host;
-        } else {
-            if ($proxy) {
-                throw new HTTP_Request2_Exception('HTTPS proxy support not yet implemented');
-            } elseif (!in_array('ssl', stream_get_transports())) {
-                throw new HTTP_Request2_Exception('Need OpenSSL support for https:// requests');
-            }
-            $host = 'ssl://' . $host;
+        if ($secure || $tunnel) {
             foreach ($this->request->getConfig() as $name => $value) {
                 if ('ssl_' == substr($name, 0, 4) && null !== $value) {
                     if ('ssl_verify_host' == $name) {
                         if ($value) {
-                            $options['CN_match'] = $this->request->getUrl()->getHost();
+                            $options['CN_match'] = $reqHost;
                         }
                     } else {
                         $options[substr($name, 4)] = $value;
@@ -233,29 +252,26 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             ksort($options);
         }
 
-        $headers = $this->request->getHeaders();
-
-        // RFC 2068, section 19.7.1: A client MUST NOT send the Keep-Alive
-        // connection token to a proxy server...
-        if ($proxy && !empty($headers['connection']) && 'Keep-Alive' == $headers['connection']) {
-            $this->request->setHeader('connection');
-        }
-
-        $keepAlive = ('1.1' == $this->request->getConfig('protocol_version') && 
-                      empty($headers['connection'])) ||
-                     (!empty($headers['connection']) &&
-                      'Keep-Alive' == $headers['connection']);
         // Changing SSL context options after connection is established does *not*
         // work, we need a new connection if options change
         $remote    = $host . ':' . $port;
-        $socketKey = $remote . (empty($options)? '': ':' . serialize($options));
+        $socketKey = $remote . (($secure && $proxy)? "->{$reqHost}:{$reqPort}": '') .
+                     (empty($options)? '': ':' . serialize($options));
         unset($this->socket);
 
         // We use persistent connections and have a connected socket?
         if ($keepAlive && !empty(self::$sockets[$socketKey])) {
             $this->socket =& self::$sockets[$socketKey];
+
+        } elseif ($secure && $proxy && !$tunnel) {
+            $this->establishTunnel();
+            $this->request->setLastEvent(
+                'connect', "ssl://{$reqHost}:{$reqPort} via {$host}:{$port}"
+            );
+            self::$sockets[$socketKey] =& $this->socket;
+
         } else {
-            // Set SSL context options if doing HTTPS request
+            // Set SSL context options if doing HTTPS request or creating a tunnel
             $context = stream_context_create();
             foreach ($options as $name => $value) {
                 if (!stream_context_set_option($context, 'ssl', $name, $value)) {
@@ -281,6 +297,51 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     }
 
    /**
+    * Establishes a tunnel to a secure remote server via HTTP CONNECT request
+    *
+    * This method will fail if 'ssl_verify_peer' is enabled. Probably because PHP
+    * sees that we are connected to a proxy server (duh!) rather than the server
+    * that presents its certificate.
+    *
+    * @link     http://tools.ietf.org/html/rfc2817#section-5.2
+    * @throws   HTTP_Request2_Exception
+    */
+    protected function establishTunnel()
+    {
+        $donor   = new self;
+        $connect = new HTTP_Request2(
+            $this->request->getUrl(), HTTP_Request2::METHOD_CONNECT,
+            array_merge($this->request->getConfig(),
+                        array('adapter' => $donor))
+        );
+        $response = $connect->send();
+        // Need any successful (2XX) response
+        if (200 > $response->getStatus() || 300 <= $response->getStatus()) {
+            throw new HTTP_Request2_Exception(
+                'Failed to connect via HTTPS proxy. Proxy response: ' .
+                $response->getStatus() . ' ' . $response->getReasonPhrase()
+            );
+        }
+        $this->socket = $donor->socket;
+
+        $modes = array(
+            STREAM_CRYPTO_METHOD_TLS_CLIENT, 
+            STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
+            STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
+            STREAM_CRYPTO_METHOD_SSLv2_CLIENT 
+        );
+
+        foreach ($modes as $mode) {
+            if (stream_socket_enable_crypto($this->socket, true, $mode)) {
+                return;
+            }
+        }
+        throw new HTTP_Request2_Exception(
+            'Failed to enable secure connection when connecting through proxy'
+        );
+    }
+
+   /**
     * Checks whether current connection may be reused or should be closed
     *
     * @param    boolean                 whether connection could be persistent 
@@ -290,6 +351,13 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     */
     protected function canKeepAlive($requestKeepAlive, HTTP_Request2_Response $response)
     {
+        // Do not close socket on successful CONNECT request
+        if (HTTP_Request2::METHOD_CONNECT == $this->request->getMethod() &&
+            200 <= $response->getStatus() && 300 > $response->getStatus()
+        ) {
+            return true;
+        }
+
         $lengthKnown = 'chunked' == strtolower($response->getHeader('transfer-encoding')) ||
                        null !== $response->getHeader('content-length');
         $persistent  = 'keep-alive' == strtolower($response->getHeader('connection')) ||
@@ -612,7 +680,9 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected function addProxyAuthorizationHeader(&$headers, $requestUrl)
     {
         if (!$this->request->getConfig('proxy_host') ||
-            !($user = $this->request->getConfig('proxy_user'))
+            !($user = $this->request->getConfig('proxy_user')) ||
+            (0 == strcasecmp('https', $this->request->getUrl()->getScheme()) &&
+             HTTP_Request2::METHOD_CONNECT != $this->request->getMethod())
         ) {
             return;
         }
@@ -656,26 +726,30 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     {
         $headers = $this->request->getHeaders();
         $url     = $this->request->getUrl();
-
+        $connect = HTTP_Request2::METHOD_CONNECT == $this->request->getMethod();
         $host    = $url->getHost();
-        if ($port = $url->getPort()) {
-            $scheme = $url->getScheme();
-            if ((0 == strcasecmp($scheme, 'http') && 80 != $port) ||
-                (0 == strcasecmp($scheme, 'https') && 443 != $port)
-            ) {
-                $host .= ':' . $port;
-            }
+
+        $defaultPort = 0 == strcasecmp($url->getScheme(), 'https')? 443: 80;
+        if (($port = $url->getPort()) && $port != $defaultPort || $connect) {
+            $host .= ':' . (empty($port)? $defaultPort: $port);
         }
         $headers['host'] = $host;
 
-        if (!$this->request->getConfig('proxy_host')) {
-            $requestUrl = '';
+        if ($connect) {
+            $requestUrl = $host;
+
         } else {
-            $requestUrl = $url->getScheme() . '://' . $host;
+            if (!$this->request->getConfig('proxy_host') ||
+                0 == strcasecmp($url->getScheme(), 'https')
+            ) {
+                $requestUrl = '';
+            } else {
+                $requestUrl = $url->getScheme() . '://' . $host;
+            }
+            $path        = $url->getPath();
+            $query       = $url->getQuery();
+            $requestUrl .= (empty($path)? '/': $path) . (empty($query)? '': '?' . $query);
         }
-        $path        = $url->getPath();
-        $query       = $url->getQuery();
-        $requestUrl .= (empty($path)? '/': $path) . (empty($query)? '': '?' . $query);
 
         if ('1.1' == $this->request->getConfig('protocol_version') &&
             extension_loaded('zlib') && !isset($headers['accept-encoding'])
@@ -750,6 +824,8 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         // No body possible in such responses
         if (HTTP_Request2::METHOD_HEAD == $this->request->getMethod() ||
+            (HTTP_Request2::METHOD_CONNECT == $this->request->getMethod() &&
+             200 <= $response->getStatus() && 300 > $response->getStatus()) ||
             in_array($response->getStatus(), array(204, 304))
         ) {
             return $response;
