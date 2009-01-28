@@ -328,9 +328,14 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     {
         // we may receive a second set of headers if doing e.g. digest auth
         if ($this->eventReceivedHeaders || !$this->eventSentHeaders) {
-            $this->request->setLastEvent(
-                'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
-            );
+            // don't bother with 100-Continue responses (bug #15785)
+            if (!$this->eventSentHeaders ||
+                $this->response->getStatus() >= 200
+            ) {
+                $this->request->setLastEvent(
+                    'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
+                );
+            }
             $this->eventSentHeaders = true;
             // we'll need a new response object
             if ($this->eventReceivedHeaders) {
@@ -343,7 +348,10 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         } else {
             $this->response->parseHeaderLine($string);
             if ('' == trim($string)) {
-                $this->request->setLastEvent('receivedHeaders', $this->response);
+                // don't bother with 100-Continue responses (bug #15785)
+                if (200 <= $this->response->getStatus()) {
+                    $this->request->setLastEvent('receivedHeaders', $this->response);
+                }
                 $this->eventReceivedHeaders = true;
             }
         }

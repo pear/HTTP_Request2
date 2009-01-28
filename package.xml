@@ -15,9 +15,9 @@ Adapters. Currently available are:
   * Socket adapter, based on old HTTP_Request code,
   * Curl adapter, wraps around PHP's cURL extension,
   * Mock adapter, to use for testing packages dependent on HTTP_Request2.
-Supports POST requests with data and file uploads, authentication, cookies,
-proxies, gzip and deflate encodings, monitoring the request progress with
-Observers...
+Supports POST requests with data and file uploads, basic and digest 
+authentication, cookies, proxies, gzip and deflate encodings, monitoring 
+the request progress with Observers...
   </description>
   <lead>
     <name>Alexey Borzov</name>
@@ -25,10 +25,10 @@ Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2009-01-07</date>
+  <date>2009-01-28</date>
   <version>
-    <release>0.2.0</release>
-    <api>0.2.0</api>
+    <release>0.3.0</release>
+    <api>0.3.0</api>
   </version>
   <stability>
     <release>alpha</release>
@@ -37,27 +37,27 @@ Observers...
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
  API changes:
-  * HTTP_Request2::getConfigValue() is deprecated and will be removed in next 
-    release. Use HTTP_Request2::getConfig().
-  * Changed HTTP_Request2::setConfig() to accept a pair of parameter name and
-    parameter value in addition to array('parameter name' =&gt; 'value')
-  * Added HTTP_Request2::getConfig() method that can return a single 
-    configuration parameter or the whole configuration array
+  * Removed HTTP_Request2::getConfigValue() method
 
-Other additions and changes:
-  * Added a debug Observer that can log request progress to a file or an 
-    instance of PEAR::Log (thanks to David Jean Louis, request #15424)
-  * Added a new 'timeout' parameter that limits total number of seconds
-    a request can take (see requests #5735 and #8964)
-  * Added various SSL protocol options: 'ssl_verify_peer', 'ssl_verify_host',
-    'ssl_cafile', 'ssl_capath', 'ssl_local_cert', 'ssl_passphrase'. Note that
-    'ssl_verify_host' option behaves differently in Socket and Curl Adapters:
-    http://bugs.php.net/bug.php?id=47030
+ Feature additions:
+  * Added digest authentication (RFC 2617) support to Socket adapter. Thanks
+    to Tom Snyder (tomsn at inetoffice dot com) who sent me a prototype
+    implementation for HTTP_Request a couple of years ago.
+  * Added HTTPS proxy support to Socket adapter, this works through CONNECT
+    request described in RFC 2817.
+  * Mock adapter can now throw an Exception instead of returning a response
+    if Exception object is added via its addResponse() method (request #15629)
 
-Fixes:
-  * Fixed 'data error' when processing response encoded by 'deflate'
-    encoding (bug #15305)
-  * Curl Adapter now passes full request headers in 'sentHeaders' event
+ Other changes and fixes:
+  * Support RFC 3986 by not encoding '~' in POST body (request #15368)
+  * Prevent an error with particular versions of PHP and Curl (bug #15617)
+  * Regular expressions used in HTTP_Request2 are now class constants 
+    (request #15630)
+  * Curl adapter now throws an exception in case of malformed (non-HTTP) 
+    response rather than dies with a fatal error (bug #15716)
+  * Curl handle wasn't closed in Curl adapter in case of error (bug #15721)
+  * Curl adapter sent an extra 'sentHeaders' event and returned bogus 
+    response status when server returned 100-Continue response (bug #15785)
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -126,7 +126,7 @@ Fixes:
         <min>5.1.4</min>
       </php>
       <pearinstaller>
-        <min>1.4.3</min>
+        <min>1.5.4</min>
       </pearinstaller>
       <package>
 	    <name>Net_URL2</name>
@@ -148,6 +148,42 @@ Fixes:
   </dependencies>
   <phprelease />
     <changelog>
+      <release>
+      <version>
+        <release>0.2.0</release>
+        <api>0.2.0</api>
+      </version>
+      <stability>
+        <release>alpha</release>
+        <api>alpha</api>
+      </stability>
+      <date>2009-01-07</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+ API changes:
+  * HTTP_Request2::getConfigValue() is deprecated and will be removed in next 
+    release. Use HTTP_Request2::getConfig().
+  * Changed HTTP_Request2::setConfig() to accept a pair of parameter name and
+    parameter value in addition to array('parameter name' =&gt; 'value')
+  * Added HTTP_Request2::getConfig() method that can return a single 
+    configuration parameter or the whole configuration array
+
+Other additions and changes:
+  * Added a debug Observer that can log request progress to a file or an 
+    instance of PEAR::Log (thanks to David Jean Louis, request #15424)
+  * Added a new 'timeout' parameter that limits total number of seconds
+    a request can take (see requests #5735 and #8964)
+  * Added various SSL protocol options: 'ssl_verify_peer', 'ssl_verify_host',
+    'ssl_cafile', 'ssl_capath', 'ssl_local_cert', 'ssl_passphrase'. Note that
+    'ssl_verify_host' option behaves differently in Socket and Curl Adapters:
+    http://bugs.php.net/bug.php?id=47030
+
+Fixes:
+  * Fixed 'data error' when processing response encoded by 'deflate'
+    encoding (bug #15305)
+  * Curl Adapter now passes full request headers in 'sentHeaders' event
+      </notes>
+	  </release>
       <release>
       <version>
         <release>0.1.0</release>

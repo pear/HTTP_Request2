@@ -375,20 +375,6 @@ class HTTP_Request2 implements SplSubject
         return $this->config[$name];
     }
 
-
-   /**
-    * Returns the value of the configuration parameter (DEPRECATED)
-    *
-    * @param    string  parameter name
-    * @return   mixed
-    * @throws   HTTP_Request2_Exception If the parameter is unknown
-    * @deprecated   deprecated since 0.2.0, use getConfig()
-    */
-    public function getConfigValue($name)
-    {
-        return $this->getConfig($name);
-    }
-
    /**
     * Sets the autentification data
     *
