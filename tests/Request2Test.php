@@ -162,6 +162,19 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->fail('Expected HTTP_Request2_Exception was not thrown');
     }
 
+    public function testBug15937()
+    {
+        $req = new HTTP_Request2();
+        $autoHeaders = $req->getHeaders();
+
+        $req->setHeader('Expect: ');
+        $req->setHeader('Foo', '');
+        $this->assertEquals(
+            array('expect' => '', 'foo' => '') + $autoHeaders,
+            $req->getHeaders()
+        );
+    }
+
     public function testCookies()
     {
         $req = new HTTP_Request2();

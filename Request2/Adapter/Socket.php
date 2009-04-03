@@ -856,7 +856,9 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 }
 
                 $hasBody = true;
-                $response->appendBody($data);
+                if ($this->request->getConfig('store_body')) {
+                    $response->appendBody($data);
+                }
                 if (!in_array($response->getHeader('content-encoding'), array('identity', null))) {
                     $this->request->setLastEvent('receivedEncodedBodyPart', $data);
                 } else {

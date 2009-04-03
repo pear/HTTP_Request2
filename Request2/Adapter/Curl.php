@@ -373,7 +373,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         if (empty($this->response)) {
             throw new HTTP_Request2_Exception("Malformed response: {$string}");
         }
-        $this->response->appendBody($string);
+        if ($this->request->getConfig('store_body')) {
+            $this->response->appendBody($string);
+        }
         $this->request->setLastEvent('receivedBodyPart', $string);
         return strlen($string);
     }

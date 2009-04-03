@@ -149,6 +149,7 @@ class HTTP_Request2 implements SplSubject
         'use_brackets'      => true,
         'protocol_version'  => '1.1',
         'buffer_size'       => 16384,
+        'store_body'        => true,
 
         'proxy_host'        => '',
         'proxy_port'        => '',
@@ -310,6 +311,9 @@ class HTTP_Request2 implements SplSubject
     *   <li> 'use_brackets'      - Whether to append [] to array variable names (bool)</li>
     *   <li> 'protocol_version'  - HTTP Version to use, '1.0' or '1.1' (string)</li>
     *   <li> 'buffer_size'       - Buffer size to use for reading and writing (int)</li>
+    *   <li> 'store_body'        - Whether to store response body in response object.
+    *                              Set to false if receiving a huge response and
+    *                              using an Observer to save it (boolean)</li>
     *   <li> 'proxy_host'        - Proxy server host (string)</li>
     *   <li> 'proxy_port'        - Proxy server port (integer)</li>
     *   <li> 'proxy_user'        - Proxy auth username (string)</li>
@@ -446,7 +450,7 @@ class HTTP_Request2 implements SplSubject
                 }
             }
         } else {
-            if (!$value && strpos($name, ':')) {
+            if (null === $value && strpos($name, ':')) {
                 list($name, $value) = array_map('trim', explode(':', $name, 2));
             }
             // Header name should be a token: http://tools.ietf.org/html/rfc2616#section-4.2
@@ -455,7 +459,7 @@ class HTTP_Request2 implements SplSubject
             }
             // Header names are case insensitive anyway
             $name = strtolower($name);
-            if (!$value) {
+            if (null === $value) {
                 unset($this->headers[$name]);
             } else {
                 $this->headers[$name] = $value;
