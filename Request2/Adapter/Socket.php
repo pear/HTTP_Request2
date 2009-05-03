@@ -260,7 +260,10 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         unset($this->socket);
 
         // We use persistent connections and have a connected socket?
-        if ($keepAlive && !empty(self::$sockets[$socketKey])) {
+        // Ensure that the socket is still connected, see bug #16149
+        if ($keepAlive && !empty(self::$sockets[$socketKey]) &&
+            !feof(self::$sockets[$socketKey])
+        ) {
             $this->socket =& self::$sockets[$socketKey];
 
         } elseif ($secure && $proxy && !$tunnel) {
@@ -733,7 +736,10 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         if (($port = $url->getPort()) && $port != $defaultPort || $connect) {
             $host .= ':' . (empty($port)? $defaultPort: $port);
         }
-        $headers['host'] = $host;
+        // Do not overwrite explicitly set 'Host' header, see bug #16146
+        if (!isset($headers['host'])) {
+            $headers['host'] = $host;
+        }
 
         if ($connect) {
             $requestUrl = $host;
