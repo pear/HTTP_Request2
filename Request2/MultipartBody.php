@@ -152,7 +152,7 @@ class HTTP_Request2_MultipartBody
     public function getBoundary()
     {
         if (empty($this->_boundary)) {
-            $this->_boundary = 'PEAR-HTTP_Request2-' . md5(microtime());
+            $this->_boundary = '--' . md5('PEAR-HTTP_Request2-' . microtime());
         }
         return $this->_boundary;
     }

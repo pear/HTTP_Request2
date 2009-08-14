@@ -101,6 +101,9 @@ the request progress with Observers...
         <file role="test" name="ObserverTest.php" />
         <file role="test" name="Request2Test.php" />
       </dir>
+      <dir name="docs/examples">
+        <file role="doc" name="upload-rapidshare.php" />
+      </dir>
       <file role="php" name="Request2.php">
       	<tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
@@ -130,6 +133,9 @@ the request progress with Observers...
 	  <extension>
 	    <name>zlib</name>
 	  </extension>
+      <extension>
+        <name>openssl</name>
+      </extension>
     </optional>
   </dependencies>
   <phprelease />
