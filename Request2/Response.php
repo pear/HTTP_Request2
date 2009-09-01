@@ -388,15 +388,36 @@ class HTTP_Request2_Response
     */
     public function getBody()
     {
-        if ($this->bodyEncoded) {
-            switch (strtolower($this->getHeader('content-encoding'))) {
-                case 'gzip':
-                    return self::decodeGzip($this->body);
-                case 'deflate':
-                    return self::decodeDeflate($this->body);
+        if (!$this->bodyEncoded ||
+            !in_array(strtolower($this->getHeader('content-encoding')), array('gzip', 'deflate'))
+        ) {
+            return $this->body;
+
+        } else {
+            if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
+                $oldEncoding = mb_internal_encoding();
+                mb_internal_encoding('iso-8859-1');
             }
+
+            try {
+                switch (strtolower($this->getHeader('content-encoding'))) {
+                    case 'gzip':
+                        $decoded = self::decodeGzip($this->body);
+                        break;
+                    case 'deflate':
+                        $decoded = self::decodeDeflate($this->body);
+                }
+            } catch (Exception $e) {
+            }
+
+            if (!empty($oldEncoding)) {
+                mb_internal_encoding($oldEncoding);
+            }
+            if (!empty($e)) {
+                throw $e;
+            }
+            return $decoded;
         }
-        return $this->body;
     }
 
    /**
