@@ -25,9 +25,9 @@ the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2009-05-03</date>
+  <date>2009-09-14</date>
   <version>
-    <release>0.4.0</release>
+    <release>0.4.1</release>
     <api>0.4.0</api>
   </version>
   <stability>
@@ -36,14 +36,11 @@ the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
- * Added 'store_body' config parameter, if set to false it will prevent storing
-   the response body in Response object (request #15881)
- * HTTP_Request2::setHeader() method now works as documented, setHeader('name') 
-   will remove the 'name' header, while setHeader('name', '') will set 'name'
-   header to empty value (bug #15937)
- * Custom 'Host' header will not be overwritten by generated one (bug #16146)
- * When trying to reuse the connected socket in Socket adapter, make sure that
-   it is still connected (bug #16149)
+ * Decoding of gzipped responses failed if mbstring.func_overload was enabled
+   (bug #16555)
+ * Changed boundary generation in multipart bodies to work correctly with
+   rapidshare.com, added first usage example: file uploading to rapidshare.com
+ * Added forgotten optional dependency on OpenSSL PHP extension
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -140,6 +137,28 @@ the request progress with Observers...
   </dependencies>
   <phprelease />
     <changelog>
+      <release>
+      <version>
+        <release>0.4.0</release>
+        <api>0.4.0</api>
+      </version>
+      <stability>
+       <release>alpha</release>
+       <api>alpha</api>
+      </stability>
+      <date>2009-05-03</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+ * Added 'store_body' config parameter, if set to false it will prevent storing
+   the response body in Response object (request #15881)
+ * HTTP_Request2::setHeader() method now works as documented, setHeader('name') 
+   will remove the 'name' header, while setHeader('name', '') will set 'name'
+   header to empty value (bug #15937)
+ * Custom 'Host' header will not be overwritten by generated one (bug #16146)
+ * When trying to reuse the connected socket in Socket adapter, make sure that
+   it is still connected (bug #16149)
+      </notes>
+      </release>
       <release>
       <version>
         <release>0.3.0</release>
