@@ -37,7 +37,7 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    CVS: $Id$
+ * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -55,13 +55,13 @@ require_once 'HTTP/Request2/Adapter.php';
  * <code>
  * $mock = new HTTP_Request2_Adapter_Mock();
  * $mock->addResponse("HTTP/1.1 ... ");
- * 
+ *
  * $request = new HTTP_Request2();
  * $request->setAdapter($mock);
- * 
+ *
  * // This will return the response set above
  * $response = $req->send();
- * </code> 
+ * </code>
  *
  * @category   HTTP
  * @package    HTTP_Request2
@@ -72,14 +72,14 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
 {
    /**
     * A queue of responses to be returned by sendRequest()
-    * @var  array 
+    * @var  array
     */
     protected $responses = array();
 
    /**
     * Returns the next response from the queue built by addResponse()
     *
-    * If the queue is empty will return default empty response with status 400,
+    * If the queue is empty it will return default empty response with status 400,
     * if an Exception object was added to the queue it will be thrown.
     *
     * @param    HTTP_Request2
@@ -93,7 +93,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
             if ($response instanceof HTTP_Request2_Response) {
                 return $response;
             } else {
-                // rethrow the exception,
+                // rethrow the exception
                 $class   = get_class($response);
                 $message = $response->getMessage();
                 $code    = $response->getCode();
@@ -108,7 +108,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
     * Adds response to the queue
     *
     * @param    mixed   either a string, a pointer to an open file,
-    *                   a HTTP_Request2_Response or Exception object
+    *                   an instance of HTTP_Request2_Response or Exception
     * @throws   HTTP_Request2_Exception
     */
     public function addResponse($response)
@@ -135,7 +135,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
     public static function createResponseFromString($str)
     {
         $parts       = preg_split('!(\r?\n){2}!m', $str, 2);
-        $headerLines = explode("\n", $parts[0]); 
+        $headerLines = explode("\n", $parts[0]);
         $response    = new HTTP_Request2_Response(array_shift($headerLines));
         foreach ($headerLines as $headerLine) {
             $response->parseHeaderLine($headerLine);

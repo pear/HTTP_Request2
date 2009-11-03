@@ -37,7 +37,7 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    CVS: $Id$
+ * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -289,7 +289,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     * @param    resource    cURL handle
     * @param    resource    file descriptor (not used)
     * @param    integer     maximum length of data to return
-    * @return   string      part of the request body, up to $length bytes 
+    * @return   string      part of the request body, up to $length bytes
     */
     protected function callbackReadBody($ch, $fd, $length)
     {
@@ -368,7 +368,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     */
     protected function callbackWriteBody($ch, $string)
     {
-        // cURL calls WRITEFUNCTION callback without calling HEADERFUNCTION if 
+        // cURL calls WRITEFUNCTION callback without calling HEADERFUNCTION if
         // response doesn't start with proper HTTP status line (see bug #15716)
         if (empty($this->response)) {
             throw new HTTP_Request2_Exception("Malformed response: {$string}");

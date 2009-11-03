@@ -1,6 +1,6 @@
 <?php
 /**
- * Class representing a HTTP request
+ * Class representing a HTTP request message
  *
  * PHP version 5
  *
@@ -37,7 +37,7 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    CVS: $Id$
+ * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -48,11 +48,11 @@ require_once 'Net/URL2.php';
 
 /**
  * Exception class for HTTP_Request2 package
- */ 
+ */
 require_once 'HTTP/Request2/Exception.php';
 
 /**
- * Class representing a HTTP request
+ * Class representing a HTTP request message
  *
  * @category   HTTP
  * @package    HTTP_Request2
@@ -78,7 +78,7 @@ class HTTP_Request2 implements SplSubject
    /**#@-*/
 
    /**#@+
-    * Constants for HTTP authentication schemes 
+    * Constants for HTTP authentication schemes
     *
     * @link http://tools.ietf.org/html/rfc2617
     */
@@ -95,7 +95,7 @@ class HTTP_Request2 implements SplSubject
    /**
     * Regular expression used to check for invalid symbols in cookie strings
     * @link http://pear.php.net/bugs/bug.php?id=15630
-    * @link http://cgi.netscape.com/newsref/std/cookie_spec.html
+    * @link http://web.archive.org/web/20080331104521/http://cgi.netscape.com/newsref/std/cookie_spec.html
     */
     const REGEXP_INVALID_COOKIE = '/[\s,;]/';
 
@@ -191,7 +191,7 @@ class HTTP_Request2 implements SplSubject
     protected $postParams = array();
 
    /**
-    * Array of file uploads (for multipart/form-data POST requests) 
+    * Array of file uploads (for multipart/form-data POST requests)
     * @var  array
     */
     protected $uploads = array();
@@ -206,7 +206,7 @@ class HTTP_Request2 implements SplSubject
    /**
     * Constructor. Can set request URL, method and configuration array.
     *
-    * Also sets a default value for User-Agent header. 
+    * Also sets a default value for User-Agent header.
     *
     * @param    string|Net_Url2     Request URL
     * @param    string              Request method
@@ -306,7 +306,7 @@ class HTTP_Request2 implements SplSubject
     *   <li> 'adapter'           - adapter to use (string)</li>
     *   <li> 'connect_timeout'   - Connection timeout in seconds (integer)</li>
     *   <li> 'timeout'           - Total number of seconds a request can take.
-    *                              Use 0 for no limit, should be greater than 
+    *                              Use 0 for no limit, should be greater than
     *                              'connect_timeout' if set (integer)</li>
     *   <li> 'use_brackets'      - Whether to append [] to array variable names (bool)</li>
     *   <li> 'protocol_version'  - HTTP Version to use, '1.0' or '1.1' (string)</li>
@@ -324,7 +324,7 @@ class HTTP_Request2 implements SplSubject
     *                              certificate matches host name (bool)</li>
     *   <li> 'ssl_cafile'        - Cerificate Authority file to verify the peer
     *                              with (use with 'ssl_verify_peer') (string)</li>
-    *   <li> 'ssl_capath'        - Directory holding multiple Certificate 
+    *   <li> 'ssl_capath'        - Directory holding multiple Certificate
     *                              Authority files (string)</li>
     *   <li> 'ssl_local_cert'    - Name of a file containing local cerificate (string)</li>
     *   <li> 'ssl_passphrase'    - Passphrase with which local certificate
@@ -363,7 +363,7 @@ class HTTP_Request2 implements SplSubject
     * Returns the value(s) of the configuration parameter(s)
     *
     * @param    string  parameter name
-    * @return   mixed   value of $name parameter, array of all configuration 
+    * @return   mixed   value of $name parameter, array of all configuration
     *                   parameters if $name is not given
     * @throws   HTTP_Request2_Exception If the parameter is unknown
     */
@@ -386,7 +386,7 @@ class HTTP_Request2 implements SplSubject
     * @param    string  password
     * @param    string  authentication scheme
     * @return   HTTP_Request2
-    */ 
+    */
     public function setAuth($user, $password = '', $scheme = self::AUTH_BASIC)
     {
         if (empty($user)) {
@@ -419,13 +419,13 @@ class HTTP_Request2 implements SplSubject
     * Sets request header(s)
     *
     * The first parameter may be either a full header string 'header: value' or
-    * header name. In the former case $value parameter is ignored, in the latter 
+    * header name. In the former case $value parameter is ignored, in the latter
     * the header's value will either be set to $value or the header will be
     * removed if $value is null. The first parameter can also be an array of
     * headers, in that case method will be called recursively.
     *
     * Note that headers are treated case insensitively as per RFC 2616.
-    * 
+    *
     * <code>
     * $req->setHeader('Foo: Bar'); // sets the value of 'Foo' header to 'Bar'
     * $req->setHeader('FoO', 'Baz'); // sets the value of 'Foo' header to 'Baz'
@@ -465,7 +465,7 @@ class HTTP_Request2 implements SplSubject
                 $this->headers[$name] = $value;
             }
         }
-        
+
         return $this;
     }
 
@@ -534,7 +534,7 @@ class HTTP_Request2 implements SplSubject
     */
     public function getBody()
     {
-        if (self::METHOD_POST == $this->method && 
+        if (self::METHOD_POST == $this->method &&
             (!empty($this->postParams) || !empty($this->uploads))
         ) {
             if ('application/x-www-form-urlencoded' == $this->headers['content-type']) {
@@ -566,7 +566,7 @@ class HTTP_Request2 implements SplSubject
     *
     * @param    string  name of file-upload field
     * @param    mixed   full name of local file
-    * @param    string  filename to send in the request 
+    * @param    string  filename to send in the request
     * @param    string  content-type of file being uploaded
     * @return   HTTP_Request2
     * @throws   HTTP_Request2_Exception
@@ -703,7 +703,7 @@ class HTTP_Request2 implements SplSubject
     *   <li>'disconnect'              - after disconnection from server</li>
     *   <li>'sentHeaders'             - after sending the request headers,
     *                                   data is the headers sent (string)</li>
-    *   <li>'sentBodyPart'            - after sending a part of the request body, 
+    *   <li>'sentBodyPart'            - after sending a part of the request body,
     *                                   data is the length of that part (int)</li>
     *   <li>'receivedHeaders'         - after receiving the response headers,
     *                                   data is HTTP_Request2_Response object</li>
@@ -825,12 +825,12 @@ class HTTP_Request2 implements SplSubject
     */
     protected static function detectMimeType($filename)
     {
-        // finfo extension from PECL available 
+        // finfo extension from PECL available
         if (function_exists('finfo_open')) {
             if (!isset(self::$_fileinfoDb)) {
                 self::$_fileinfoDb = @finfo_open(FILEINFO_MIME);
             }
-            if (self::$_fileinfoDb) { 
+            if (self::$_fileinfoDb) {
                 $info = finfo_file(self::$_fileinfoDb, $filename);
             }
         }

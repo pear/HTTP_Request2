@@ -37,7 +37,7 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    CVS: $Id$
+ * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -172,7 +172,7 @@ class HTTP_Request2_MultipartBody
         while ($length > 0 && $this->_pos[0] <= $paramCount + $uploadCount) {
             $oldLength = $length;
             if ($this->_pos[0] < $paramCount) {
-                $param = sprintf($this->_headerParam, $boundary, 
+                $param = sprintf($this->_headerParam, $boundary,
                                  $this->_params[$this->_pos[0]][0]) .
                          $this->_params[$this->_pos[0]][1] . "\r\n";
                 $ret    .= substr($param, $this->_pos[1], $length);

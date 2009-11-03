@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * LICENSE:
- * 
+ *
  * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
@@ -16,9 +16,9 @@
  *    * Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright
- *      notice, this list of conditions and the following disclaimer in the 
+ *      notice, this list of conditions and the following disclaimer in the
  *      documentation and/or other materials provided with the distribution.
- *    * The names of the authors may not be used to endorse or promote products 
+ *    * The names of the authors may not be used to endorse or promote products
  *      derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
@@ -37,7 +37,7 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    CVS: $Id$
+ * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -92,7 +92,7 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
     public function testResponseFromFile()
     {
         $mock = new HTTP_Request2_Adapter_Mock();
-        $mock->addResponse(fopen(dirname(dirname(dirname(__FILE__))) . 
+        $mock->addResponse(fopen(dirname(dirname(dirname(__FILE__))) .
                            '/_files/response_headers', 'rb'));
 
         $req = new HTTP_Request2('http://www.example.com/');
