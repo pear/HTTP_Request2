@@ -353,6 +353,16 @@ class HTTP_Request2_Response
     }
 
    /**
+    * Whether response is a redirect that can be automatically handled by HTTP_Request2
+    * @return   bool
+    */
+    public function isRedirect()
+    {
+        return in_array($this->code, array(300, 301, 302, 303, 307))
+               && isset($this->headers['location']);
+    }
+
+   /**
     * Returns either the named header or all response headers
     *
     * @param    string          Name of header to return

@@ -176,8 +176,6 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             CURLOPT_READFUNCTION   => array($this, 'callbackReadBody'),
             CURLOPT_HEADERFUNCTION => array($this, 'callbackWriteHeader'),
             CURLOPT_WRITEFUNCTION  => array($this, 'callbackWriteBody'),
-            // disallow redirects
-            CURLOPT_FOLLOWLOCATION => false,
             // buffer size
             CURLOPT_BUFFERSIZE     => $this->request->getConfig('buffer_size'),
             // connection timeout
@@ -187,6 +185,18 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             // request url
             CURLOPT_URL            => $this->request->getUrl()->getUrl()
         ));
+
+        // set up redirects
+        if (!$this->request->getConfig('follow_redirects')) {
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        } else {
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_MAXREDIRS, $this->request->getConfig('max_redirects'));
+            // limit redirects to http(s), works in 5.2.10+
+            if (defined('CURLOPT_REDIR_PROTOCOLS')) {
+                curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+            }
+        }
 
         // request timeout
         if ($timeout = $this->request->getConfig('timeout')) {
@@ -351,6 +361,17 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 // don't bother with 100-Continue responses (bug #15785)
                 if (200 <= $this->response->getStatus()) {
                     $this->request->setLastEvent('receivedHeaders', $this->response);
+                }
+                // for versions lower than 5.2.10, check the redirection URL protocol
+                if ($this->request->getConfig('follow_redirects') && !defined('CURLOPT_REDIR_PROTOCOLS')
+                    && $this->response->isRedirect()
+                ) {
+                    $redirectUrl = new Net_URL2($this->response->getHeader('location'));
+                    if ($redirectUrl->isAbsolute()
+                        && !in_array($redirectUrl->getScheme(), array('http', 'https'))
+                    ) {
+                        return -1;
+                    }
                 }
                 $this->eventReceivedHeaders = true;
             }

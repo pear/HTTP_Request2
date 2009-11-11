@@ -164,7 +164,10 @@ class HTTP_Request2 implements SplSubject
         'ssl_local_cert'    => null,
         'ssl_passphrase'    => null,
 
-        'digest_compat_ie'  => false
+        'digest_compat_ie'  => false,
+
+        'follow_redirects'  => true,
+        'max_redirects'     => 5
     );
 
    /**
@@ -332,6 +335,8 @@ class HTTP_Request2 implements SplSubject
     *   <li> 'digest_compat_ie'  - Whether to imitate behaviour of MSIE 5 and 6
     *                              in using URL without query string in digest
     *                              authentication (boolean)</li>
+    *   <li> 'follow_redirects'  - Whether to automatically follow HTTP Redirects (boolean)</li>
+    *   <li> 'max_redirects'     - Maximum number of redirects to follow (integer)</li>
     * </ul>
     *
     * @param    string|array    configuration parameter name or array
