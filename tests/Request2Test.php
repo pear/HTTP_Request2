@@ -253,5 +253,17 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         }
         $this->fail('Expected HTTP_Request2_Exception was not thrown');
     }
+
+    public function testPropagateUseBracketsToNetURL2()
+    {
+        $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_GET,
+                                 array('use_brackets' => false));
+        $req->getUrl()->setQueryVariable('foo', array('bar', 'baz'));
+        $this->assertEquals('http://www.example.com/?foo=bar&foo=baz', $req->getUrl()->__toString());
+
+        $req->setConfig('use_brackets', true)->setUrl('http://php.example.com/');
+        $req->getUrl()->setQueryVariable('foo', array('bar', 'baz'));
+        $this->assertEquals('http://php.example.com/?foo[0]=bar&foo[1]=baz', $req->getUrl()->__toString());
+    }
 }
 ?>

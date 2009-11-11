@@ -217,13 +217,13 @@ class HTTP_Request2 implements SplSubject
     */
     public function __construct($url = null, $method = self::METHOD_GET, array $config = array())
     {
+        $this->setConfig($config);
         if (!empty($url)) {
             $this->setUrl($url);
         }
         if (!empty($method)) {
             $this->setMethod($method);
         }
-        $this->setConfig($config);
         $this->setHeader('user-agent', 'HTTP_Request2/@package_version@ ' .
                          '(http://pear.php.net/package/http_request2) ' .
                          'PHP/' . phpversion());
@@ -243,7 +243,9 @@ class HTTP_Request2 implements SplSubject
     public function setUrl($url)
     {
         if (is_string($url)) {
-            $url = new Net_URL2($url);
+            $url = new Net_URL2(
+                $url, array(Net_URL2::OPTION_USE_BRACKETS => $this->config['use_brackets'])
+            );
         }
         if (!$url instanceof Net_URL2) {
             throw new HTTP_Request2_Exception('Parameter is not a valid HTTP URL');
