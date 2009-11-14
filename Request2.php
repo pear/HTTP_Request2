@@ -166,8 +166,9 @@ class HTTP_Request2 implements SplSubject
 
         'digest_compat_ie'  => false,
 
-        'follow_redirects'  => true,
-        'max_redirects'     => 5
+        'follow_redirects'  => false,
+        'max_redirects'     => 5,
+        'strict_redirects'  => false
     );
 
    /**
@@ -339,6 +340,10 @@ class HTTP_Request2 implements SplSubject
     *                              authentication (boolean)</li>
     *   <li> 'follow_redirects'  - Whether to automatically follow HTTP Redirects (boolean)</li>
     *   <li> 'max_redirects'     - Maximum number of redirects to follow (integer)</li>
+    *   <li> 'strict_redirects'  - Whether to keep request method on redirects via status 301 and
+    *                              302 (true, needed for compatibility with RFC 2616)
+    *                              or switch to GET (false, needed for compatibility with most
+    *                              browsers) (boolean)</li>
     * </ul>
     *
     * @param    string|array    configuration parameter name or array

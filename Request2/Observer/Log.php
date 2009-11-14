@@ -168,7 +168,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
             }
             break;
         case 'sentBodyPart':
-            $this->log('> ' . $event['data']);
+            $this->log('> ' . $event['data'] . ' byte(s) sent');
             break;
         case 'receivedHeaders':
             $this->log(sprintf('< HTTP/%s %s %s',

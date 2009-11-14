@@ -123,6 +123,16 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected $chunkLength = 0;
 
    /**
+    * Remaining amount of redirections to follow
+    *
+    * Starts at 'max_redirects' configuration parameter and is reduced on each
+    * subsequent redirect. An Exception will be thrown once it reaches zero.
+    *
+    * @var  integer
+    */
+    protected $redirectCountdown = null;
+
+   /**
     * Sends request to the remote server and returns its response
     *
     * @param    HTTP_Request2
@@ -132,8 +142,6 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     public function sendRequest(HTTP_Request2 $request)
     {
         $this->request = $request;
-        $keepAlive     = $this->connect();
-        $headers       = $this->prepareHeaders();
 
         // Use global request timeout if given, see feature requests #5735, #8964
         if ($timeout = $request->getConfig('timeout')) {
@@ -143,6 +151,8 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         }
 
         try {
+            $keepAlive = $this->connect();
+            $headers   = $this->prepareHeaders();
             if (false === @fwrite($this->socket, $headers, strlen($headers))) {
                 throw new HTTP_Request2_Exception('Error writing request');
             }
@@ -178,10 +188,19 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         } catch (Exception $e) {
             $this->disconnect();
+        }
+
+        unset($this->request, $this->requestBody);
+
+        if (!empty($e)) {
             throw $e;
         }
 
-        return $response;
+        if (!$request->getConfig('follow_redirects') || !$response->isRedirect()) {
+            return $response;
+        } else {
+            return $this->handleRedirect($request, $response);
+        }
     }
 
    /**
@@ -379,6 +398,62 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $this->socket = null;
             $this->request->setLastEvent('disconnect');
         }
+    }
+
+   /**
+    * Handles HTTP redirection
+    *
+    * This method will throw an Exception if redirect to a non-HTTP(S) location
+    * is attempted, also if number of redirects performed already is equal to
+    * 'max_redirects' configuration parameter.
+    *
+    * @param    HTTP_Request2               Original request
+    * @param    HTTP_Request2_Response      Response containing redirect
+    * @return   HTTP_Request2_Response      Response from a new location
+    * @throws   HTTP_Request2_Exception
+    */
+    protected function handleRedirect(HTTP_Request2 $request,
+                                      HTTP_Request2_Response $response)
+    {
+        if (is_null($this->redirectCountdown)) {
+            $this->redirectCountdown = $request->getConfig('max_redirects');
+        }
+        if (0 == $this->redirectCountdown) {
+            // Copying cURL behaviour
+            throw new HTTP_Request2_Exception(
+                'Maximum (' . $request->getConfig('max_redirects') . ') redirects followed'
+            );
+        }
+        $redirectUrl = new Net_URL2(
+            $response->getHeader('location'),
+            array(Net_URL2::OPTION_USE_BRACKETS => $request->getConfig('use_brackets'))
+        );
+        // refuse non-HTTP redirect
+        if ($redirectUrl->isAbsolute()
+            && !in_array($redirectUrl->getScheme(), array('http', 'https'))
+        ) {
+            throw new HTTP_Request2_Exception(
+                'Refusing to redirect to a non-HTTP URL ' . $redirectUrl->__toString()
+            );
+        }
+        // Theoretically URL should be absolute (see http://tools.ietf.org/html/rfc2616#section-14.30),
+        // but in practice it is often not
+        if (!$redirectUrl->isAbsolute()) {
+            $redirectUrl = $request->getUrl()->resolve($redirectUrl);
+        }
+        $redirect = clone $request;
+        $redirect->setUrl($redirectUrl);
+        if (303 == $response->getStatus() || (!$request->getConfig('strict_redirects')
+             && in_array($response->getStatus(), array(301, 302)))
+        ) {
+            $redirect->setMethod(HTTP_Request2::METHOD_GET);
+            $redirect->setBody('');
+        }
+
+        if (0 < $this->redirectCountdown) {
+            $this->redirectCountdown--;
+        }
+        return $this->sendRequest($redirect);
     }
 
    /**

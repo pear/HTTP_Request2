@@ -139,6 +139,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         $this->lastInfo = curl_getinfo($ch);
         curl_close($ch);
 
+        $response = $this->response;
+        unset($this->request, $this->requestBody, $this->response);
+
         if (!empty($e)) {
             throw $e;
         } elseif (!empty($errorMessage)) {
@@ -146,9 +149,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         }
 
         if (0 < $this->lastInfo['size_download']) {
-            $this->request->setLastEvent('receivedBody', $this->response);
+            $request->setLastEvent('receivedBody', $response);
         }
-        return $this->response;
+        return $response;
     }
 
    /**

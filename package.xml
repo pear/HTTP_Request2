@@ -25,10 +25,10 @@ the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2009-09-14</date>
+  <date>2009-12-01</date>
   <version>
-    <release>0.4.1</release>
-    <api>0.4.0</api>
+    <release>0.5.0</release>
+    <api>0.5.0</api>
   </version>
   <stability>
     <release>alpha</release>
@@ -36,11 +36,10 @@ the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
- * Decoding of gzipped responses failed if mbstring.func_overload was enabled
-   (bug #16555)
- * Changed boundary generation in multipart bodies to work correctly with
-   rapidshare.com, added first usage example: file uploading to rapidshare.com
- * Added forgotten optional dependency on OpenSSL PHP extension
+ * Redirect support added, new configuration parameters 'follow_redirects',
+   'max_redirects' and 'strict_redirects' available
+ * Config parameter 'use_brackets' is propagated to created instances of Net_URL2
+ * Prevent memory leaks due to circular references (request #16646)
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -137,6 +136,25 @@ the request progress with Observers...
   </dependencies>
   <phprelease />
     <changelog>
+      <release>
+      <version>
+        <release>0.4.1</release>
+        <api>0.4.0</api>
+      </version>
+      <stability>
+        <release>alpha</release>
+        <api>alpha</api>
+      </stability>
+      <date>2009-09-14</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+ * Decoding of gzipped responses failed if mbstring.func_overload was enabled
+   (bug #16555)
+ * Changed boundary generation in multipart bodies to work correctly with
+   rapidshare.com, added first usage example: file uploading to rapidshare.com
+ * Added forgotten optional dependency on OpenSSL PHP extension
+      </notes>
+      </release>
       <release>
       <version>
         <release>0.4.0</release>
