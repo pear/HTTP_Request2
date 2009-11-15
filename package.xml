@@ -38,6 +38,9 @@ the request progress with Observers...
   <notes>
  * Redirect support added, new configuration parameters 'follow_redirects',
    'max_redirects' and 'strict_redirects' available
+ * Implemented workaround for PHP bug #47204, Curl Adapter can now handle
+   Digest authentication and redirects when doing POST requests, unfortunately
+   this requires loading the entire request body into memory.
  * Config parameter 'use_brackets' is propagated to created instances of Net_URL2
  * Prevent memory leaks due to circular references (request #16646)
   </notes>

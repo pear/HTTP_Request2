@@ -175,8 +175,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         $ch = curl_init();
 
         curl_setopt_array($ch, array(
-            // setup callbacks
-            CURLOPT_READFUNCTION   => array($this, 'callbackReadBody'),
+            // setup write callbacks
             CURLOPT_HEADERFUNCTION => array($this, 'callbackWriteHeader'),
             CURLOPT_WRITEFUNCTION  => array($this, 'callbackWriteBody'),
             // buffer size
@@ -198,6 +197,10 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             // limit redirects to http(s), works in 5.2.10+
             if (defined('CURLOPT_REDIR_PROTOCOLS')) {
                 curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+            }
+            // works sometime after 5.3.0, http://bugs.php.net/bug.php?id=49571
+            if ($this->request->getConfig('strict_redirects') && defined('CURLOPT_POSTREDIR ')) {
+                curl_setopt($ch, CURLOPT_POSTREDIR, 3);
             }
         }
 
@@ -284,6 +287,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         }
 
         $this->calculateRequestLength($headers);
+        if (isset($headers['content-length'])) {
+            $this->workaroundPhpBug47204($ch, $headers);
+        }
 
         // set headers not having special keys
         $headersFmt = array();
@@ -294,6 +300,43 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headersFmt);
 
         return $ch;
+    }
+
+   /**
+    * Workaround for PHP bug #47204 that prevents rewinding request body
+    *
+    * The workaround consists of reading the entire request body into memory
+    * and setting it as CURLOPT_POSTFIELDS, so it isn't recommended for large
+    * file uploads, use Socket adapter instead.
+    *
+    * @param    resource    cURL handle
+    * @param    array       Request headers
+    */
+    protected function workaroundPhpBug47204($ch, &$headers)
+    {
+        // no redirects, no digest auth -> probably no rewind needed
+        if (!$this->request->getConfig('follow_redirects')
+            && (!($auth = $this->request->getAuth())
+                || HTTP_Request2::AUTH_DIGEST != $auth['scheme'])
+        ) {
+            curl_setopt($ch, CURLOPT_READFUNCTION, array($this, 'callbackReadBody'));
+
+        // rewind may be needed, read the whole body into memory
+        } else {
+            if ($this->requestBody instanceof HTTP_Request2_MultipartBody) {
+                $this->requestBody = $this->requestBody->__toString();
+
+            } elseif (is_resource($this->requestBody)) {
+                $fp = $this->requestBody;
+                $this->requestBody = '';
+                while (!feof($fp)) {
+                    $this->requestBody .= fread($fp, 16384);
+                }
+            }
+            // curl hangs up if content-length is present
+            unset($headers['content-length']);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->requestBody);
+        }
     }
 
    /**
@@ -348,6 +391,14 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 $this->request->setLastEvent(
                     'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
                 );
+            }
+            $upload = curl_getinfo($ch, CURLINFO_SIZE_UPLOAD);
+            // if body wasn't read by a callback, send event with total body size
+            if ($upload > $this->position) {
+                $this->request->setLastEvent(
+                    'sentBodyPart', $upload - $this->position
+                );
+                $this->position = $upload;
             }
             $this->eventSentHeaders = true;
             // we'll need a new response object
