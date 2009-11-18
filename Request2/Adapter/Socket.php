@@ -110,10 +110,10 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected $proxyChallenge;
 
    /**
-    * Global timeout, exception will be raised if request continues past this time
+    * Sum of start time and global timeout, exception will be thrown if request continues past this time
     * @var  integer
     */
-    protected $timeout = null;
+    protected $deadline = null;
 
    /**
     * Remaining length of the current chunk, when reading chunked response
@@ -145,9 +145,9 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         // Use global request timeout if given, see feature requests #5735, #8964
         if ($timeout = $request->getConfig('timeout')) {
-            $this->timeout = time() + $timeout;
+            $this->deadline = time() + $timeout;
         } else {
-            $this->timeout = null;
+            $this->deadline = null;
         }
 
         try {
@@ -160,7 +160,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $this->request->setLastEvent('sentHeaders', $headers);
             $this->writeBody();
 
-            if ($this->timeout && time() > $this->timeout) {
+            if ($this->deadline && time() > $this->deadline) {
                 throw new HTTP_Request2_Exception(
                     'Request timed out after ' .
                     $request->getConfig('timeout') . ' second(s)'
@@ -968,16 +968,16 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     {
         $line = '';
         while (!feof($this->socket)) {
-            if ($this->timeout) {
-                stream_set_timeout($this->socket, max($this->timeout - time(), 1));
+            if ($this->deadline) {
+                stream_set_timeout($this->socket, max($this->deadline - time(), 1));
             }
             $line .= @fgets($this->socket, $bufferSize);
             $info  = stream_get_meta_data($this->socket);
-            if ($info['timed_out'] || $this->timeout && time() > $this->timeout) {
-                throw new HTTP_Request2_Exception(
-                    'Request timed out after ' .
-                    $this->request->getConfig('timeout') . ' second(s)'
-                );
+            if ($info['timed_out'] || $this->deadline && time() > $this->deadline) {
+                $reason = $this->deadline
+                          ? 'after ' . $this->request->getConfig('timeout') . ' second(s)'
+                          : 'due to default_socket_timeout php.ini setting';
+                throw new HTTP_Request2_Exception("Request timed out {$reason}");
             }
             if (substr($line, -1) == "\n") {
                 return rtrim($line, "\r\n");
@@ -995,16 +995,16 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     */
     protected function fread($length)
     {
-        if ($this->timeout) {
-            stream_set_timeout($this->socket, max($this->timeout - time(), 1));
+        if ($this->deadline) {
+            stream_set_timeout($this->socket, max($this->deadline - time(), 1));
         }
         $data = fread($this->socket, $length);
         $info = stream_get_meta_data($this->socket);
-        if ($info['timed_out'] || $this->timeout && time() > $this->timeout) {
-            throw new HTTP_Request2_Exception(
-                'Request timed out after ' .
-                $this->request->getConfig('timeout') . ' second(s)'
-            );
+        if ($info['timed_out'] || $this->deadline && time() > $this->deadline) {
+            $reason = $this->deadline
+                      ? 'after ' . $this->request->getConfig('timeout') . ' second(s)'
+                      : 'due to default_socket_timeout php.ini setting';
+            throw new HTTP_Request2_Exception("Request timed out {$reason}");
         }
         return $data;
     }

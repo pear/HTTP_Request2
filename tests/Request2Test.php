@@ -265,5 +265,33 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->getUrl()->setQueryVariable('foo', array('bar', 'baz'));
         $this->assertEquals('http://php.example.com/?foo[0]=bar&foo[1]=baz', $req->getUrl()->__toString());
     }
+
+    public function testSetBodyRemovesPostParameters()
+    {
+        $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_POST);
+        $req->addPostParameter('foo', 'bar');
+        $req->setBody('');
+        $this->assertEquals('', $req->getBody());
+    }
+
+    public function testPostParametersPrecedeSetBodyForPost()
+    {
+        $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_POST);
+        $req->setBody('Request body');
+        $req->addPostParameter('foo', 'bar');
+
+        $this->assertEquals('foo=bar', $req->getBody());
+
+        $req->setMethod(HTTP_Request2::METHOD_PUT);
+        $this->assertEquals('Request body', $req->getBody());
+    }
+
+    public function testSetMultipartBody()
+    {
+        $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_POST);
+        $body = new HTTP_Request2_MultipartBody(array('foo' => 'bar'), array());
+        $req->setBody($body);
+        $this->assertSame($body, $req->getBody());
+    }
 }
 ?>

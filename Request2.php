@@ -525,7 +525,11 @@ class HTTP_Request2 implements SplSubject
     public function setBody($body, $isFilename = false)
     {
         if (!$isFilename) {
-            $this->body = (string)$body;
+            if (!$body instanceof HTTP_Request2_MultipartBody) {
+                $this->body = (string)$body;
+            } else {
+                $this->body = $body;
+            }
         } else {
             if (!($fp = @fopen($body, 'rb'))) {
                 throw new HTTP_Request2_Exception("Cannot open file {$body}");
@@ -535,6 +539,7 @@ class HTTP_Request2 implements SplSubject
                 $this->setHeader('content-type', self::detectMimeType($body));
             }
         }
+        $this->postParams = $this->uploads = array();
 
         return $this;
     }
