@@ -226,6 +226,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             case HTTP_Request2::METHOD_POST:
                 curl_setopt($ch, CURLOPT_POST, true);
                 break;
+            case HTTP_Request2::METHOD_HEAD:
+                curl_setopt($ch, CURLOPT_NOBODY, true);
+                break;
             default:
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->request->getMethod());
         }

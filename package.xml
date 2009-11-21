@@ -16,8 +16,8 @@ Adapters. Currently available are:
   * Curl adapter, wraps around PHP's cURL extension,
   * Mock adapter, to use for testing packages dependent on HTTP_Request2.
 Supports POST requests with data and file uploads, basic and digest 
-authentication, cookies, proxies, gzip and deflate encodings, monitoring 
-the request progress with Observers...
+authentication, cookies, proxies, gzip and deflate encodings, redirects,
+monitoring the request progress with Observers...
   </description>
   <lead>
     <name>Alexey Borzov</name>
@@ -25,9 +25,9 @@ the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2009-11-18</date>
+  <date>2009-11-21</date>
   <version>
-    <release>0.5.0</release>
+    <release>0.5.1</release>
     <api>0.5.0</api>
   </version>
   <stability>
@@ -36,18 +36,9 @@ the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
- * Redirect support added, new configuration parameters 'follow_redirects',
-   'max_redirects' and 'strict_redirects' available
-
- * Implemented workaround for PHP bug #47204, Curl Adapter can now handle
-   Digest authentication and redirects when doing POST requests, unfortunately
-   this requires loading the entire request body into memory.
- * Config parameter 'use_brackets' is propagated to created instances of Net_URL2
- * Prevent memory leaks due to circular references (request #16646)
- * Fixed a misleading error message when timing out due to default_socket_timeout
- * HTTP_Request2::setBody() can now accept an instance of HTTP_Request2_MultipartBody
-   without trying to convert it to string
- * Calling HTTP_Request2::setBody() now clears post parameters and uploads
+ * Content-Type request header is no longer removed for POST and PUT requests
+   with empty request body (request #16799).
+ * CURLOPT_NOBODY option is now set when doing HEAD requests with Curl adapter.
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -144,6 +135,32 @@ the request progress with Observers...
   </dependencies>
   <phprelease />
     <changelog>
+      <release>
+      <version>
+        <release>0.5.0</release>
+        <api>0.5.0</api>
+      </version>
+      <stability>
+        <release>alpha</release>
+        <api>alpha</api>
+      </stability>
+      <date>2009-11-18</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+ * Redirect support added, new configuration parameters 'follow_redirects',
+   'max_redirects' and 'strict_redirects' available
+
+ * Implemented workaround for PHP bug #47204, Curl Adapter can now handle
+   Digest authentication and redirects when doing POST requests, unfortunately
+   this requires loading the entire request body into memory.
+ * Config parameter 'use_brackets' is propagated to created instances of Net_URL2
+ * Prevent memory leaks due to circular references (request #16646)
+ * Fixed a misleading error message when timing out due to default_socket_timeout
+ * HTTP_Request2::setBody() can now accept an instance of HTTP_Request2_MultipartBody
+   without trying to convert it to string
+ * Calling HTTP_Request2::setBody() now clears post parameters and uploads
+      </notes>
+      </release>
       <release>
       <version>
         <release>0.4.1</release>
