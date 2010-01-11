@@ -134,7 +134,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
         }
         if (is_resource($target) || $target instanceof Log) {
             $this->target = $target;
-        } elseif (false === ($this->target = @fopen($target, 'w'))) {
+        } elseif (false === ($this->target = @fopen($target, 'ab'))) {
             throw new HTTP_Request2_Exception("Unable to open '{$target}'");
         }
     }
