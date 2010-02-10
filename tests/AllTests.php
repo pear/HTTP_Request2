@@ -48,8 +48,6 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 require_once 'PHPUnit/Framework.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
 
-chdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR);
-
 require_once dirname(__FILE__) . '/Request2Test.php';
 require_once dirname(__FILE__) . '/ObserverTest.php';
 require_once dirname(__FILE__) . '/Request2/AllTests.php';
