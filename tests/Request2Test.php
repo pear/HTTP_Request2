@@ -199,9 +199,9 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $req->setBody(dirname(__FILE__) . '/_files/plaintext.txt', true);
         $headers = $req->getHeaders();
-        $this->assertContains(
-            $headers['content-type'],
-            array('text/plain', 'application/octet-stream')
+        $this->assertRegexp(
+            '!^(text/plain|application/octet-stream)!',
+            $headers['content-type']
         );
         $this->assertEquals('This is a test.', fread($req->getBody(), 1024));
 
