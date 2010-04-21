@@ -801,9 +801,9 @@ class HTTP_Request2 implements SplSubject
             $this->setAdapter($this->getConfig('adapter'));
         }
         // magic_quotes_runtime may break file uploads and chunked response
-        // processing; see bug #4543
-        if ($magicQuotes = ini_get('magic_quotes_runtime')) {
-            ini_set('magic_quotes_runtime', false);
+        // processing; see bug #4543. Don't use ini_get() here; see bug #16440.
+        if ($magicQuotes = get_magic_quotes_runtime()) {
+            set_magic_quotes_runtime(false);
         }
         // force using single byte encoding if mbstring extension overloads
         // strlen() and substr(); see bug #1781, bug #10605
@@ -818,7 +818,7 @@ class HTTP_Request2 implements SplSubject
         }
         // cleanup in either case (poor man's "finally" clause)
         if ($magicQuotes) {
-            ini_set('magic_quotes_runtime', true);
+            set_magic_quotes_runtime(true);
         }
         if (!empty($oldEncoding)) {
             mb_internal_encoding($oldEncoding);

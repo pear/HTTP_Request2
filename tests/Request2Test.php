@@ -288,6 +288,8 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
     public function testSetMultipartBody()
     {
+        require_once 'HTTP/Request2/MultipartBody.php';
+
         $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_POST);
         $body = new HTTP_Request2_MultipartBody(array('foo' => 'bar'), array());
         $req->setBody($body);
