@@ -25,9 +25,9 @@ monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2009-11-21</date>
+  <date>2010-04-21</date>
   <version>
-    <release>0.5.1</release>
+    <release>0.5.2</release>
     <api>0.5.0</api>
   </version>
   <stability>
@@ -36,9 +36,11 @@ monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
- * Content-Type request header is no longer removed for POST and PUT requests
-   with empty request body (request #16799).
- * CURLOPT_NOBODY option is now set when doing HEAD requests with Curl adapter.
+ * magic_quotes_runtime PHP setting could be incorrectly enabled after
+   performing the request (bug #16440)
+ * Unit tests fixes (bugs #17079, #17106, #17326)
+ * Observer_Log now appends to the log file rather than rewrites it (thanks to
+   troelskn at gmail dot com for reporting) 
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -135,6 +137,23 @@ monitoring the request progress with Observers...
   </dependencies>
   <phprelease />
     <changelog>
+      <release>
+      <version>
+        <release>0.5.1</release>
+        <api>0.5.0</api>
+      </version>
+      <stability>
+        <release>alpha</release>
+        <api>alpha</api>
+      </stability>
+      <date>2009-11-21</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+ * Content-Type request header is no longer removed for POST and PUT requests
+   with empty request body (request #16799).
+ * CURLOPT_NOBODY option is now set when doing HEAD requests with Curl adapter.
+      </notes>
+      </release>
       <release>
       <version>
         <release>0.5.0</release>
