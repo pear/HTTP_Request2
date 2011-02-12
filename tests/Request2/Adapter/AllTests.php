@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,10 +45,20 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
     define('PHPUnit_MAIN_METHOD', 'Request2_Adapter_AllTests::main');
 }
 
+if (!defined('HTTP_REQUEST2_TESTS_BASE_URL')
+    && is_readable(dirname(__FILE__) . '/../../NetworkConfig.php')
+) {
+    require_once dirname(__FILE__) . '/../../NetworkConfig.php';
+}
+
 require_once 'PHPUnit/Framework.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
 
 require_once dirname(__FILE__) . '/MockTest.php';
+require_once dirname(__FILE__) . '/SkippedTests.php';
+require_once dirname(__FILE__) . '/SocketTest.php';
+require_once dirname(__FILE__) . '/SocketProxyTest.php';
+require_once dirname(__FILE__) . '/CurlTest.php';
 
 class Request2_Adapter_AllTests
 {
@@ -62,6 +72,25 @@ class Request2_Adapter_AllTests
         $suite = new PHPUnit_Framework_TestSuite('HTTP_Request2 package - Request2 - Adapter');
 
         $suite->addTestSuite('HTTP_Request2_Adapter_MockTest');
+        if (defined('HTTP_REQUEST2_TESTS_BASE_URL') && HTTP_REQUEST2_TESTS_BASE_URL) {
+            $suite->addTestSuite('HTTP_Request2_Adapter_SocketTest');
+        } else {
+            $suite->addTestSuite('HTTP_Request2_Adapter_Skip_SocketTest');
+        }
+        if (defined('HTTP_REQUEST2_TESTS_PROXY_HOST') && HTTP_REQUEST2_TESTS_PROXY_HOST
+            && defined('HTTP_REQUEST2_TESTS_BASE_URL') && HTTP_REQUEST2_TESTS_BASE_URL
+        ) {
+            $suite->addTestSuite('HTTP_Request2_Adapter_SocketProxyTest');
+        } else {
+            $suite->addTestSuite('HTTP_Request2_Adapter_Skip_SocketProxyTest');
+        }
+        if (defined('HTTP_REQUEST2_TESTS_BASE_URL') && HTTP_REQUEST2_TESTS_BASE_URL
+            && extension_loaded('curl')
+        ) {
+            $suite->addTestSuite('HTTP_Request2_Adapter_CurlTest');
+        } else {
+            $suite->addTestSuite('HTTP_Request2_Adapter_Skip_CurlTest');
+        }
 
         return $suite;
     }

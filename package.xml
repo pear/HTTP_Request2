@@ -85,16 +85,28 @@ monitoring the request progress with Observers...
 		  <file role="test" name="response_gzip_broken" />
 		  <file role="test" name="response_headers" />
         </dir>
+        <dir name="_network">
+         <file role="test" name="cookies.php" />
+         <file role="test" name="getparameters.php" />
+         <file role="test" name="redirects.php" />
+         <file role="test" name="timeout.php" />
+        </dir>
         <dir name="Request2">
           <dir name="Adapter">
             <file role="test" name="AllTests.php" />
+            <file role="test" name="CommonNetworkTest.php" />
+            <file role="test" name="CurlTest.php" />
             <file role="test" name="MockTest.php" />
+            <file role="test" name="SkippedTests.php" />
+            <file role="test" name="SocketProxyTest.php" />
+            <file role="test" name="SocketTest.php" />
           </dir>
           <file role="test" name="AllTests.php" />
           <file role="test" name="MultipartBodyTest.php" />
           <file role="test" name="ResponseTest.php" />
         </dir>
         <file role="test" name="AllTests.php" />
+        <file role="test" name="NetworkConfig.php.dist" />
         <file role="test" name="ObserverTest.php" />
         <file role="test" name="Request2Test.php" />
       </dir>
@@ -135,7 +147,42 @@ monitoring the request progress with Observers...
       </extension>
     </optional>
   </dependencies>
-  <phprelease />
+  <phprelease>
+   <filelist>
+    <install as="examples/upload-rapidshare.php" name="docs/examples/upload-rapidshare.php" />
+
+    <install as="AllTests.php" name="tests/AllTests.php" />
+    <install as="NetworkConfig.php.dist" name="tests/NetworkConfig.php.dist" />
+    <install as="ObserverTest.php" name="tests/ObserverTest.php" />
+    <install as="Request2Test.php" name="tests/Request2Test.php" />
+
+    <install as="_files/bug_15305" name="tests/_files/bug_15305" />
+    <install as="_files/empty.gif" name="tests/_files/empty.gif" />
+    <install as="_files/plaintext.txt" name="tests/_files/plaintext.txt" />
+    <install as="_files/response_cookies" name="tests/_files/response_cookies" />
+    <install as="_files/response_deflate" name="tests/_files/response_deflate" />
+    <install as="_files/response_gzip" name="tests/_files/response_gzip" />
+    <install as="_files/response_gzip_broken" name="tests/_files/response_gzip_broken" />
+    <install as="_files/response_headers" name="tests/_files/response_headers" />
+
+    <install as="_network/cookies.php" name="tests/_network/cookies.php" />
+    <install as="_network/getparameters.php" name="tests/_network/getparameters.php" />
+    <install as="_network/redirects.php" name="tests/_network/redirects.php" />
+    <install as="_network/timeout.php" name="tests/_network/timeout.php" />
+
+    <install as="Request2/AllTests.php" name="tests/Request2/AllTests.php" />
+    <install as="Request2/MultipartBodyTest.php" name="tests/Request2/MultipartBodyTest.php" />
+    <install as="Request2/ResponseTest.php" name="tests/Request2/ResponseTest.php" />
+
+    <install as="Request2/Adapter/AllTests.php" name="tests/Request2/Adapter/AllTests.php" />
+    <install as="Request2/Adapter/CommonNetworkTest.php" name="tests/Request2/Adapter/CommonNetworkTest.php" />
+    <install as="Request2/Adapter/CurlTest.php" name="tests/Request2/Adapter/CurlTest.php" />
+    <install as="Request2/Adapter/MockTest.php" name="tests/Request2/Adapter/MockTest.php" />
+    <install as="Request2/Adapter/SkippedTests.php" name="tests/Request2/Adapter/SkippedTests.php" />
+    <install as="Request2/Adapter/SocketProxyTest.php" name="tests/Request2/Adapter/SocketProxyTest.php" />
+    <install as="Request2/Adapter/SocketTest.php" name="tests/Request2/Adapter/SocketTest.php" />
+   </filelist>
+  </phprelease>
     <changelog>
       <release>
       <version>

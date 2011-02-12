@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -199,7 +199,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
             }
             // works sometime after 5.3.0, http://bugs.php.net/bug.php?id=49571
-            if ($this->request->getConfig('strict_redirects') && defined('CURLOPT_POSTREDIR ')) {
+            if ($this->request->getConfig('strict_redirects') && defined('CURLOPT_POSTREDIR')) {
                 curl_setopt($ch, CURLOPT_POSTREDIR, 3);
             }
         }
