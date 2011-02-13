@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,6 +129,12 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
     {
         $response = $this->readResponseFromFile('bug_15305');
         $this->assertEquals('c8c5088fc8a7652afef380f086c010a6', md5($response->getBody()));
+    }
+
+    public function testBug18169()
+    {
+        $response = $this->readResponseFromFile('bug_18169');
+        $this->assertEquals('', $response->getBody());
     }
 
     protected function readResponseFromFile($filename)

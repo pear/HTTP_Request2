@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -193,10 +193,12 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         unset($this->request, $this->requestBody);
 
         if (!empty($e)) {
+            $this->redirectCountdown = null;
             throw $e;
         }
 
         if (!$request->getConfig('follow_redirects') || !$response->isRedirect()) {
+            $this->redirectCountdown = null;
             return $response;
         } else {
             return $this->handleRedirect($request, $response);
@@ -419,6 +421,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $this->redirectCountdown = $request->getConfig('max_redirects');
         }
         if (0 == $this->redirectCountdown) {
+            $this->redirectCountdown = null;
             // Copying cURL behaviour
             throw new HTTP_Request2_Exception(
                 'Maximum (' . $request->getConfig('max_redirects') . ') redirects followed'
@@ -432,6 +435,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         if ($redirectUrl->isAbsolute()
             && !in_array($redirectUrl->getScheme(), array('http', 'https'))
         ) {
+            $this->redirectCountdown = null;
             throw new HTTP_Request2_Exception(
                 'Refusing to redirect to a non-HTTP URL ' . $redirectUrl->__toString()
             );

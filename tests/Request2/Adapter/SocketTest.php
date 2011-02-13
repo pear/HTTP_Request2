@@ -44,6 +44,9 @@
 /** Tests for HTTP_Request2 package that require a working webserver */
 require_once dirname(__FILE__) . '/CommonNetworkTest.php';
 
+/** Socket-based adapter for HTTP_Request2 */
+require_once 'HTTP/Request2/Adapter/Socket.php';
+
 /**
  * Unit test for Socket Adapter of HTTP_Request2
  */
@@ -56,5 +59,20 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     protected $config = array(
         'adapter' => 'HTTP_Request2_Adapter_Socket'
     );
+
+    public function testBug17826()
+    {
+        $adapter = new HTTP_Request2_Adapter_Socket();
+
+        $request1 = new HTTP_Request2($this->baseUrl . 'redirects.php?redirects=2');
+        $request1->setConfig(array('follow_redirects' => true, 'max_redirects' => 3))
+                 ->setAdapter($adapter)
+                 ->send();
+
+        $request2 = new HTTP_Request2($this->baseUrl . 'redirects.php?redirects=2');
+        $request2->setConfig(array('follow_redirects' => true, 'max_redirects' => 3))
+                 ->setAdapter($adapter)
+                 ->send();
+    }
 }
 ?>
