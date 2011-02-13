@@ -86,10 +86,15 @@ monitoring the request progress with Observers...
 		  <file role="test" name="response_headers" />
         </dir>
         <dir name="_network">
+         <file role="test" name="basicauth.php" />
          <file role="test" name="cookies.php" />
+         <file role="test" name="digestauth.php" />
          <file role="test" name="getparameters.php" />
+         <file role="test" name="postparameters.php" />
+         <file role="test" name="rawpostdata.php" />
          <file role="test" name="redirects.php" />
          <file role="test" name="timeout.php" />
+         <file role="test" name="uploads.php" />
         </dir>
         <dir name="Request2">
           <dir name="Adapter">
@@ -129,7 +134,7 @@ monitoring the request progress with Observers...
       <package>
 	    <name>Net_URL2</name>
 	    <channel>pear.php.net</channel>
-	    <min>0.2.0</min>
+	    <min>0.3.0</min>
 	  </package>
     </required>
     <optional>
@@ -165,10 +170,15 @@ monitoring the request progress with Observers...
     <install as="_files/response_gzip_broken" name="tests/_files/response_gzip_broken" />
     <install as="_files/response_headers" name="tests/_files/response_headers" />
 
+    <install as="_network/basicauth.php" name="tests/_network/basicauth.php" />
     <install as="_network/cookies.php" name="tests/_network/cookies.php" />
+    <install as="_network/digestauth.php" name="tests/_network/digestauth.php" />
     <install as="_network/getparameters.php" name="tests/_network/getparameters.php" />
+    <install as="_network/postparameters.php" name="tests/_network/postparameters.php" />
+    <install as="_network/rawpostdata.php" name="tests/_network/rawpostdata.php" />
     <install as="_network/redirects.php" name="tests/_network/redirects.php" />
     <install as="_network/timeout.php" name="tests/_network/timeout.php" />
+    <install as="_network/uploads.php" name="tests/_network/uploads.php" />
 
     <install as="Request2/AllTests.php" name="tests/Request2/AllTests.php" />
     <install as="Request2/MultipartBodyTest.php" name="tests/Request2/MultipartBodyTest.php" />

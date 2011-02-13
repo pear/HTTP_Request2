@@ -111,6 +111,53 @@ class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($response->getBody(), serialize($data));
     }
 
+    public function testPostParameters()
+    {
+        $data = array(
+            'bar' => array(
+                'key' => 'some other value'
+            ),
+            'baz' => array(
+                'key1' => array(
+                    'key2' => 'yet another value'
+                )
+            ),
+            'foo' => 'some value',
+            'indexed' => array('first', 'second')
+        );
+
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->addPostParameter($data);
+
+        $response = $this->request->send();
+        $this->assertEquals($response->getBody(), serialize($data));
+    }
+
+    public function testUploads()
+    {
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->addUpload('foo', dirname(dirname(dirname(__FILE__))) . '/_files/empty.gif', 'picture.gif', 'image/gif')
+                      ->addUpload('bar', array(
+                                    array(dirname(dirname(dirname(__FILE__))) . '/_files/empty.gif', null, 'image/gif'),
+                                    array(dirname(dirname(dirname(__FILE__))) . '/_files/plaintext.txt', 'secret.txt', 'text/x-whatever')
+                                  ));
+
+        $response = $this->request->send();
+        $this->assertContains("foo picture.gif image/gif 43", $response->getBody());
+        $this->assertContains("bar[0] empty.gif image/gif 43", $response->getBody());
+        $this->assertContains("bar[1] secret.txt text/x-whatever 15", $response->getBody());
+    }
+
+    public function testRawPostData()
+    {
+        $data = 'Nothing to see here, move along';
+
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->setBody($data);
+        $response = $this->request->send();
+        $this->assertEquals($response->getBody(), $data);
+    }
+
     public function testCookies()
     {
         $cookies = array(
@@ -132,6 +179,40 @@ class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
             $this->request->send();
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
         } catch (HTTP_Request2_Exception $e) { }
+    }
+
+    public function testBasicAuth()
+    {
+        $this->request->getUrl()->setQueryVariables(array(
+            'user' => 'luser',
+            'pass' => 'qwerty'
+        ));
+        $wrong = clone $this->request;
+
+        $this->request->setAuth('luser', 'qwerty');
+        $response = $this->request->send();
+        $this->assertEquals(200, $response->getStatus());
+
+        $wrong->setAuth('luser', 'password');
+        $response = $wrong->send();
+        $this->assertEquals(401, $response->getStatus());
+    }
+
+    public function testDigestAuth()
+    {
+        $this->request->getUrl()->setQueryVariables(array(
+            'user' => 'luser',
+            'pass' => 'qwerty'
+        ));
+        $wrong = clone $this->request;
+
+        $this->request->setAuth('luser', 'qwerty', HTTP_Request2::AUTH_DIGEST);
+        $response = $this->request->send();
+        $this->assertEquals(200, $response->getStatus());
+
+        $wrong->setAuth('luser', 'password', HTTP_Request2::AUTH_DIGEST);
+        $response = $wrong->send();
+        $this->assertEquals(401, $response->getStatus());
     }
 
     public function testRedirectsDefault()
@@ -162,6 +243,26 @@ class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
     {
         $this->request->setUrl($this->baseUrl . 'redirects.php?redirects=4')
                       ->setConfig(array('follow_redirects' => true, 'max_redirects' => 2));
+
+        try {
+            $this->request->send();
+            $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        } catch (HTTP_Request2_Exception $e) { }
+    }
+
+    public function testRedirectsRelative()
+    {
+        $this->request->setUrl($this->baseUrl . 'redirects.php?special=relative')
+                      ->setConfig(array('follow_redirects' => true));
+
+        $response = $this->request->send();
+        $this->assertContains('did relative', $response->getBody());
+    }
+
+    public function testRedirectsNonHTTP()
+    {
+        $this->request->setUrl($this->baseUrl . 'redirects.php?special=ftp')
+                      ->setConfig(array('follow_redirects' => true));
 
         try {
             $this->request->send();
