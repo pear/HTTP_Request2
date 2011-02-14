@@ -44,6 +44,8 @@
 /** Tests for HTTP_Request2 package that require a working webserver */
 require_once dirname(__FILE__) . '/CommonNetworkTest.php';
 
+/** Adapter for HTTP_Request2 wrapping around cURL extension */
+
 /**
  * Unit test for Curl Adapter of HTTP_Request2
  */
@@ -56,5 +58,77 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
     protected $config = array(
         'adapter' => 'HTTP_Request2_Adapter_Curl'
     );
+
+   /**
+    * Checks whether redirect support in cURL is disabled by safe_mode or open_basedir
+    * @return bool
+    */
+    protected function isRedirectSupportDisabled()
+    {
+        return ini_get('safe_mode') || ini_get('open_basedir');
+    }
+
+    public function testRedirectsDefault()
+    {
+        if ($this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
+        } else {
+            parent::testRedirectsDefault();
+        }
+    }
+
+    public function testRedirectsStrict()
+    {
+        if ($this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
+        } else {
+            parent::testRedirectsStrict();
+        }
+    }
+
+    public function testRedirectsLimit()
+    {
+        if ($this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
+        } else {
+            parent::testRedirectsLimit();
+        }
+    }
+
+    public function testRedirectsRelative()
+    {
+        if ($this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
+        } else {
+            parent::testRedirectsRelative();
+        }
+    }
+
+    public function testRedirectsNonHTTP()
+    {
+        if ($this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
+        } else {
+            parent::testRedirectsNonHTTP();
+        }
+    }
+
+    public function testBug17450()
+    {
+        if (!$this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Neither safe_mode nor open_basedir is enabled');
+        }
+
+        $this->request->setUrl($this->baseUrl . 'redirects.php')
+                      ->setConfig(array('follow_redirects' => true));
+
+        try {
+            $this->request->send();
+            $this->fail('Expected HTTP_Request2_Exception was not thrown');
+
+        } catch (HTTP_Request2_Exception $e) {
+            $this->assertContains('open_basedir', $e->getMessage());
+        }
+    }
 }
 ?>
