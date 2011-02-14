@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,6 +175,22 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testRequest17507()
+    {
+        $req = new HTTP_Request2();
+
+        $req->setHeader('accept-charset', 'iso-8859-1');
+        $req->setHeader('accept-charset', array('windows-1251', 'utf-8'), false);
+
+        $req->setHeader(array('accept' => 'text/html'));
+        $req->setHeader(array('accept' => 'image/gif'), null, false);
+
+        $headers = $req->getHeaders();
+
+        $this->assertEquals('iso-8859-1, windows-1251, utf-8', $headers['accept-charset']);
+        $this->assertEquals('text/html, image/gif', $headers['accept']);
+    }
+
     public function testCookies()
     {
         $req = new HTTP_Request2();
@@ -294,6 +310,15 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $body = new HTTP_Request2_MultipartBody(array('foo' => 'bar'), array());
         $req->setBody($body);
         $this->assertSame($body, $req->getBody());
+    }
+
+    public function testBug17460()
+    {
+        $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_POST);
+        $req->addPostParameter('foo', 'bar')
+            ->setHeader('content-type', 'application/x-www-form-urlencoded; charset=UTF-8');
+
+        $this->assertEquals('foo=bar', $req->getBody());
     }
 }
 ?>

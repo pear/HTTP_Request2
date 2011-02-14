@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008, 2009, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -447,18 +447,21 @@ class HTTP_Request2 implements SplSubject
     *
     * @param    string|array    header name, header string ('Header: value')
     *                           or an array of headers
-    * @param    string|null     header value, header will be removed if null
+    * @param    string|array|null header value if $name is not an array,
+    *                           header will be removed if value is null
+    * @param    bool            whether to replace previous header with the
+    *                           same name or append to its value
     * @return   HTTP_Request2
     * @throws   HTTP_Request2_Exception
     */
-    public function setHeader($name, $value = null)
+    public function setHeader($name, $value = null, $replace = true)
     {
         if (is_array($name)) {
             foreach ($name as $k => $v) {
                 if (is_string($k)) {
-                    $this->setHeader($k, $v);
+                    $this->setHeader($k, $v, $replace);
                 } else {
-                    $this->setHeader($v);
+                    $this->setHeader($v, null, $replace);
                 }
             }
         } else {
@@ -473,8 +476,18 @@ class HTTP_Request2 implements SplSubject
             $name = strtolower($name);
             if (null === $value) {
                 unset($this->headers[$name]);
+
             } else {
-                $this->headers[$name] = $value;
+                if (is_array($value)) {
+                    $value = implode(', ', array_map('trim', $value));
+                } elseif (is_string($value)) {
+                    $value = trim($value);
+                }
+                if (!isset($this->headers[$name]) || $replace) {
+                    $this->headers[$name] = $value;
+                } else {
+                    $this->headers[$name] .= ', ' . $value;
+                }
             }
         }
 
@@ -554,7 +567,7 @@ class HTTP_Request2 implements SplSubject
         if (self::METHOD_POST == $this->method &&
             (!empty($this->postParams) || !empty($this->uploads))
         ) {
-            if ('application/x-www-form-urlencoded' == $this->headers['content-type']) {
+            if (0 === strpos($this->headers['content-type'], 'application/x-www-form-urlencoded')) {
                 $body = http_build_query($this->postParams, '', '&');
                 if (!$this->getConfig('use_brackets')) {
                     $body = preg_replace('/%5B\d+%5D=/', '=', $body);
@@ -562,7 +575,7 @@ class HTTP_Request2 implements SplSubject
                 // support RFC 3986 by not encoding '~' symbol (request #15368)
                 return str_replace('%7E', '~', $body);
 
-            } elseif ('multipart/form-data' == $this->headers['content-type']) {
+            } elseif (0 === strpos($this->headers['content-type'], 'multipart/form-data')) {
                 require_once 'HTTP/Request2/MultipartBody.php';
                 return new HTTP_Request2_MultipartBody(
                     $this->postParams, $this->uploads, $this->getConfig('use_brackets')
