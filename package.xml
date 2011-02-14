@@ -25,10 +25,10 @@ monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2010-04-21</date>
+  <date>2011-02-14</date>
   <version>
-    <release>0.5.2</release>
-    <api>0.5.0</api>
+    <release>0.6.0</release>
+    <api>0.6.0</api>
   </version>
   <stability>
     <release>alpha</release>
@@ -36,11 +36,23 @@ monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
- * magic_quotes_runtime PHP setting could be incorrectly enabled after
-   performing the request (bug #16440)
- * Unit tests fixes (bugs #17079, #17106, #17326)
- * Observer_Log now appends to the log file rather than rewrites it (thanks to
-   troelskn at gmail dot com for reporting) 
+Additions and changes:
+  * Added test suite that interacts with a webserver. Please refer to 
+    tests/NetworkConfig.php.dist for instructions.
+  * Packaging changes: docs/ and tests/ contents are installed without
+    redundant subdirectories.
+  * Added a $replace parameter to HTTP_Request2::setHeader() that controls
+    whether new header value will overwrite previous one or be appended
+    to it (request #17507)
+
+Bugfixes:
+  * Fixed a typo in Curl Adapter that prevented 'strict_redirects' from working
+  * Curl Adapter will throw an exception if CURLOPT_FOLLOWLOCATION can not be
+    enabled due to PHP setup (bug #17450)
+  * Allow parameters in manually set Content-Type headers (bug #17460)
+  * Properly reset redirect limit if multiple requests are performed with the
+    same instance of Socket Adapter (bug #17826)
+  * Response::getBody() no longer tries to decode empty strings (bug #18169) 
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -196,6 +208,25 @@ monitoring the request progress with Observers...
    </filelist>
   </phprelease>
     <changelog>
+      <release>
+      <version>
+        <release>0.5.2</release>
+        <api>0.5.0</api>
+      </version>
+      <stability>
+        <release>alpha</release>
+        <api>alpha</api>
+      </stability>
+      <date>2010-04-21</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+ * magic_quotes_runtime PHP setting could be incorrectly enabled after
+   performing the request (bug #16440)
+ * Unit tests fixes (bugs #17079, #17106, #17326)
+ * Observer_Log now appends to the log file rather than rewrites it (thanks to
+   troelskn at gmail dot com for reporting) 
+      </notes>
+      </release>
       <release>
       <version>
         <release>0.5.1</release>
