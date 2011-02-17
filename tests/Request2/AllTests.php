@@ -48,6 +48,7 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
 require_once 'PHPUnit/Framework.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
 
+require_once dirname(__FILE__) . '/CookieJarTest.php';
 require_once dirname(__FILE__) . '/MultipartBodyTest.php';
 require_once dirname(__FILE__) . '/ResponseTest.php';
 require_once dirname(__FILE__) . '/Adapter/AllTests.php';
@@ -63,6 +64,7 @@ class Request2_AllTests
     {
         $suite = new PHPUnit_Framework_TestSuite('HTTP_Request2 package - Request2');
 
+        $suite->addTestSuite('HTTP_Request2_CookieJarTest');
         $suite->addTestSuite('HTTP_Request2_MultipartBodyTest');
         $suite->addTestSuite('HTTP_Request2_ResponseTest');
         $suite->addTest(Request2_Adapter_AllTests::suite());

@@ -71,6 +71,9 @@ Bugfixes:
         <file role="php" name="Adapter.php">
           <tasks:replace from="@package_version@" to="version" type="package-info" />
         </file>
+        <file role="php" name="CookieJar.php">
+          <tasks:replace from="@package_version@" to="version" type="package-info" />
+        </file>
         <file role="php" name="Exception.php">
           <tasks:replace from="@package_version@" to="version" type="package-info" />
         </file>
@@ -120,6 +123,7 @@ Bugfixes:
             <file role="test" name="SocketTest.php" />
           </dir>
           <file role="test" name="AllTests.php" />
+          <file role="test" name="CookieJarTest.php" />
           <file role="test" name="MultipartBodyTest.php" />
           <file role="test" name="ResponseTest.php" />
         </dir>
@@ -139,7 +143,7 @@ Bugfixes:
   <dependencies>
     <required>
       <php>
-        <min>5.1.4</min>
+        <min>5.2.0</min>
       </php>
       <pearinstaller>
         <min>1.5.4</min>
@@ -195,6 +199,7 @@ Bugfixes:
     <install as="_network/uploads.php" name="tests/_network/uploads.php" />
 
     <install as="Request2/AllTests.php" name="tests/Request2/AllTests.php" />
+    <install as="Request2/CookieJarTest.php" name="tests/Request2/CookieJarTest.php" />
     <install as="Request2/MultipartBodyTest.php" name="tests/Request2/MultipartBodyTest.php" />
     <install as="Request2/ResponseTest.php" name="tests/Request2/ResponseTest.php" />
 
