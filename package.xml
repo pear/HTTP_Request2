@@ -73,6 +73,7 @@ Bugfixes:
         </file>
         <file role="php" name="CookieJar.php">
           <tasks:replace from="@package_version@" to="version" type="package-info" />
+          <tasks:replace from="@data_dir@" to="data_dir" type="pear-config" />
         </file>
         <file role="php" name="Exception.php">
           <tasks:replace from="@package_version@" to="version" type="package-info" />
@@ -109,6 +110,7 @@ Bugfixes:
          <file role="test" name="postparameters.php" />
          <file role="test" name="rawpostdata.php" />
          <file role="test" name="redirects.php" />
+         <file role="test" name="setcookie.php" />
          <file role="test" name="timeout.php" />
          <file role="test" name="uploads.php" />
         </dir>
@@ -134,6 +136,10 @@ Bugfixes:
       </dir>
       <dir name="docs/examples">
         <file role="doc" name="upload-rapidshare.php" />
+      </dir>
+      <dir name="data">
+        <file role="data" name="generate-list.php" />
+        <file role="data" name="public-suffix-list.php" />
       </dir>
       <file role="php" name="Request2.php">
       	<tasks:replace from="@package_version@" to="version" type="package-info" />
@@ -173,6 +179,9 @@ Bugfixes:
    <filelist>
     <install as="examples/upload-rapidshare.php" name="docs/examples/upload-rapidshare.php" />
 
+    <install as="generate-list.php" name="data/generate-list.php" />
+    <install as="public-suffix-list.php" name="data/public-suffix-list.php" />
+
     <install as="AllTests.php" name="tests/AllTests.php" />
     <install as="NetworkConfig.php.dist" name="tests/NetworkConfig.php.dist" />
     <install as="ObserverTest.php" name="tests/ObserverTest.php" />
@@ -195,6 +204,7 @@ Bugfixes:
     <install as="_network/postparameters.php" name="tests/_network/postparameters.php" />
     <install as="_network/rawpostdata.php" name="tests/_network/rawpostdata.php" />
     <install as="_network/redirects.php" name="tests/_network/redirects.php" />
+    <install as="_network/setcookie.php" name="tests/_network/setcookie.php" />
     <install as="_network/timeout.php" name="tests/_network/timeout.php" />
     <install as="_network/uploads.php" name="tests/_network/uploads.php" />
 

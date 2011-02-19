@@ -150,6 +150,10 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             throw new HTTP_Request2_Exception($errorMessage);
         }
 
+        if ($jar = $request->getCookieJar()) {
+            $jar->addCookiesFromResponse($response, $request->getUrl());
+        }
+
         if (0 < $this->lastInfo['size_download']) {
             $request->setLastEvent('receivedBody', $response);
         }
@@ -283,6 +287,12 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         // make cURL automagically send proper header
         if (!isset($headers['accept-encoding'])) {
             $headers['accept-encoding'] = '';
+        }
+
+        if (($jar = $this->request->getCookieJar())
+            && ($cookies = $jar->getMatching($this->request->getUrl(), true))
+        ) {
+            $headers['cookie'] = (empty($headers['cookie'])? '': $headers['cookie'] . '; ') . $cookies;
         }
 
         // set headers having special cURL keys
@@ -423,15 +433,25 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 if (200 <= $this->response->getStatus()) {
                     $this->request->setLastEvent('receivedHeaders', $this->response);
                 }
-                // for versions lower than 5.2.10, check the redirection URL protocol
-                if ($this->request->getConfig('follow_redirects') && !defined('CURLOPT_REDIR_PROTOCOLS')
-                    && $this->response->isRedirect()
-                ) {
+
+                if ($this->request->getConfig('follow_redirects') && $this->response->isRedirect()) {
                     $redirectUrl = new Net_URL2($this->response->getHeader('location'));
-                    if ($redirectUrl->isAbsolute()
+
+                    // for versions lower than 5.2.10, check the redirection URL protocol
+                    if (!defined('CURLOPT_REDIR_PROTOCOLS') && $redirectUrl->isAbsolute()
                         && !in_array($redirectUrl->getScheme(), array('http', 'https'))
                     ) {
                         return -1;
+                    }
+
+                    if ($jar = $this->request->getCookieJar()) {
+                        $jar->addCookiesFromResponse($this->response, $this->request->getUrl());
+                        if (!$redirectUrl->isAbsolute()) {
+                            $redirectUrl = $this->request->getUrl()->resolve($redirectUrl);
+                        }
+                        if ($cookies = $jar->getMatching($redirectUrl, true)) {
+                            curl_setopt($ch, CURLOPT_COOKIE, $cookies);
+                        }
                     }
                 }
                 $this->eventReceivedHeaders = true;

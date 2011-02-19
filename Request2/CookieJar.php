@@ -77,13 +77,28 @@ class HTTP_Request2_CookieJar implements Serializable
     protected $serializeSession = false;
 
    /**
+    * Whether Public Suffix List should be used for domain matching
+    * @var bool
+    */
+    protected $useList = true;
+
+   /**
+    * Array with Public Suffix List data
+    * @var  array
+    * @link http://publicsuffix.org/
+    */
+    protected static $psl = array();
+
+   /**
     * Class constructor, sets various options
     *
     * @param bool Controls serializing session cookies, see {@link serializeSessionCookies()}
+    * @param bool Controls using Public Suffix List, see {@link usePublicSuffixList()}
     */
-    public function __construct($serializeSessionCookies = false)
+    public function __construct($serializeSessionCookies = false, $usePublicSuffixList = true)
     {
         $this->serializeSessionCookies($serializeSessionCookies);
+        $this->usePublicSuffixList($usePublicSuffixList);
     }
 
    /**
@@ -102,11 +117,14 @@ class HTTP_Request2_CookieJar implements Serializable
     * Checks cookie array for correctness, possibly updating its 'domain', 'path' and 'expires' fields
     *
     * The checks are as follows:
-    *   - cookie array should contain all fields;
+    *   - cookie array should contain 'name' and 'value' fields;
     *   - name and value should not contain disallowed symbols;
-    *   - 'expires' should be parseable by DateTime;
+    *   - 'expires' should be either empty parseable by DateTime;
     *   - 'domain' and 'path' should be either not empty or an URL where
     *     cookie was set should be provided.
+    *   - if $setter is provided, then document at that URL should be allowed
+    *     to set a cookie for that 'domain'. If $setter is not provided,
+    *     then no domain checks will be made.
     *
     * 'expires' field will be converted to ISO8601 format from COOKIE format,
     * 'domain' and 'path' will be set from setter URL if empty.
@@ -118,8 +136,8 @@ class HTTP_Request2_CookieJar implements Serializable
     */
     protected function checkAndUpdateFields(array $cookie, Net_URL2 $setter = null)
     {
-        if ($missing = array_diff(array('name', 'value', 'domain', 'path', 'expires', 'secure'), array_keys($cookie))) {
-            throw new HTTP_Request2_Exception('Fields missing from cookie array: ' . implode(', ', $missing));
+        if ($missing = array_diff(array('name', 'value'), array_keys($cookie))) {
+            throw new HTTP_Request2_Exception("Cookie array should contain 'name' and 'value' fields");
         }
         if (preg_match(HTTP_Request2::REGEXP_INVALID_COOKIE, $cookie['name'])) {
             throw new HTTP_Request2_Exception("Invalid cookie name: '{$cookie['name']}'");
@@ -127,6 +145,7 @@ class HTTP_Request2_CookieJar implements Serializable
         if (preg_match(HTTP_Request2::REGEXP_INVALID_COOKIE, $cookie['value'])) {
             throw new HTTP_Request2_Exception("Invalid cookie value: '{$cookie['value']}'");
         }
+        $cookie += array('domain' => '', 'path' => '', 'expires' => null, 'secure' => false);
 
         // Need ISO-8601 date @ UTC timezone
         if (!empty($cookie['expires'])
@@ -146,12 +165,23 @@ class HTTP_Request2_CookieJar implements Serializable
                 throw new HTTP_Request2_Exception('Cookie misses domain and/or path component, cookie setter URL needed');
             }
             if (empty($cookie['domain'])) {
-                $cookie['domain'] = $setter->getHost();
+                if ($host = $setter->getHost()) {
+                    $cookie['domain'] = $host;
+                } else {
+                    throw new HTTP_Request2_Exception('Setter URL does not contain host part, can\'t set cookie domain');
+                }
             }
             if (empty($cookie['path'])) {
                 $path = $setter->getPath();
-                $cookie['path'] = substr($path, 0, strrpos($path, '/') + 1);
+                $cookie['path'] = empty($path)? '/': substr($path, 0, strrpos($path, '/') + 1);
             }
+        }
+
+        if ($setter && !$this->domainMatch($setter->getHost(), $cookie['domain'])) {
+            throw new HTTP_Request2_Exception(
+                "Domain " . $setter->getHost() . " cannot set cookies for "
+                . $cookie['domain']
+            );
         }
 
         return $cookie;
@@ -167,13 +197,6 @@ class HTTP_Request2_CookieJar implements Serializable
     public function store(array $cookie, Net_URL2 $setter = null)
     {
         $cookie = $this->checkAndUpdateFields($cookie, $setter);
-
-        if ($setter && !$this->domainMatch($setter->getHost(), $cookie['domain'])) {
-            throw new HTTP_Request2_Exception(
-                "Domain " . $setter->getHost() . " cannot set cookies for "
-                . $cookie['domain']
-            );
-        }
 
         if (strlen($cookie['value'])
             && (is_null($cookie['expires']) || $cookie['expires'] > $this->now())
@@ -281,6 +304,31 @@ class HTTP_Request2_CookieJar implements Serializable
     }
 
    /**
+    * Sets whether Public Suffix List should be used for restricting cookie-setting
+    *
+    * Without PSL {@link domainMatch()} will only prevent setting cookies for
+    * top-level domains like '.com' or '.org'. However, it will not prevent
+    * setting a cookie for '.co.uk' even though only third-level registrations
+    * are possible in .uk domain.
+    *
+    * With the List it is possible to find the highest level at which a domain
+    * may be registered for a particular top-level domain and consequently
+    * prevent cookies set for '.co.uk' or '.msk.ru'. The same list is used by
+    * Firefox, Chrome and Opera browsers to restrict cookie setting.
+    *
+    * Note that PSL is licensed differently to HTTP_Request2 package (refer to
+    * the license information in public-suffix-list.php), so you can disable
+    * its use if this is an issue for you.
+    *
+    * @param    boolean
+    * @link     http://publicsuffix.org/learn/
+    */
+    public function usePublicSuffixList($useList)
+    {
+        $this->useList = (bool)$useList;
+    }
+
+   /**
     * Returns string representation of object
     *
     * @return string
@@ -296,7 +344,11 @@ class HTTP_Request2_CookieJar implements Serializable
                 }
             }
         }
-        return serialize(array('cookies' => $cookies, 'serializeSession' => $this->serializeSession));
+        return serialize(array(
+            'cookies'          => $cookies,
+            'serializeSession' => $this->serializeSession,
+            'useList'          => $this->useList
+        ));
     }
 
    /**
@@ -310,6 +362,7 @@ class HTTP_Request2_CookieJar implements Serializable
         $data = unserialize($serialized);
         $now  = $this->now();
         $this->serializeSessionCookies($data['serializeSession']);
+        $this->usePublicSuffixList($data['useList']);
         foreach ($data['cookies'] as $cookie) {
             if (!empty($cookie['expires']) && $cookie['expires'] <= $now) {
                 continue;
@@ -327,8 +380,9 @@ class HTTP_Request2_CookieJar implements Serializable
    /**
     * Checks whether a cookie domain matches a request host.
     *
-    * Cookie domain can begin with a dot, it also must contain at least
-    * two dots.
+    * The method is used by {@link store()} to check for whether a document
+    * at given URL can set a cookie with a given domain attribute and by
+    * {@link getMatching()} to find cookies matching the request URL.
     *
     * @param    string  request host
     * @param    string  cookie domain
@@ -346,11 +400,84 @@ class HTTP_Request2_CookieJar implements Serializable
         if ('.' != $cookieDomain[0]) {
             $cookieDomain = '.' . $cookieDomain;
         }
-        // prevents setting cookies for '.com'
-        if (substr_count($cookieDomain, '.') < 2) {
+        // prevents setting cookies for '.com' and similar domains
+        if (!$this->useList && substr_count($cookieDomain, '.') < 2
+            || $this->useList && !self::getRegisteredDomain($cookieDomain)
+        ) {
             return false;
         }
         return substr('.' . $requestHost, -strlen($cookieDomain)) == $cookieDomain;
+    }
+
+   /**
+    * Removes subdomains to get the registered domain (the first after top-level)
+    *
+    * The method will check Public Suffix List to find out where top-level
+    * domain ends and registered domain starts. It will remove domain parts
+    * to the left of registered one.
+    *
+    * @param  string        domain name
+    * @return string|bool   registered domain, will return false if $domain is
+    *                       either invalid or a TLD itself
+    */
+    public static function getRegisteredDomain($domain)
+    {
+        $domainParts = explode('.', ltrim($domain, '.'));
+
+        // load the list if needed
+        if (empty(self::$psl)) {
+            $path = '@data_dir@' . DIRECTORY_SEPARATOR . 'HTTP_Request2';
+            if (0 === strpos($path, '@' . 'data_dir@')) {
+                $path = realpath(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
+                                 . DIRECTORY_SEPARATOR . 'data');
+            }
+            self::$psl = include_once $path . DIRECTORY_SEPARATOR . 'public-suffix-list.php';
+        }
+
+        if (!($result = self::checkDomainsList($domainParts, self::$psl))) {
+            // known TLD, invalid domain name
+            return false;
+        }
+
+        // unknown TLD
+        if (!strpos($result, '.')) {
+            // fallback to checking that domain "has at least two dots"
+            if (2 > ($count = count($domainParts))) {
+                return false;
+            }
+            return $domainParts[$count - 2] . '.' . $domainParts[$count - 1];
+        }
+        return $result;
+    }
+
+   /**
+    * Recursive helper method for {@link getRegisteredDomain()}
+    *
+    * @param  array         remaining domain parts
+    * @param  mixed         node in {@link HTTP_Request2_CookieJar::$psl} to check
+    * @return string|null   concatenated domain parts, null in case of error
+    */
+    protected static function checkDomainsList(array $domainParts, $listNode)
+    {
+        $sub    = array_pop($domainParts);
+        $result = null;
+
+        if (!is_array($listNode) || is_null($sub)
+            || array_key_exists('!' . $sub, $listNode)
+         ) {
+            return $sub;
+
+        } elseif (array_key_exists($sub, $listNode)) {
+            $result = self::checkDomainsList($domainParts, $listNode[$sub]);
+
+        } elseif (array_key_exists('*', $listNode)) {
+            $result = self::checkDomainsList($domainParts, $listNode['*']);
+
+        } else {
+            return $sub;
+        }
+
+        return (strlen($result) > 0) ? ($result . '.' . $sub) : null;
     }
 }
 ?>

@@ -320,5 +320,55 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo=bar', $req->getBody());
     }
+
+    public function testCookieJar()
+    {
+        $req = new HTTP_Request2();
+        $this->assertNull($req->getCookieJar());
+
+        $req->setCookieJar();
+        $jar = $req->getCookieJar();
+        $this->assertType('HTTP_Request2_CookieJar', $jar);
+
+        $req2 = new HTTP_Request2();
+        $req2->setCookieJar($jar);
+        $this->assertSame($jar, $req2->getCookieJar());
+
+        $req2->setCookieJar(null);
+        $this->assertNull($req2->getCookieJar());
+
+        try {
+            $req2->setCookieJar('foo');
+            $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        } catch (HTTP_Request2_Exception $e) { }
+    }
+
+    public function testAddCookieToJar()
+    {
+        $req = new HTTP_Request2();
+        $req->setCookieJar();
+
+        try {
+            $req->addCookie('foo', 'bar');
+            $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        } catch (HTTP_Request2_Exception $e) { }
+
+        $req->setUrl('http://example.com/path/file.php');
+        $req->addCookie('foo', 'bar');
+
+        $this->assertArrayNotHasKey('cookie', $req->getHeaders());
+        $cookies = $req->getCookieJar()->getAll();
+        $this->assertEquals(
+            array(
+                'name'    => 'foo',
+                'value'   => 'bar',
+                'domain'  => 'example.com',
+                'path'    => '/path/',
+                'expires' => null,
+                'secure'  => false
+            ),
+            $cookies[0]
+        );
+    }
 }
 ?>

@@ -269,5 +269,34 @@ class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
         } catch (HTTP_Request2_Exception $e) { }
     }
+
+    public function testCookieJar()
+    {
+        $this->request->setUrl($this->baseUrl . 'setcookie.php?name=cookie_name&value=cookie_value');
+        $req2 = clone $this->request;
+
+        $this->request->setCookieJar()->send();
+        $jar = $this->request->getCookieJar();
+        $jar->store(
+            array('name' => 'foo', 'value' => 'bar'),
+            $this->request->getUrl()
+        );
+
+        $response = $req2->setUrl($this->baseUrl . 'cookies.php')->setCookieJar($jar)->send();
+        $this->assertEquals(
+            serialize(array('cookie_name' => 'cookie_value', 'foo' => 'bar')),
+            $response->getBody()
+        );
+    }
+
+    public function testCookieJarAndRedirect()
+    {
+        $this->request->setUrl($this->baseUrl . 'redirects.php?special=cookie')
+                      ->setConfig('follow_redirects', true)
+                      ->setCookieJar();
+
+        $response = $this->request->send();
+        $this->assertEquals(serialize(array('cookie_on_redirect' => 'success')), $response->getBody());
+    }
 }
 ?>

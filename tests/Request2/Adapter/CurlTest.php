@@ -113,6 +113,15 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
         }
     }
 
+    public function testCookieJarAndRedirect()
+    {
+        if ($this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
+        } else {
+            parent::testCookieJarAndRedirect();
+        }
+    }
+
     public function testBug17450()
     {
         if (!$this->isRedirectSupportDisabled()) {

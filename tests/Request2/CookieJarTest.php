@@ -75,10 +75,21 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
 
    /**
     *
-    * @dataProvider domainsProvider
+    * @dataProvider noPSLDomainsProvider
     */
-    public function testDomainMatch($requestHost, $cookieDomain, $expected)
+    public function testDomainMatchNoPSL($requestHost, $cookieDomain, $expected)
     {
+        $this->jar->usePublicSuffixList(false);
+        $this->assertEquals($expected, $this->jar->domainMatch($requestHost, $cookieDomain));
+    }
+
+   /**
+    *
+    * @dataProvider PSLDomainsProvider
+    */
+    public function testDomainMatchPSL($requestHost, $cookieDomain, $expected)
+    {
+        $this->jar->usePublicSuffixList(true);
         $this->assertEquals($expected, $this->jar->domainMatch($requestHost, $cookieDomain));
     }
 
@@ -189,8 +200,6 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
         $cookie = array(
             'name'    => 'foo',
             'domain'  => '.example.com',
-            'expires' => null,
-            'secure'  => false
         );
         foreach (array('/', '/specific/path/', '/specific/') as $path) {
             $this->jar->store($cookie + array('path' => $path, 'value' => str_replace('/', '_', $path)));
@@ -233,7 +242,6 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
             'domain'  => '.example.com',
             'path'    => '/',
             'expires' => $dt->format(DateTime::COOKIE),
-            'secure'  => false
         ));
 
         $serialized = serialize($this->jar);
@@ -246,37 +254,30 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
     {
         return array(
             array(array()),
+            array(array('name' => 'foo')),
             array(array(
                 'name'    => 'a name',
                 'value'   => 'bar',
                 'domain'  => '.example.com',
                 'path'    => '/',
-                'expires' => null,
-                'secure'  => false
             )),
             array(array(
                 'name'    => 'foo',
                 'value'   => 'a value',
                 'domain'  => '.example.com',
                 'path'    => '/',
-                'expires' => null,
-                'secure'  => false
             )),
             array(array(
                 'name'    => 'foo',
                 'value'   => 'bar',
                 'domain'  => '.example.com',
                 'path'    => null,
-                'expires' => null,
-                'secure'  => false
             )),
             array(array(
                 'name'    => 'foo',
                 'value'   => 'bar',
                 'domain'  => null,
                 'path'    => '/',
-                'expires' => null,
-                'secure'  => false
             )),
             array(array(
                 'name'    => 'foo',
@@ -284,12 +285,11 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
                 'domain'  => '.example.com',
                 'path'    => '/',
                 'expires' => 'invalid date',
-                'secure'  => false
             )),
         );
     }
 
-    public static function domainsProvider()
+    public static function noPSLdomainsProvider()
     {
         return array(
             array('localhost', 'localhost', true),
@@ -299,7 +299,33 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
             array('www.example.com', '.example.com', true),
             array('deep.within.example.com', '.example.com', true),
             array('example.com', '.com', false),
-            array('anotherexample.com', 'example.com', false)
+            array('anotherexample.com', 'example.com', false),
+            array('whatever.msk.ru', '.msk.ru', true),
+            array('whatever.co.uk', '.co.uk', true),
+            array('whatever.uk', '.whatever.uk', true),
+            array('whatever.tokyo.jp', '.whatever.tokyo.jp', true),
+            array('metro.tokyo.jp', '.metro.tokyo.jp', true),
+            array('foo.bar', '.foo.bar', true)
+        );
+    }
+
+    public static function PSLdomainsProvider()
+    {
+        return array(
+            array('localhost', 'localhost', true),
+            array('www.example.com', 'www.example.com', true),
+            array('127.0.0.1', '127.0.0.1', true),
+            array('127.0.0.1', '.0.0.1', false),
+            array('www.example.com', '.example.com', true),
+            array('deep.within.example.com', '.example.com', true),
+            array('example.com', '.com', false),
+            array('anotherexample.com', 'example.com', false),
+            array('whatever.msk.ru', '.msk.ru', false),
+            array('whatever.co.uk', '.co.uk', false),
+            array('whatever.uk', '.whatever.uk', false),
+            array('whatever.tokyo.jp', '.whatever.tokyo.jp', false),
+            array('metro.tokyo.jp', '.metro.tokyo.jp', true),
+            array('foo.bar', '.foo.bar', true)
         );
     }
 

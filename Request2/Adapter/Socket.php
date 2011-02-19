@@ -169,6 +169,10 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
             $response = $this->readResponse();
 
+            if ($jar = $request->getCookieJar()) {
+                $jar->addCookiesFromResponse($response, $request->getUrl());
+            }
+
             if (!$this->canKeepAlive($keepAlive, $response)) {
                 $this->disconnect();
             }
@@ -840,6 +844,11 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             extension_loaded('zlib') && !isset($headers['accept-encoding'])
         ) {
             $headers['accept-encoding'] = 'gzip, deflate';
+        }
+        if (($jar = $this->request->getCookieJar())
+            && ($cookies = $jar->getMatching($this->request->getUrl(), true))
+        ) {
+            $headers['cookie'] = (empty($headers['cookie'])? '': $headers['cookie'] . '; ') . $cookies;
         }
 
         $this->addAuthorizationHeader($headers, $host, $requestUrl);

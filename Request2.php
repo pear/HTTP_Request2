@@ -206,6 +206,11 @@ class HTTP_Request2 implements SplSubject
     */
     protected $adapter;
 
+   /**
+    * Cookie jar to persist cookies between requests
+    * @var HTTP_Request2_CookieJar
+    */
+    protected $cookieJar = null;
 
    /**
     * Constructor. Can set request URL, method and configuration array.
@@ -508,21 +513,36 @@ class HTTP_Request2 implements SplSubject
     }
 
    /**
-    * Appends a cookie to "Cookie:" header
+    * Adds a cookie to the request
+    *
+    * If the request does not have a CookieJar object set, this method simply
+    * appends a cookie to "Cookie:" header.
+    *
+    * If a CookieJar object is available, the cookie is stored in that object.
+    * Data from request URL will be used for setting its 'domain' and 'path'
+    * parameters, 'expires' and 'secure' will be set to null and false,
+    * respectively. If you need further control, use CookieJar's methods.
     *
     * @param    string  cookie name
     * @param    string  cookie value
     * @return   HTTP_Request2
     * @throws   HTTP_Request2_Exception
+    * @see      setCookieJar()
     */
     public function addCookie($name, $value)
     {
-        $cookie = $name . '=' . $value;
-        if (preg_match(self::REGEXP_INVALID_COOKIE, $cookie)) {
-            throw new HTTP_Request2_Exception("Invalid cookie: '{$cookie}'");
+        if (!empty($this->cookieJar)) {
+            $this->cookieJar->store(array('name' => $name, 'value' => $value),
+                                    $this->url);
+
+        } else {
+            $cookie = $name . '=' . $value;
+            if (preg_match(self::REGEXP_INVALID_COOKIE, $cookie)) {
+                throw new HTTP_Request2_Exception("Invalid cookie: '{$cookie}'");
+            }
+            $cookies = empty($this->headers['cookie'])? '': $this->headers['cookie'] . '; ';
+            $this->setHeader('cookie', $cookies . $cookie);
         }
-        $cookies = empty($this->headers['cookie'])? '': $this->headers['cookie'] . '; ';
-        $this->setHeader('cookie', $cookies . $cookie);
 
         return $this;
     }
@@ -792,6 +812,45 @@ class HTTP_Request2 implements SplSubject
         $this->adapter = $adapter;
 
         return $this;
+    }
+
+   /**
+    * Sets the cookie jar
+    *
+    * A cookie jar is used to maintain cookies across HTTP requests and
+    * responses. Cookies from jar will be automatically added to the request
+    * headers based on request URL.
+    *
+    * @param HTTP_Request2_CookieJar|bool   Existing CookieJar object, true to
+    *                                       create a new one, false to remove
+    */
+    public function setCookieJar($jar = true)
+    {
+        if (!class_exists('HTTP_Request2_CookieJar', false)) {
+            require_once 'HTTP/Request2/CookieJar.php';
+        }
+
+        if ($jar instanceof HTTP_Request2_CookieJar) {
+            $this->cookieJar = $jar;
+        } elseif (true === $jar) {
+            $this->cookieJar = new HTTP_Request2_CookieJar();
+        } elseif (!$jar) {
+            $this->cookieJar = null;
+        } else {
+            throw new HTTP_Request2_Exception('Invalid parameter passed to setCookieJar()');
+        }
+
+        return $this;
+    }
+
+   /**
+    * Returns current CookieJar object or null if none
+    *
+    * @return HTTP_Request2_CookieJar|null
+    */
+    public function getCookieJar()
+    {
+        return $this->cookieJar;
     }
 
    /**
