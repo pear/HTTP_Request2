@@ -178,7 +178,9 @@ class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
         try {
             $this->request->send();
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
-        } catch (HTTP_Request2_Exception $e) { }
+        } catch (HTTP_Request2_MessageException $e) {
+            $this->assertEquals(HTTP_Request2_Exception::TIMEOUT, $e->getCode());
+        }
     }
 
     public function testBasicAuth()
@@ -247,7 +249,9 @@ class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
         try {
             $this->request->send();
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
-        } catch (HTTP_Request2_Exception $e) { }
+        } catch (HTTP_Request2_MessageException $e) {
+            $this->assertEquals(HTTP_Request2_Exception::TOO_MANY_REDIRECTS, $e->getCode());
+        }
     }
 
     public function testRedirectsRelative()
@@ -267,7 +271,9 @@ class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
         try {
             $this->request->send();
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
-        } catch (HTTP_Request2_Exception $e) { }
+        } catch (HTTP_Request2_MessageException $e) {
+            $this->assertEquals(HTTP_Request2_Exception::NON_HTTP_REDIRECT, $e->getCode());
+        }
     }
 
     public function testCookieJar()

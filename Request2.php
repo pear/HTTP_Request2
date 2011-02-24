@@ -244,7 +244,7 @@ class HTTP_Request2 implements SplSubject
     *
     * @param    string|Net_URL2 Request URL
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
     */
     public function setUrl($url)
     {
@@ -254,7 +254,10 @@ class HTTP_Request2 implements SplSubject
             );
         }
         if (!$url instanceof Net_URL2) {
-            throw new HTTP_Request2_Exception('Parameter is not a valid HTTP URL');
+            throw new HTTP_Request2_LogicException(
+                'Parameter is not a valid HTTP URL',
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
         }
         // URL contains username / password?
         if ($url->getUserinfo()) {
@@ -286,13 +289,16 @@ class HTTP_Request2 implements SplSubject
     *
     * @param    string
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception if the method name is invalid
+    * @throws   HTTP_Request2_LogicException if the method name is invalid
     */
     public function setMethod($method)
     {
         // Method name should be a token: http://tools.ietf.org/html/rfc2616#section-5.1.1
         if (preg_match(self::REGEXP_INVALID_TOKEN, $method)) {
-            throw new HTTP_Request2_Exception("Invalid request method '{$method}'");
+            throw new HTTP_Request2_LogicException(
+                "Invalid request method '{$method}'",
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
         }
         $this->method = $method;
 
@@ -355,7 +361,7 @@ class HTTP_Request2 implements SplSubject
     *                           ('parameter name' => 'parameter value')
     * @param    mixed           parameter value if $nameOrConfig is not an array
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception If the parameter is unknown
+    * @throws   HTTP_Request2_LogicException If the parameter is unknown
     */
     public function setConfig($nameOrConfig, $value = null)
     {
@@ -366,8 +372,9 @@ class HTTP_Request2 implements SplSubject
 
         } else {
             if (!array_key_exists($nameOrConfig, $this->config)) {
-                throw new HTTP_Request2_Exception(
-                    "Unknown configuration parameter '{$nameOrConfig}'"
+                throw new HTTP_Request2_LogicException(
+                    "Unknown configuration parameter '{$nameOrConfig}'",
+                    HTTP_Request2_Exception::INVALID_ARGUMENT
                 );
             }
             $this->config[$nameOrConfig] = $value;
@@ -382,15 +389,16 @@ class HTTP_Request2 implements SplSubject
     * @param    string  parameter name
     * @return   mixed   value of $name parameter, array of all configuration
     *                   parameters if $name is not given
-    * @throws   HTTP_Request2_Exception If the parameter is unknown
+    * @throws   HTTP_Request2_LogicException If the parameter is unknown
     */
     public function getConfig($name = null)
     {
         if (null === $name) {
             return $this->config;
         } elseif (!array_key_exists($name, $this->config)) {
-            throw new HTTP_Request2_Exception(
-                "Unknown configuration parameter '{$name}'"
+            throw new HTTP_Request2_LogicException(
+                "Unknown configuration parameter '{$name}'",
+                HTTP_Request2_Exception::INVALID_ARGUMENT
             );
         }
         return $this->config[$name];
@@ -457,7 +465,7 @@ class HTTP_Request2 implements SplSubject
     * @param    bool            whether to replace previous header with the
     *                           same name or append to its value
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
     */
     public function setHeader($name, $value = null, $replace = true)
     {
@@ -475,7 +483,10 @@ class HTTP_Request2 implements SplSubject
             }
             // Header name should be a token: http://tools.ietf.org/html/rfc2616#section-4.2
             if (preg_match(self::REGEXP_INVALID_TOKEN, $name)) {
-                throw new HTTP_Request2_Exception("Invalid header name '{$name}'");
+                throw new HTTP_Request2_LogicException(
+                    "Invalid header name '{$name}'",
+                    HTTP_Request2_Exception::INVALID_ARGUMENT
+                );
             }
             // Header names are case insensitive anyway
             $name = strtolower($name);
@@ -526,7 +537,7 @@ class HTTP_Request2 implements SplSubject
     * @param    string  cookie name
     * @param    string  cookie value
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
     * @see      setCookieJar()
     */
     public function addCookie($name, $value)
@@ -538,7 +549,10 @@ class HTTP_Request2 implements SplSubject
         } else {
             $cookie = $name . '=' . $value;
             if (preg_match(self::REGEXP_INVALID_COOKIE, $cookie)) {
-                throw new HTTP_Request2_Exception("Invalid cookie: '{$cookie}'");
+                throw new HTTP_Request2_LogicException(
+                    "Invalid cookie: '{$cookie}'",
+                    HTTP_Request2_Exception::INVALID_ARGUMENT
+                );
             }
             $cookies = empty($this->headers['cookie'])? '': $this->headers['cookie'] . '; ';
             $this->setHeader('cookie', $cookies . $cookie);
@@ -553,7 +567,7 @@ class HTTP_Request2 implements SplSubject
     * @param    string  Either a string with the body or filename containing body
     * @param    bool    Whether first parameter is a filename
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
     */
     public function setBody($body, $isFilename = false)
     {
@@ -564,8 +578,15 @@ class HTTP_Request2 implements SplSubject
                 $this->body = $body;
             }
         } else {
+            $track = @ini_set('track_errors', 1);
             if (!($fp = @fopen($body, 'rb'))) {
-                throw new HTTP_Request2_Exception("Cannot open file {$body}");
+                $e = new HTTP_Request2_LogicException(
+                    $php_errormsg, HTTP_Request2_Exception::READ_ERROR
+                );
+            }
+            @ini_set('track_errors', $track);
+            if (isset($e)) {
+                throw $e;
             }
             $this->body = $fp;
             if (empty($this->headers['content-type'])) {
@@ -619,14 +640,21 @@ class HTTP_Request2 implements SplSubject
     * @param    string  filename to send in the request
     * @param    string  content-type of file being uploaded
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
     */
     public function addUpload($fieldName, $filename, $sendFilename = null,
                               $contentType = null)
     {
         if (!is_array($filename)) {
+            $track = @ini_set('track_errors', 1);
             if (!($fp = @fopen($filename, 'rb'))) {
-                throw new HTTP_Request2_Exception("Cannot open file {$filename}");
+                $e = new HTTP_Request2_LogicException(
+                    $php_errormsg, HTTP_Request2_Exception::READ_ERROR
+                );
+            }
+            @ini_set('track_errors', $track);
+            if (isset($e)) {
+                throw $e;
             }
             $this->uploads[$fieldName] = array(
                 'fp'        => $fp,
@@ -640,8 +668,15 @@ class HTTP_Request2 implements SplSubject
                 if (!is_array($f)) {
                     $f = array($f);
                 }
+                $track = @ini_set('track_errors', 1);
                 if (!($fp = @fopen($f[0], 'rb'))) {
-                    throw new HTTP_Request2_Exception("Cannot open file {$f[0]}");
+                    $e = new HTTP_Request2_LogicException(
+                        $php_errormsg, HTTP_Request2_Exception::READ_ERROR
+                    );
+                }
+                @ini_set('track_errors', $track);
+                if (isset($e)) {
+                    throw $e;
                 }
                 $fps[]   = $fp;
                 $names[] = empty($f[1])? basename($f[0]): $f[1];
@@ -788,7 +823,7 @@ class HTTP_Request2 implements SplSubject
     *
     * @param    string|HTTP_Request2_Adapter
     * @return   HTTP_Request2
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
     */
     public function setAdapter($adapter)
     {
@@ -801,13 +836,19 @@ class HTTP_Request2 implements SplSubject
                     include_once str_replace('_', DIRECTORY_SEPARATOR, $adapter) . '.php';
                 }
                 if (!class_exists($adapter, false)) {
-                    throw new HTTP_Request2_Exception("Class {$adapter} not found");
+                    throw new HTTP_Request2_LogicException(
+                        "Class {$adapter} not found",
+                        HTTP_Request2_Exception::MISSING_VALUE
+                    );
                 }
             }
             $adapter = new $adapter;
         }
         if (!$adapter instanceof HTTP_Request2_Adapter) {
-            throw new HTTP_Request2_Exception('Parameter is not a HTTP request adapter');
+            throw new HTTP_Request2_LogicException(
+                'Parameter is not a HTTP request adapter',
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
         }
         $this->adapter = $adapter;
 
@@ -837,7 +878,10 @@ class HTTP_Request2 implements SplSubject
         } elseif (!$jar) {
             $this->cookieJar = null;
         } else {
-            throw new HTTP_Request2_Exception('Invalid parameter passed to setCookieJar()');
+            throw new HTTP_Request2_LogicException(
+                'Invalid parameter passed to setCookieJar()',
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
         }
 
         return $this;
@@ -862,12 +906,17 @@ class HTTP_Request2 implements SplSubject
     public function send()
     {
         // Sanity check for URL
-        if (!$this->url instanceof Net_URL2) {
-            throw new HTTP_Request2_Exception('No URL given');
-        } elseif (!$this->url->isAbsolute()) {
-            throw new HTTP_Request2_Exception('Absolute URL required');
-        } elseif (!in_array(strtolower($this->url->getScheme()), array('https', 'http'))) {
-            throw new HTTP_Request2_Exception('Not a HTTP URL');
+        if (!$this->url instanceof Net_URL2
+            || !$this->url->isAbsolute()
+            || !in_array(strtolower($this->url->getScheme()), array('https', 'http'))
+        ) {
+            throw new HTTP_Request2_LogicException(
+                'HTTP_Request2 needs an absolute HTTP(S) request URL, '
+                . ($this->url instanceof Net_URL2
+                   ? 'none' : "'" . $this->url->__toString() . "'")
+                . ' given',
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
         }
         if (empty($this->adapter)) {
             $this->setAdapter($this->getConfig('adapter'));

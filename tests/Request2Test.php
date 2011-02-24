@@ -66,6 +66,10 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals(666, $req->getConfig('connect_timeout'));
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
     public function testSetUrl()
     {
         $urlString = 'http://www.example.com/foo/bar.php';
@@ -80,13 +84,8 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertType('Net_URL2', $req2->getUrl());
         $this->assertEquals($urlString, $req2->getUrl()->getUrl());
 
-        try {
-            $req3 = new HTTP_Request2();
-            $req3->setUrl(array('This will cause an error'));
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        $req3 = new HTTP_Request2();
+        $req3->setUrl(array('This will cause an error'));
     }
 
     public function testConvertUserinfoToAuth()
@@ -101,17 +100,17 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         );
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
     public function testSetMethod()
     {
         $req = new HTTP_Request2();
         $req->setMethod(HTTP_Request2::METHOD_PUT);
         $this->assertEquals(HTTP_Request2::METHOD_PUT, $req->getMethod());
-        try {
-            $req->setMethod('Invalid method');
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+
+        $req->setMethod('Invalid method');
     }
 
     public function testSetAndGetConfig()
@@ -123,16 +122,19 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals(123, $req->getConfig('connect_timeout'));
         try {
             $req->setConfig(array('foo' => 'unknown parameter'));
-        } catch (HTTP_Request2_Exception $e) {
-            try {
-                $req->getConfig('bar');
-            } catch (HTTP_Request2_Exception $e) {
-                return;
-            }
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+            $this->fail('Expected HTTP_Request2_LogicException was not thrown');
+        } catch (HTTP_Request2_LogicException $e) {}
+
+        try {
+            $req->getConfig('bar');
+            $this->fail('Expected HTTP_Request2_LogicException was not thrown');
+        } catch (HTTP_Request2_LogicException $e) {}
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
     public function testHeaders()
     {
         $req = new HTTP_Request2();
@@ -154,12 +156,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
             $req->getHeaders()
         );
 
-        try {
-            $req->setHeader('Invalid header', 'value');
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        $req->setHeader('Invalid header', 'value');
     }
 
     public function testBug15937()
@@ -191,6 +188,10 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals('text/html, image/gif', $headers['accept']);
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
     public function testCookies()
     {
         $req = new HTTP_Request2();
@@ -199,14 +200,13 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $headers = $req->getHeaders();
         $this->assertEquals('name=value; foo=bar', $headers['cookie']);
 
-        try {
-            $req->addCookie('invalid cookie', 'value');
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        $req->addCookie('invalid cookie', 'value');
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
     public function testPlainBody()
     {
         $req = new HTTP_Request2();
@@ -221,12 +221,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         );
         $this->assertEquals('This is a test.', fread($req->getBody(), 1024));
 
-        try {
-            $req->setBody('missing file', true);
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        $req->setBody('missing file', true);
     }
 
     public function testUrlencodedBody()
@@ -254,6 +249,10 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertContains('~', $req->getBody());
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
     public function testUpload()
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
@@ -262,12 +261,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $headers = $req->getHeaders();
         $this->assertEquals('multipart/form-data', $headers['content-type']);
 
-        try {
-            $req->addUpload('upload_2', 'missing file');
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        $req->addUpload('upload_2', 'missing file');
     }
 
     public function testPropagateUseBracketsToNetURL2()
@@ -321,6 +315,10 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals('foo=bar', $req->getBody());
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
     public function testCookieJar()
     {
         $req = new HTTP_Request2();
@@ -337,10 +335,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req2->setCookieJar(null);
         $this->assertNull($req2->getCookieJar());
 
-        try {
-            $req2->setCookieJar('foo');
-            $this->fail('Expected HTTP_Request2_Exception was not thrown');
-        } catch (HTTP_Request2_Exception $e) { }
+        $req2->setCookieJar('foo');
     }
 
     public function testAddCookieToJar()
@@ -351,7 +346,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         try {
             $req->addCookie('foo', 'bar');
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
-        } catch (HTTP_Request2_Exception $e) { }
+        } catch (HTTP_Request2_LogicException $e) { }
 
         $req->setUrl('http://example.com/path/file.php');
         $req->addCookie('foo', 'bar');

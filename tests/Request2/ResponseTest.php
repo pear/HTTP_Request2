@@ -56,6 +56,10 @@ require_once 'PHPUnit/Framework/TestCase.php';
  */
 class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
 {
+   /**
+    *
+    * @expectedException HTTP_Request2_MessageException
+    */
     public function testParseStatusLine()
     {
         $response = new HTTP_Request2_Response('HTTP/1.1 200 OK');
@@ -68,12 +72,7 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(222, $response2->getStatus());
         $this->assertEquals('Nishtyak!', $response2->getReasonPhrase());
 
-        try {
-            $response3 = new HTTP_Request2_Response('Invalid status line');
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        $response3 = new HTTP_Request2_Response('Invalid status line');
     }
 
     public function testParseHeaders()
@@ -105,18 +104,17 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
         }
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_MessageException
+    */
     public function testGzipEncoding()
     {
         $response = $this->readResponseFromFile('response_gzip');
         $this->assertEquals('0e964e9273c606c46afbd311b5ad4d77', md5($response->getBody()));
 
-        try {
-            $response = $this->readResponseFromFile('response_gzip_broken');
-            $body = $response->getBody();
-        } catch (HTTP_Request2_Exception $e) {
-            return;
-        }
-        $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        $response = $this->readResponseFromFile('response_gzip_broken');
+        $body = $response->getBody();
     }
 
     public function testDeflateEncoding()

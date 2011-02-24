@@ -66,7 +66,7 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
     * Test that we can't store junk "cookies" in jar
     *
     * @dataProvider invalidCookieProvider
-    * @expectedException HTTP_Request2_Exception
+    * @expectedException HTTP_Request2_LogicException
     */
     public function testStoreInvalid($cookie)
     {

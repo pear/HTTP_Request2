@@ -132,18 +132,28 @@ class HTTP_Request2_CookieJar implements Serializable
     * @param    array    cookie data, as returned by {@link HTTP_Request2_Response::getCookies()}
     * @param    Net_URL2 URL of the document that sent Set-Cookie header
     * @return   array    Updated cookie array
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
+    * @throws   HTTP_Request2_MessageException
     */
     protected function checkAndUpdateFields(array $cookie, Net_URL2 $setter = null)
     {
         if ($missing = array_diff(array('name', 'value'), array_keys($cookie))) {
-            throw new HTTP_Request2_Exception("Cookie array should contain 'name' and 'value' fields");
+            throw new HTTP_Request2_LogicException(
+                "Cookie array should contain 'name' and 'value' fields",
+                HTTP_Request2_Exception::MISSING_VALUE
+            );
         }
         if (preg_match(HTTP_Request2::REGEXP_INVALID_COOKIE, $cookie['name'])) {
-            throw new HTTP_Request2_Exception("Invalid cookie name: '{$cookie['name']}'");
+            throw new HTTP_Request2_LogicException(
+                "Invalid cookie name: '{$cookie['name']}'",
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
         }
         if (preg_match(HTTP_Request2::REGEXP_INVALID_COOKIE, $cookie['value'])) {
-            throw new HTTP_Request2_Exception("Invalid cookie value: '{$cookie['value']}'");
+            throw new HTTP_Request2_LogicException(
+                "Invalid cookie value: '{$cookie['value']}'",
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
         }
         $cookie += array('domain' => '', 'path' => '', 'expires' => null, 'secure' => false);
 
@@ -156,19 +166,25 @@ class HTTP_Request2_CookieJar implements Serializable
                 $dt->setTimezone(new DateTimeZone('UTC'));
                 $cookie['expires'] = $dt->format(DateTime::ISO8601);
             } catch (Exception $e) {
-                throw new HTTP_Request2_Exception($e->getMessage());
+                throw new HTTP_Request2_LogicException($e->getMessage());
             }
         }
 
         if (empty($cookie['domain']) || empty($cookie['path'])) {
             if (!$setter) {
-                throw new HTTP_Request2_Exception('Cookie misses domain and/or path component, cookie setter URL needed');
+                throw new HTTP_Request2_LogicException(
+                    'Cookie misses domain and/or path component, cookie setter URL needed',
+                    HTTP_Request2_Exception::MISSING_VALUE
+                );
             }
             if (empty($cookie['domain'])) {
                 if ($host = $setter->getHost()) {
                     $cookie['domain'] = $host;
                 } else {
-                    throw new HTTP_Request2_Exception('Setter URL does not contain host part, can\'t set cookie domain');
+                    throw new HTTP_Request2_LogicException(
+                        'Setter URL does not contain host part, can\'t set cookie domain',
+                        HTTP_Request2_Exception::MISSING_VALUE
+                    );
                 }
             }
             if (empty($cookie['path'])) {
@@ -178,7 +194,7 @@ class HTTP_Request2_CookieJar implements Serializable
         }
 
         if ($setter && !$this->domainMatch($setter->getHost(), $cookie['domain'])) {
-            throw new HTTP_Request2_Exception(
+            throw new HTTP_Request2_MessageException(
                 "Domain " . $setter->getHost() . " cannot set cookies for "
                 . $cookie['domain']
             );

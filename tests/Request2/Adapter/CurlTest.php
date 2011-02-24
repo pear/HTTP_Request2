@@ -135,8 +135,8 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
             $this->request->send();
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
 
-        } catch (HTTP_Request2_Exception $e) {
-            $this->assertContains('open_basedir', $e->getMessage());
+        } catch (HTTP_Request2_LogicException $e) {
+            $this->assertEquals(HTTP_Request2_Exception::MISCONFIGURATION, $e->getCode());
         }
     }
 }

@@ -80,6 +80,46 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
    );
 
    /**
+    * Mapping of CURLE_* constants to Exception subclasses and error codes
+    * @var  array
+    */
+    protected static $errorMap = array(
+        CURLE_UNSUPPORTED_PROTOCOL  => array('HTTP_Request2_MessageException',
+                                             HTTP_Request2_Exception::NON_HTTP_REDIRECT),
+        CURLE_COULDNT_RESOLVE_PROXY => array('HTTP_Request2_ConnectionException'),
+        CURLE_COULDNT_RESOLVE_HOST  => array('HTTP_Request2_ConnectionException'),
+        CURLE_COULDNT_CONNECT       => array('HTTP_Request2_ConnectionException'),
+        // error returned from write callback
+        CURLE_WRITE_ERROR           => array('HTTP_Request2_MessageException',
+                                             HTTP_Request2_Exception::NON_HTTP_REDIRECT),
+        CURLE_OPERATION_TIMEOUTED   => array('HTTP_Request2_MessageException',
+                                             HTTP_Request2_Exception::TIMEOUT),
+        CURLE_HTTP_RANGE_ERROR      => array('HTTP_Request2_MessageException'),
+        CURLE_SSL_CONNECT_ERROR     => array('HTTP_Request2_ConnectionException'),
+        CURLE_LIBRARY_NOT_FOUND     => array('HTTP_Request2_LogicException',
+                                             HTTP_Request2_Exception::MISCONFIGURATION),
+        CURLE_FUNCTION_NOT_FOUND    => array('HTTP_Request2_LogicException',
+                                             HTTP_Request2_Exception::MISCONFIGURATION),
+        CURLE_ABORTED_BY_CALLBACK   => array('HTTP_Request2_MessageException',
+                                             HTTP_Request2_Exception::NON_HTTP_REDIRECT),
+        CURLE_TOO_MANY_REDIRECTS    => array('HTTP_Request2_MessageException',
+                                             HTTP_Request2_Exception::TOO_MANY_REDIRECTS),
+        CURLE_SSL_PEER_CERTIFICATE  => array('HTTP_Request2_ConnectionException'),
+        CURLE_GOT_NOTHING           => array('HTTP_Request2_MessageException'),
+        CURLE_SSL_ENGINE_NOTFOUND   => array('HTTP_Request2_LogicException',
+                                             HTTP_Request2_Exception::MISCONFIGURATION),
+        CURLE_SSL_ENGINE_SETFAILED  => array('HTTP_Request2_LogicException',
+                                             HTTP_Request2_Exception::MISCONFIGURATION),
+        CURLE_SEND_ERROR            => array('HTTP_Request2_MessageException'),
+        CURLE_RECV_ERROR            => array('HTTP_Request2_MessageException'),
+        CURLE_SSL_CERTPROBLEM       => array('HTTP_Request2_LogicException',
+                                             HTTP_Request2_Exception::INVALID_ARGUMENT),
+        CURLE_SSL_CIPHER            => array('HTTP_Request2_ConnectionException'),
+        CURLE_SSL_CACERT            => array('HTTP_Request2_ConnectionException'),
+        CURLE_BAD_CONTENT_ENCODING  => array('HTTP_Request2_MessageException'),
+    );
+
+   /**
     * Response being received
     * @var  HTTP_Request2_Response
     */
@@ -111,6 +151,26 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     protected $lastInfo;
 
    /**
+    * Creates a subclass of HTTP_Request2_Exception from curl error data
+    *
+    * @param resource curl handle
+    * @return HTTP_Request2_Exception
+    */
+    protected static function wrapCurlError($ch)
+    {
+        $nativeCode = curl_errno($ch);
+        $message    = 'Curl error: ' . curl_error($ch);
+        if (!isset(self::$errorMap[$nativeCode])) {
+            return new HTTP_Request2_Exception($message, 0, $nativeCode);
+        } else {
+            $class = self::$errorMap[$nativeCode][0];
+            $code  = empty(self::$errorMap[$nativeCode][1])
+                     ? 0 : self::$errorMap[$nativeCode][1];
+            return new $class($message, $code, $nativeCode);
+        }
+    }
+
+   /**
     * Sends request to the remote server and returns its response
     *
     * @param    HTTP_Request2
@@ -120,7 +180,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     public function sendRequest(HTTP_Request2 $request)
     {
         if (!extension_loaded('curl')) {
-            throw new HTTP_Request2_Exception('cURL extension not available');
+            throw new HTTP_Request2_LogicException(
+                'cURL extension not available', HTTP_Request2_Exception::MISCONFIGURATION
+            );
         }
 
         $this->request              = $request;
@@ -131,8 +193,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
 
         try {
             if (false === curl_exec($ch = $this->createCurlHandle())) {
-                $errorMessage = 'Error sending request: #' . curl_errno($ch) .
-                                                       ' ' . curl_error($ch);
+                $e = self::wrapCurlError($ch);
             }
         } catch (Exception $e) {
         }
@@ -146,8 +207,6 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
 
         if (!empty($e)) {
             throw $e;
-        } elseif (!empty($errorMessage)) {
-            throw new HTTP_Request2_Exception($errorMessage);
         }
 
         if ($jar = $request->getCookieJar()) {
@@ -174,7 +233,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     * Creates a new cURL handle and populates it with data from the request
     *
     * @return   resource    a cURL handle, as created by curl_init()
-    * @throws   HTTP_Request2_Exception
+    * @throws   HTTP_Request2_LogicException
     */
     protected function createCurlHandle()
     {
@@ -199,7 +258,10 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         } else {
             if (!@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true)) {
-                throw new HTTP_Request2_Exception('Redirect support in curl is unavailable due to open_basedir or safe_mode setting');
+                throw new HTTP_Request2_LogicException(
+                    'Redirect support in curl is unavailable due to open_basedir or safe_mode setting',
+                    HTTP_Request2_Exception::MISCONFIGURATION
+                );
             }
             curl_setopt($ch, CURLOPT_MAXREDIRS, $this->request->getConfig('max_redirects'));
             // limit redirects to http(s), works in 5.2.10+
@@ -244,7 +306,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         // set proxy, if needed
         if ($host = $this->request->getConfig('proxy_host')) {
             if (!($port = $this->request->getConfig('proxy_port'))) {
-                throw new HTTP_Request2_Exception('Proxy port not provided');
+                throw new HTTP_Request2_LogicException(
+                    'Proxy port not provided', HTTP_Request2_Exception::MISSING_VALUE
+                );
             }
             curl_setopt($ch, CURLOPT_PROXY, $host . ':' . $port);
             if ($user = $this->request->getConfig('proxy_user')) {
@@ -473,7 +537,10 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         // cURL calls WRITEFUNCTION callback without calling HEADERFUNCTION if
         // response doesn't start with proper HTTP status line (see bug #15716)
         if (empty($this->response)) {
-            throw new HTTP_Request2_Exception("Malformed response: {$string}");
+            throw new HTTP_Request2_MessageException(
+                "Malformed response: {$string}",
+                HTTP_Request2_Exception::MALFORMED_RESPONSE
+            );
         }
         if ($this->request->getConfig('store_body')) {
             $this->response->appendBody($string);
