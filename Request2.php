@@ -790,6 +790,8 @@ class HTTP_Request2 implements SplSubject
     *                                   data is the headers sent (string)</li>
     *   <li>'sentBodyPart'            - after sending a part of the request body,
     *                                   data is the length of that part (int)</li>
+    *   <li>'sentBody'                - after sending the whole request body,
+    *                                   data is request body length (int)</li>
     *   <li>'receivedHeaders'         - after receiving the response headers,
     *                                   data is HTTP_Request2_Response object</li>
     *   <li>'receivedBodyPart'        - after receiving a part of the response

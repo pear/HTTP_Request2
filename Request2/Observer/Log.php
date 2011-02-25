@@ -109,7 +109,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
     public $events = array(
         'connect',
         'sentHeaders',
-        'sentBodyPart',
+        'sentBody',
         'receivedHeaders',
         'receivedBody',
         'disconnect',
@@ -167,7 +167,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
                 $this->log('> ' . $header);
             }
             break;
-        case 'sentBodyPart':
+        case 'sentBody':
             $this->log('> ' . $event['data'] . ' byte(s) sent');
             break;
         case 'receivedHeaders':

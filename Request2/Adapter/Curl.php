@@ -481,6 +481,11 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 );
                 $this->position = $upload;
             }
+            if ($upload && (!$this->eventSentHeaders
+                            || $this->response->getStatus() >= 200)
+            ) {
+                $this->request->setLastEvent('sentBody', $upload);
+            }
             $this->eventSentHeaders = true;
             // we'll need a new response object
             if ($this->eventReceivedHeaders) {

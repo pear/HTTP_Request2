@@ -903,6 +903,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $this->request->setLastEvent('sentBodyPart', strlen($str));
             $position += strlen($str);
         }
+        $this->request->setLastEvent('sentBody', $this->contentLength);
     }
 
    /**
