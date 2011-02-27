@@ -10,14 +10,14 @@
   <extends>HTTP_Request</extends>
   <summary>Provides an easy way to perform HTTP requests.</summary>
   <description>
-PHP5 rewrite of HTTP_Request package. Provides cleaner API and pluggable
-Adapters. Currently available are:
+PHP5 rewrite of HTTP_Request package (with parts of HTTP_Client). Provides
+cleaner API and pluggable Adapters:
   * Socket adapter, based on old HTTP_Request code,
   * Curl adapter, wraps around PHP's cURL extension,
   * Mock adapter, to use for testing packages dependent on HTTP_Request2.
 Supports POST requests with data and file uploads, basic and digest 
-authentication, cookies, proxies, gzip and deflate encodings, redirects,
-monitoring the request progress with Observers...
+authentication, cookies, managing cookies across requests, proxies, gzip and
+deflate encodings, redirects, monitoring the request progress with Observers...
   </description>
   <lead>
     <name>Alexey Borzov</name>
@@ -25,34 +25,30 @@ monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2011-02-14</date>
+  <date>2011-02-27</date>
   <version>
-    <release>0.6.0</release>
-    <api>0.6.0</api>
+    <release>2.0.0beta1</release>
+    <api>2.0.0</api>
   </version>
   <stability>
-    <release>alpha</release>
-    <api>alpha</api>
+    <release>beta</release>
+    <api>beta</api>
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
 Additions and changes:
-  * Added test suite that interacts with a webserver. Please refer to 
-    tests/NetworkConfig.php.dist for instructions.
-  * Packaging changes: docs/ and tests/ contents are installed without
-    redundant subdirectories.
-  * Added a $replace parameter to HTTP_Request2::setHeader() that controls
-    whether new header value will overwrite previous one or be appended
-    to it (request #17507)
+  * Implemented cookie jar that allows to store and pass cookies across HTTP
+    requests (see request #18225)
+  * Added several specialized subclasses of HTTP_Request2_Exception, they are
+    now thrown instead of the parent. Also added error codes and possibility
+    to get native error code (as returned by stream_socket_client() and 
+    curl_errno()) (request #16762)
+  * An additional 'sentBody' event is now sent to Observers (request #16828) 
+  * setBody() and addUpload() can now accept file pointers (request #16863)
 
 Bugfixes:
-  * Fixed a typo in Curl Adapter that prevented 'strict_redirects' from working
-  * Curl Adapter will throw an exception if CURLOPT_FOLLOWLOCATION can not be
-    enabled due to PHP setup (bug #17450)
-  * Allow parameters in manually set Content-Type headers (bug #17460)
-  * Properly reset redirect limit if multiple requests are performed with the
-    same instance of Socket Adapter (bug #17826)
-  * Response::getBody() no longer tries to decode empty strings (bug #18169) 
+  * Incorrect check in Socket Adapter prevented Keep-alive from working in
+    some cases (bug #17031)
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -223,6 +219,37 @@ Bugfixes:
    </filelist>
   </phprelease>
     <changelog>
+      <release>
+      <version>
+        <release>0.6.0</release>
+        <api>0.6.0</api>
+      </version>
+      <stability>
+        <release>alpha</release>
+        <api>alpha</api>
+      </stability>
+      <date>2011-02-14</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+Additions and changes:
+  * Added test suite that interacts with a webserver. Please refer to 
+    tests/NetworkConfig.php.dist for instructions.
+  * Packaging changes: docs/ and tests/ contents are installed without
+    redundant subdirectories.
+  * Added a $replace parameter to HTTP_Request2::setHeader() that controls
+    whether new header value will overwrite previous one or be appended
+    to it (request #17507)
+
+Bugfixes:
+  * Fixed a typo in Curl Adapter that prevented 'strict_redirects' from working
+  * Curl Adapter will throw an exception if CURLOPT_FOLLOWLOCATION can not be
+    enabled due to PHP setup (bug #17450)
+  * Allow parameters in manually set Content-Type headers (bug #17460)
+  * Properly reset redirect limit if multiple requests are performed with the
+    same instance of Socket Adapter (bug #17826)
+  * Response::getBody() no longer tries to decode empty strings (bug #18169) 
+      </notes>
+      </release>
       <release>
       <version>
         <release>0.5.2</release>
