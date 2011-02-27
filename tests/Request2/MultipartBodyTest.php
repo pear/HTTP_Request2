@@ -72,6 +72,24 @@ class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase
         $this->assertRegexp("!--{$boundary}--\r\n$!", $asString);
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
+    public function testRequest16863()
+    {
+        $req  = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
+        $fp   = fopen(dirname(dirname(__FILE__)) . '/_files/plaintext.txt', 'rb');
+        $body = $req->addUpload('upload', $fp)
+                    ->getBody();
+
+        $asString = $body->__toString();
+        $this->assertContains('name="upload"; filename="anonymous.blob"', $asString);
+        $this->assertContains('This is a test.', $asString);
+
+        $req->addUpload('bad_upload', fopen('php://input', 'rb'));
+    }
+
     public function testStreaming()
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
@@ -92,7 +110,7 @@ class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $body = $req->addUpload('upload', array(
                                     array(dirname(dirname(__FILE__)) . '/_files/plaintext.txt', 'bio.txt', 'text/plain'),
-                                    array(dirname(dirname(__FILE__)) . '/_files/empty.gif', 'photo.gif', 'image/gif')
+                                    array(fopen(dirname(dirname(__FILE__)) . '/_files/empty.gif', 'rb'), 'photo.gif', 'image/gif')
                                 ))
                     ->getBody();
         $asString = $body->__toString();

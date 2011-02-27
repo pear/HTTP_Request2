@@ -564,33 +564,29 @@ class HTTP_Request2 implements SplSubject
    /**
     * Sets the request body
     *
-    * @param    string  Either a string with the body or filename containing body
+    * If you provide file pointer rather than file name, it should support
+    * fstat() and rewind() operations.
+    *
+    * @param    string|resource|HTTP_Request2_MultipartBody  Either a string
+    *               with the body or filename containing body or pointer to
+    *               an open file or object with multipart body data
     * @param    bool    Whether first parameter is a filename
     * @return   HTTP_Request2
     * @throws   HTTP_Request2_LogicException
     */
     public function setBody($body, $isFilename = false)
     {
-        if (!$isFilename) {
+        if (!$isFilename && !is_resource($body)) {
             if (!$body instanceof HTTP_Request2_MultipartBody) {
                 $this->body = (string)$body;
             } else {
                 $this->body = $body;
             }
         } else {
-            $track = @ini_set('track_errors', 1);
-            if (!($fp = @fopen($body, 'rb'))) {
-                $e = new HTTP_Request2_LogicException(
-                    $php_errormsg, HTTP_Request2_Exception::READ_ERROR
-                );
-            }
-            @ini_set('track_errors', $track);
-            if (isset($e)) {
-                throw $e;
-            }
-            $this->body = $fp;
+            $fileData = $this->fopenWrapper($body, empty($this->headers['content-type']));
+            $this->body = $fileData['fp'];
             if (empty($this->headers['content-type'])) {
-                $this->setHeader('content-type', self::detectMimeType($body));
+                $this->setHeader('content-type', $fileData['type']);
             }
         }
         $this->postParams = $this->uploads = array();
@@ -635,8 +631,12 @@ class HTTP_Request2 implements SplSubject
     * If you just want to send the contents of a file as the body of HTTP
     * request you should use setBody() method.
     *
+    * If you provide file pointers rather than file names, they should support
+    * fstat() and rewind() operations.
+    *
     * @param    string  name of file-upload field
-    * @param    mixed   full name of local file
+    * @param    string|resource|array   full name of local file, pointer to
+    *               open file or an array of files
     * @param    string  filename to send in the request
     * @param    string  content-type of file being uploaded
     * @return   HTTP_Request2
@@ -646,21 +646,13 @@ class HTTP_Request2 implements SplSubject
                               $contentType = null)
     {
         if (!is_array($filename)) {
-            $track = @ini_set('track_errors', 1);
-            if (!($fp = @fopen($filename, 'rb'))) {
-                $e = new HTTP_Request2_LogicException(
-                    $php_errormsg, HTTP_Request2_Exception::READ_ERROR
-                );
-            }
-            @ini_set('track_errors', $track);
-            if (isset($e)) {
-                throw $e;
-            }
+            $fileData = $this->fopenWrapper($filename, empty($contentType));
             $this->uploads[$fieldName] = array(
-                'fp'        => $fp,
-                'filename'  => empty($sendFilename)? basename($filename): $sendFilename,
-                'size'      => filesize($filename),
-                'type'      => empty($contentType)? self::detectMimeType($filename): $contentType
+                'fp'        => $fileData['fp'],
+                'filename'  => !empty($sendFilename)? $sendFilename
+                                :(is_string($filename)? basename($filename): 'anonymous.blob') ,
+                'size'      => $fileData['size'],
+                'type'      => empty($contentType)? $fileData['type']: $contentType
             );
         } else {
             $fps = $names = $sizes = $types = array();
@@ -668,20 +660,12 @@ class HTTP_Request2 implements SplSubject
                 if (!is_array($f)) {
                     $f = array($f);
                 }
-                $track = @ini_set('track_errors', 1);
-                if (!($fp = @fopen($f[0], 'rb'))) {
-                    $e = new HTTP_Request2_LogicException(
-                        $php_errormsg, HTTP_Request2_Exception::READ_ERROR
-                    );
-                }
-                @ini_set('track_errors', $track);
-                if (isset($e)) {
-                    throw $e;
-                }
-                $fps[]   = $fp;
-                $names[] = empty($f[1])? basename($f[0]): $f[1];
-                $sizes[] = filesize($f[0]);
-                $types[] = empty($f[2])? self::detectMimeType($f[0]): $f[2];
+                $fileData = $this->fopenWrapper($f[0], empty($f[2]));
+                $fps[]   = $fileData['fp'];
+                $names[] = !empty($f[1])? $f[1]
+                            :(is_string($f[0])? basename($f[0]): 'anonymous.blob');
+                $sizes[] = $fileData['size'];
+                $types[] = empty($f[2])? $fileData['type']: $f[2];
             }
             $this->uploads[$fieldName] = array(
                 'fp' => $fps, 'filename' => $names, 'size' => $sizes, 'type' => $types
@@ -951,6 +935,53 @@ class HTTP_Request2 implements SplSubject
             throw $e;
         }
         return $response;
+    }
+
+   /**
+    * Wrapper around fopen()/fstat() used by setBody() and addUpload()
+    *
+    * @param  string|resource file name or pointer to open file
+    * @param  bool            whether to try autodetecting MIME type of file,
+    *                         will only work if $file is a filename, not pointer
+    * @return array array('fp' => file pointer, 'size' => file size, 'type' => MIME type)
+    * @throws HTTP_Request2_LogicException
+    */
+    protected function fopenWrapper($file, $detectType = false)
+    {
+        if (!is_string($file) && !is_resource($file)) {
+            throw new HTTP_Request2_LogicException(
+                "Filename or file pointer resource expected",
+                HTTP_Request2_Exception::INVALID_ARGUMENT
+            );
+        }
+        $fileData = array(
+            'fp'   => is_string($file)? null: $file,
+            'type' => 'application/octet-stream',
+            'size' => 0
+        );
+        if (is_string($file)) {
+            $track = @ini_set('track_errors', 1);
+            if (!($fileData['fp'] = @fopen($file, 'rb'))) {
+                $e = new HTTP_Request2_LogicException(
+                    $php_errormsg, HTTP_Request2_Exception::READ_ERROR
+                );
+            }
+            @ini_set('track_errors', $track);
+            if (isset($e)) {
+                throw $e;
+            }
+            if ($detectType) {
+                $fileData['type'] = self::detectMimeType($file);
+            }
+        }
+        if (!($stat = fstat($fileData['fp']))) {
+            throw new HTTP_Request2_LogicException(
+                "fstat() call failed", HTTP_Request2_Exception::READ_ERROR
+            );
+        }
+        $fileData['size'] = $stat['size'];
+
+        return $fileData;
     }
 
    /**

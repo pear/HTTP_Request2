@@ -224,6 +224,20 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->setBody('missing file', true);
     }
 
+   /**
+    *
+    * @expectedException HTTP_Request2_LogicException
+    */
+    public function testRequest16863()
+    {
+        $req = new HTTP_Request2();
+        $req->setBody(fopen(dirname(__FILE__) . '/_files/plaintext.txt', 'rb'));
+        $headers = $req->getHeaders();
+        $this->assertEquals('application/octet-stream', $headers['content-type']);
+
+        $req->setBody(fopen('php://input', 'rb'));
+    }
+
     public function testUrlencodedBody()
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
