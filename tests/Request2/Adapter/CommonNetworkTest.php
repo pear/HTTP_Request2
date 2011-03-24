@@ -44,8 +44,8 @@
 /** Class representing a HTTP request */
 require_once 'HTTP/Request2.php';
 
-/** PHPUnit Test Case */
-require_once 'PHPUnit/Framework/TestCase.php';
+/** Helper for PHPUnit includes */
+require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
 
 /**
  * Tests for HTTP_Request2 package that require a working webserver
@@ -55,7 +55,7 @@ require_once 'PHPUnit/Framework/TestCase.php';
  *
  * You need to properly set up this test suite, refer to NetworkConfig.php.dist
  */
-class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
+abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
 {
    /**
     * HTTP Request object

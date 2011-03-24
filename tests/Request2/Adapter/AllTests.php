@@ -45,15 +45,6 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
     define('PHPUnit_MAIN_METHOD', 'Request2_Adapter_AllTests::main');
 }
 
-if (!defined('HTTP_REQUEST2_TESTS_BASE_URL')
-    && is_readable(dirname(__FILE__) . '/../../NetworkConfig.php')
-) {
-    require_once dirname(__FILE__) . '/../../NetworkConfig.php';
-}
-
-require_once 'PHPUnit/Framework.php';
-require_once 'PHPUnit/TextUI/TestRunner.php';
-
 require_once dirname(__FILE__) . '/MockTest.php';
 require_once dirname(__FILE__) . '/SkippedTests.php';
 require_once dirname(__FILE__) . '/SocketTest.php';

@@ -43,8 +43,8 @@
 
 /** Stores cookies and passes them between HTTP requests */
 require_once 'HTTP/Request2/CookieJar.php';
-/** PHPUnit Test Case */
-require_once 'PHPUnit/Framework/TestCase.php';
+/** Helper for PHPUnit includes */
+require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_CookieJar class

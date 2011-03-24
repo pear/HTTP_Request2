@@ -46,10 +46,8 @@
  */
 require_once 'HTTP/Request2.php';
 
-/**
- * PHPUnit Test Case
- */
-require_once 'PHPUnit/Framework/TestCase.php';
+/** Helper for PHPUnit includes */
+require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_MultipartBody class

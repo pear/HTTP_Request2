@@ -129,6 +129,7 @@ Bugfixes:
         <file role="test" name="NetworkConfig.php.dist" />
         <file role="test" name="ObserverTest.php" />
         <file role="test" name="Request2Test.php" />
+        <file role="test" name="TestHelper.php" />
       </dir>
       <dir name="docs/examples">
         <file role="doc" name="upload-rapidshare.php" />
@@ -182,6 +183,7 @@ Bugfixes:
     <install as="NetworkConfig.php.dist" name="tests/NetworkConfig.php.dist" />
     <install as="ObserverTest.php" name="tests/ObserverTest.php" />
     <install as="Request2Test.php" name="tests/Request2Test.php" />
+    <install as="TestHelper.php" name="tests/TestHelper.php" />
 
     <install as="_files/bug_15305" name="tests/_files/bug_15305" />
     <install as="_files/bug_18169" name="tests/_files/bug_18169" />

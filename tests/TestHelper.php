@@ -41,39 +41,22 @@
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
-/** Helper for PHPUnit includes */
-require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
+/** Include PHPUnit dependencies based on version */
+require_once 'PHPUnit/Runner/Version.php';
 
-/**
- * Shows a skipped test if networked tests are not configured
- */
-class HTTP_Request2_Adapter_Skip_SocketTest extends PHPUnit_Framework_TestCase
-{
-    public function testSocketAdapter()
-    {
-        $this->markTestSkipped('Socket Adapter tests need base URL configured.');
-    }
+$phpunitVersion = PHPUnit_Runner_Version::id();
+if ($phpunitVersion == '@' . 'package_version@' || !version_compare($phpunitVersion, '3.6', '<=')) {
+    echo "This version of PHPUnit is not supported.";
+    exit(1);
+} elseif (version_compare($phpunitVersion, '3.5.5', '>=')) {
+    require_once 'PHPUnit/Autoload.php';
+} else {
+    require_once 'PHPUnit/Framework.php';
 }
 
-/**
- * Shows a skipped test if proxy is not configured
- */
-class HTTP_Request2_Adapter_Skip_SocketProxyTest extends PHPUnit_Framework_TestCase
-{
-    public function testSocketAdapterWithProxy()
-    {
-        $this->markTestSkipped('Socket Adapter proxy tests need base URL and proxy configured');
-    }
-}
-
-/**
- * Shows a skipped test if networked tests are not configured or cURL extension is unavailable
- */
-class HTTP_Request2_Adapter_Skip_CurlTest extends PHPUnit_Framework_TestCase
-{
-    public function testCurlAdapter()
-    {
-        $this->markTestSkipped('Curl Adapter tests need base URL configured and curl extension available');
-    }
+if (!defined('HTTP_REQUEST2_TESTS_BASE_URL')
+    && is_readable(dirname(__FILE__) . '/NetworkConfig.php')
+) {
+    require_once dirname(__FILE__) . '/NetworkConfig.php';
 }
 ?>
