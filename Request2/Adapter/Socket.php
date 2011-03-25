@@ -314,16 +314,21 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                     );
                 }
             }
+            $track = @ini_set('track_errors', 1);
             $this->socket = @stream_socket_client(
                 $remote, $errno, $errstr,
                 $this->request->getConfig('connect_timeout'),
                 STREAM_CLIENT_CONNECT, $context
             );
             if (!$this->socket) {
-                throw new HTTP_Request2_ConnectionException(
-                    "Unable to connect to {$remote}. Error: {$errstr}",
-                    0, $errno
+                $e = new HTTP_Request2_ConnectionException(
+                    "Unable to connect to {$remote}. Error: "
+                     . (empty($errstr)? $php_errormsg: $errstr), 0, $errno
                 );
+            }
+            @ini_set('track_errors', $track);
+            if (isset($e)) {
+                throw $e;
             }
             $this->request->setLastEvent('connect', $remote);
             self::$sockets[$socketKey] =& $this->socket;

@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2011-02-27</date>
+  <date>2011-03-25</date>
   <version>
-    <release>2.0.0beta1</release>
+    <release>2.0.0beta2</release>
     <api>2.0.0</api>
   </version>
   <stability>
@@ -36,19 +36,10 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-Additions and changes:
-  * Implemented cookie jar that allows to store and pass cookies across HTTP
-    requests (see request #18225)
-  * Added several specialized subclasses of HTTP_Request2_Exception, they are
-    now thrown instead of the parent. Also added error codes and possibility
-    to get native error code (as returned by stream_socket_client() and 
-    curl_errno()) (request #16762)
-  * An additional 'sentBody' event is now sent to Observers (request #16828) 
-  * setBody() and addUpload() can now accept file pointers (request #16863)
-
-Bugfixes:
-  * Incorrect check in Socket Adapter prevented Keep-alive from working in
-    some cases (bug #17031)
+  * Unit tests can now be run under recent PHPUnit versions (3.5+)
+  * Public Suffix List updated to current version
+  * PHP warning produced by stream_socket_client() in Socket adapter is now 
+    added to Exception message (bug #18331)
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -221,6 +212,33 @@ Bugfixes:
    </filelist>
   </phprelease>
     <changelog>
+      <release>
+      <version>
+        <release>2.0.0beta1</release>
+        <api>2.0.0</api>
+      </version>
+      <stability>
+        <release>beta</release>
+        <api>beta</api>
+      </stability>
+      <date>2011-02-27</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+Additions and changes:
+  * Implemented cookie jar that allows to store and pass cookies across HTTP
+    requests (see request #18225)
+  * Added several specialized subclasses of HTTP_Request2_Exception, they are
+    now thrown instead of the parent. Also added error codes and possibility
+    to get native error code (as returned by stream_socket_client() and 
+    curl_errno()) (request #16762)
+  * An additional 'sentBody' event is now sent to Observers (request #16828) 
+  * setBody() and addUpload() can now accept file pointers (request #16863)
+
+Bugfixes:
+  * Incorrect check in Socket Adapter prevented Keep-alive from working in
+    some cases (bug #17031)
+      </notes>
+      </release>
       <release>
       <version>
         <release>0.6.0</release>

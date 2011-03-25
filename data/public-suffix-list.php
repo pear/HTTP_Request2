@@ -679,6 +679,7 @@ return array(
   'org' => true,
   'edu' => true,
   'gov' => true,
+  'gob' => true,
   'mil' => true
  ),
  'edu' => true,
@@ -2447,7 +2448,9 @@ return array(
  'ni' => array(
   '*' => true
  ),
- 'nl' => true,
+ 'nl' => array(
+  'bv' => true
+ ),
  'no' => array(
   'fhs' => true,
   'vgs' => true,
