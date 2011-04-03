@@ -299,6 +299,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             case HTTP_Request2::METHOD_HEAD:
                 curl_setopt($ch, CURLOPT_NOBODY, true);
                 break;
+            case HTTP_Request2::METHOD_PUT:
+                curl_setopt($ch, CURLOPT_UPLOAD, true);
+                break;
             default:
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->request->getMethod());
         }
@@ -494,7 +497,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             }
         }
         if (empty($this->response)) {
-            $this->response = new HTTP_Request2_Response($string, false);
+            $this->response = new HTTP_Request2_Response(
+                $string, false, curl_getinfo($ch, CURLINFO_EFFECTIVE_URL)
+            );
         } else {
             $this->response->parseHeaderLine($string);
             if ('' == trim($string)) {

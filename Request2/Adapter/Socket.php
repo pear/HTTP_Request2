@@ -925,7 +925,9 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         $bufferSize = $this->request->getConfig('buffer_size');
 
         do {
-            $response = new HTTP_Request2_Response($this->readLine($bufferSize), true);
+            $response = new HTTP_Request2_Response(
+                $this->readLine($bufferSize), true, $this->request->getUrl()
+            );
             do {
                 $headerLine = $this->readLine($bufferSize);
                 $response->parseHeaderLine($headerLine);

@@ -227,6 +227,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $response = $this->request->send();
         $this->assertContains('Method=GET', $response->getBody());
         $this->assertNotContains('foo', $response->getBody());
+        $this->assertEquals($this->baseUrl . 'redirects.php?redirects=0', $response->getEffectiveUrl());
     }
 
     public function testRedirectsStrict()

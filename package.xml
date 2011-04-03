@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2011-03-25</date>
+  <date>2011-04-03</date>
   <version>
-    <release>2.0.0beta2</release>
+    <release>2.0.0beta3</release>
     <api>2.0.0</api>
   </version>
   <stability>
@@ -36,10 +36,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-  * Unit tests can now be run under recent PHPUnit versions (3.5+)
-  * Public Suffix List updated to current version
-  * PHP warning produced by stream_socket_client() in Socket adapter is now 
-    added to Exception message (bug #18331)
+  * Added getEffectiveUrl() method to Response object, it returns the URL
+    response was received from, possibly after redirects (request #18412)
+  * Curl Adapter didn't send body for PUT requests sometimes (bug #18421)
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -212,6 +211,24 @@ deflate encodings, redirects, monitoring the request progress with Observers...
    </filelist>
   </phprelease>
     <changelog>
+      <release>
+      <version>
+        <release>2.0.0beta2</release>
+        <api>2.0.0</api>
+      </version>
+      <stability>
+        <release>beta</release>
+        <api>beta</api>
+      </stability>
+      <date>2011-03-25</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+  * Unit tests can now be run under recent PHPUnit versions (3.5+)
+  * Public Suffix List updated to current version
+  * PHP warning produced by stream_socket_client() in Socket adapter is now 
+    added to Exception message (bug #18331)
+      </notes>
+      </release>
       <release>
       <version>
         <release>2.0.0beta1</release>

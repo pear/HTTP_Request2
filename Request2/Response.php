@@ -96,6 +96,12 @@ class HTTP_Request2_Response
     protected $reasonPhrase;
 
    /**
+    * Effective URL (may be different from original request URL in case of redirects)
+    * @var  string
+    */
+    protected $effectiveUrl;
+
+   /**
     * Associative array of response headers
     * @var  array
     */
@@ -200,11 +206,12 @@ class HTTP_Request2_Response
    /**
     * Constructor, parses the response status line
     *
-    * @param    string  Response status line (e.g. "HTTP/1.1 200 OK")
-    * @param    bool    Whether body is still encoded by Content-Encoding
+    * @param    string Response status line (e.g. "HTTP/1.1 200 OK")
+    * @param    bool   Whether body is still encoded by Content-Encoding
+    * @param    string Effective URL of the response
     * @throws   HTTP_Request2_MessageException if status line is invalid according to spec
     */
-    public function __construct($statusLine, $bodyEncoded = true)
+    public function __construct($statusLine, $bodyEncoded = true, $effectiveUrl = null)
     {
         if (!preg_match('!^HTTP/(\d\.\d) (\d{3})(?: (.+))?!', $statusLine, $m)) {
             throw new HTTP_Request2_MessageException(
@@ -219,7 +226,8 @@ class HTTP_Request2_Response
         } elseif (!empty(self::$phrases[$this->code])) {
             $this->reasonPhrase = self::$phrases[$this->code];
         }
-        $this->bodyEncoded = (bool)$bodyEncoded;
+        $this->bodyEncoded  = (bool)$bodyEncoded;
+        $this->effectiveUrl = (string)$effectiveUrl;
     }
 
    /**
@@ -335,6 +343,19 @@ class HTTP_Request2_Response
     public function appendBody($bodyChunk)
     {
         $this->body .= $bodyChunk;
+    }
+
+   /**
+    * Returns the effective URL of the response
+    *
+    * This may be different from the request URL if redirects were followed.
+    *
+    * @return string
+    * @link   http://pear.php.net/bugs/bug.php?id=18412
+    */
+    public function getEffectiveUrl()
+    {
+        return $this->effectiveUrl;
     }
 
    /**
