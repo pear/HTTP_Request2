@@ -25,20 +25,19 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2011-04-03</date>
+  <date>2011-05-06</date>
   <version>
-    <release>2.0.0beta3</release>
+    <release>2.0.0RC1</release>
     <api>2.0.0</api>
   </version>
   <stability>
     <release>beta</release>
-    <api>beta</api>
+    <api>stable</api>
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-  * Added getEffectiveUrl() method to Response object, it returns the URL
-    response was received from, possibly after redirects (request #18412)
-  * Curl Adapter didn't send body for PUT requests sometimes (bug #18421)
+SSL options for Curl Adapter are always set, this prevents errors when
+redirecting from HTTP to HTTPS (bug #18443)
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -211,6 +210,23 @@ deflate encodings, redirects, monitoring the request progress with Observers...
    </filelist>
   </phprelease>
     <changelog>
+      <release>
+      <version>
+        <release>2.0.0beta3</release>
+        <api>2.0.0</api>
+      </version>
+      <stability>
+        <release>beta</release>
+        <api>beta</api>
+      </stability>
+      <date>2011-04-03</date>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+  * Added getEffectiveUrl() method to Response object, it returns the URL
+    response was received from, possibly after redirects (request #18412)
+  * Curl Adapter didn't send body for PUT requests sometimes (bug #18421)
+      </notes>
+      </release>
       <release>
       <version>
         <release>2.0.0beta2</release>

@@ -340,13 +340,11 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         }
 
         // set SSL options
-        if (0 == strcasecmp($this->request->getUrl()->getScheme(), 'https')) {
-            foreach ($this->request->getConfig() as $name => $value) {
-                if ('ssl_verify_host' == $name && null !== $value) {
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $value? 2: 0);
-                } elseif (isset(self::$sslContextMap[$name]) && null !== $value) {
-                    curl_setopt($ch, self::$sslContextMap[$name], $value);
-                }
+        foreach ($this->request->getConfig() as $name => $value) {
+            if ('ssl_verify_host' == $name && null !== $value) {
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $value? 2: 0);
+            } elseif (isset(self::$sslContextMap[$name]) && null !== $value) {
+                curl_setopt($ch, self::$sslContextMap[$name], $value);
             }
         }
 
