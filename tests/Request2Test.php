@@ -377,5 +377,25 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
             $cookies[0]
         );
     }
+
+   /**
+    * @expectedException HTTP_Request2_LogicException
+    * @expectedExceptionMessage none
+    */
+    public function testDisallowEmptyUrls()
+    {
+        $req = new HTTP_Request2();
+        $req->send();
+    }
+
+   /**
+    * @expectedException HTTP_Request2_LogicException
+    * @expectedExceptionMessage '/foo/bar.php'
+    */
+    public function testDisallowRelativeUrls()
+    {
+        $req = new HTTP_Request2('/foo/bar.php');
+        $req->send();
+    }
 }
 ?>

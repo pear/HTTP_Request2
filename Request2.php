@@ -899,7 +899,7 @@ class HTTP_Request2 implements SplSubject
             throw new HTTP_Request2_LogicException(
                 'HTTP_Request2 needs an absolute HTTP(S) request URL, '
                 . ($this->url instanceof Net_URL2
-                   ? 'none' : "'" . $this->url->__toString() . "'")
+                   ? "'" . $this->url->__toString() . "'" : 'none')
                 . ' given',
                 HTTP_Request2_Exception::INVALID_ARGUMENT
             );
