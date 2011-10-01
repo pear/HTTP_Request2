@@ -25,7 +25,7 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2011-05-06</date>
+  <date>2011-10-01</date>
   <version>
     <release>2.0.0RC2</release>
     <api>2.0.0</api>
