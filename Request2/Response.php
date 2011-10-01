@@ -204,6 +204,24 @@ class HTTP_Request2_Response
     );
 
    /**
+    * Returns the default reason phrase for the given code or all reason phrases
+    *
+    * @param  int $code         Response code
+    * @return string|array|null Default reason phrase for $code if $code is given
+    *                           (null if no phrase is available), array of all
+    *                           reason phrases if $code is null
+    * @link   http://pear.php.net/bugs/18716
+    */
+    public static function getDefaultReasonPhrase($code = null)
+    {
+        if (null === $code) {
+            return self::$phrases;
+        } else {
+            return isset(self::$phrases[$code]) ? self::$phrases[$code] : null;
+        }
+    }
+
+   /**
     * Constructor, parses the response status line
     *
     * @param    string Response status line (e.g. "HTTP/1.1 200 OK")
@@ -219,13 +237,9 @@ class HTTP_Request2_Response
                 HTTP_Request2_Exception::MALFORMED_RESPONSE
             );
         }
-        $this->version = $m[1];
-        $this->code    = intval($m[2]);
-        if (!empty($m[3])) {
-            $this->reasonPhrase = trim($m[3]);
-        } elseif (!empty(self::$phrases[$this->code])) {
-            $this->reasonPhrase = self::$phrases[$this->code];
-        }
+        $this->version      = $m[1];
+        $this->code         = intval($m[2]);
+        $this->reasonPhrase = !empty($m[3]) ? trim($m[3]) : self::getDefaultReasonPhrase($this->code);
         $this->bodyEncoded  = (bool)$bodyEncoded;
         $this->effectiveUrl = (string)$effectiveUrl;
     }

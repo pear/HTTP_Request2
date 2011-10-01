@@ -27,7 +27,7 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </lead>
   <date>2011-05-06</date>
   <version>
-    <release>2.0.0RC1</release>
+    <release>2.0.0RC2</release>
     <api>2.0.0</api>
   </version>
   <stability>
@@ -36,8 +36,10 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-SSL options for Curl Adapter are always set, this prevents errors when
-redirecting from HTTP to HTTPS (bug #18443)
+  * Added an accessor method for HTTP_Request2_Response::$phrases (request #18716)
+  * HTTP_Request2::send() throws an exception if URL is not provided 
+    rather than dies with a fatal error (bug #18755)
+  * Public Suffix List updated to current version
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -74,18 +76,18 @@ redirecting from HTTP to HTTPS (bug #18443)
         <file role="php" name="Response.php">
           <tasks:replace from="@package_version@" to="version" type="package-info" />
         </file>
-	  </dir>
+      </dir>
       <dir name="tests">
         <dir name="_files">
-		  <file role="test" name="bug_15305" />
+          <file role="test" name="bug_15305" />
           <file role="test" name="bug_18169" />
-		  <file role="test" name="empty.gif" />
-		  <file role="test" name="plaintext.txt" />
-		  <file role="test" name="response_cookies" />
-		  <file role="test" name="response_deflate" />
-		  <file role="test" name="response_gzip" />
-		  <file role="test" name="response_gzip_broken" />
-		  <file role="test" name="response_headers" />
+          <file role="test" name="empty.gif" />
+          <file role="test" name="plaintext.txt" />
+          <file role="test" name="response_cookies" />
+          <file role="test" name="response_deflate" />
+          <file role="test" name="response_gzip" />
+          <file role="test" name="response_gzip_broken" />
+          <file role="test" name="response_headers" />
         </dir>
         <dir name="_network">
          <file role="test" name="basicauth.php" />
@@ -128,7 +130,7 @@ redirecting from HTTP to HTTPS (bug #18443)
         <file role="data" name="public-suffix-list.php" />
       </dir>
       <file role="php" name="Request2.php">
-      	<tasks:replace from="@package_version@" to="version" type="package-info" />
+          <tasks:replace from="@package_version@" to="version" type="package-info" />
       </file>
     </dir>
   </contents>
@@ -141,21 +143,21 @@ redirecting from HTTP to HTTPS (bug #18443)
         <min>1.5.4</min>
       </pearinstaller>
       <package>
-	    <name>Net_URL2</name>
-	    <channel>pear.php.net</channel>
-	    <min>0.3.0</min>
-	  </package>
+        <name>Net_URL2</name>
+        <channel>pear.php.net</channel>
+        <min>0.3.0</min>
+      </package>
     </required>
     <optional>
       <extension>
-	    <name>curl</name>
-	  </extension>
-	  <extension>
-	    <name>fileinfo</name>
-	  </extension>
-	  <extension>
-	    <name>zlib</name>
-	  </extension>
+        <name>curl</name>
+      </extension>
+      <extension>
+        <name>fileinfo</name>
+      </extension>
+      <extension>
+        <name>zlib</name>
+      </extension>
       <extension>
         <name>openssl</name>
       </extension>
@@ -210,6 +212,22 @@ redirecting from HTTP to HTTPS (bug #18443)
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2011-05-06</date>
+      <version>
+        <release>2.0.0RC1</release>
+        <api>2.0.0</api>
+      </version>
+      <stability>
+        <release>beta</release>
+        <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+SSL options for Curl Adapter are always set, this prevents errors when
+redirecting from HTTP to HTTPS (bug #18443)
+      </notes>
+     </release>
       <release>
       <version>
         <release>2.0.0beta3</release>
@@ -477,7 +495,7 @@ Fixes:
     encoding (bug #15305)
   * Curl Adapter now passes full request headers in 'sentHeaders' event
       </notes>
-	  </release>
+      </release>
       <release>
       <version>
         <release>0.1.0</release>
@@ -494,7 +512,7 @@ Initial release. The features supported are mostly the same as those of
 HTTP_Request, with the following additional feature requests implemented:
   * cURL extension support (request #5463)
   * It is now possible to monitor the file upload progress with Observers
-	(request #7630)
+    (request #7630)
   * Added 'sentHeaders' notification providing the request headers to the
     Observers (request #7633)
   * Added support for 'deflate' encoding (request #11246)
