@@ -25,21 +25,18 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2011-10-01</date>
+  <date>2011-10-20</date>
   <version>
-    <release>2.0.0RC2</release>
+    <release>2.0.0</release>
     <api>2.0.0</api>
   </version>
   <stability>
-    <release>beta</release>
+    <release>stable</release>
     <api>stable</api>
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-  * Added an accessor method for HTTP_Request2_Response::$phrases (request #18716)
-  * HTTP_Request2::send() throws an exception if URL is not provided 
-    rather than dies with a fatal error (bug #18755)
-  * Public Suffix List updated to current version
+2.0.0RC2 repackaged as stable and depending on stable Net_URL2. No code changes.
   </notes>
   <contents>
     <dir baseinstalldir="HTTP" name="/">
@@ -145,7 +142,7 @@ deflate encodings, redirects, monitoring the request progress with Observers...
       <package>
         <name>Net_URL2</name>
         <channel>pear.php.net</channel>
-        <min>0.3.0</min>
+        <min>2.0.0</min>
       </package>
     </required>
     <optional>
@@ -212,6 +209,24 @@ deflate encodings, redirects, monitoring the request progress with Observers...
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2011-10-01</date>
+      <version>
+        <release>2.0.0RC2</release>
+        <api>2.0.0</api>
+      </version>
+      <stability>
+        <release>beta</release>
+        <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+  * Added an accessor method for HTTP_Request2_Response::$phrases (request #18716)
+  * HTTP_Request2::send() throws an exception if URL is not provided 
+    rather than dies with a fatal error (bug #18755)
+  * Public Suffix List updated to current version
+      </notes>
+     </release>
      <release>
       <date>2011-05-06</date>
       <version>
