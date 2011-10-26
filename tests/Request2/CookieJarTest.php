@@ -41,10 +41,10 @@
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
+/** Sets up includes */
+require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 /** Stores cookies and passes them between HTTP requests */
 require_once 'HTTP/Request2/CookieJar.php';
-/** Helper for PHPUnit includes */
-require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_CookieJar class

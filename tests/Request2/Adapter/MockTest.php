@@ -41,6 +41,9 @@
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
+/** Sets up includes */
+require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
+
 /**
  * Class representing a HTTP request
  */
@@ -50,9 +53,6 @@ require_once 'HTTP/Request2.php';
  * Mock adapter intended for testing
  */
 require_once 'HTTP/Request2/Adapter/Mock.php';
-
-/** Helper for PHPUnit includes */
-require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_Response class

@@ -41,13 +41,13 @@
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
+/** Sets up includes */
+require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
+
 /**
  * Class representing a HTTP response
  */
 require_once 'HTTP/Request2/Response.php';
-
-/** Helper for PHPUnit includes */
-require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_Response class

@@ -44,6 +44,15 @@
 /** Include PHPUnit dependencies based on version */
 require_once 'PHPUnit/Runner/Version.php';
 
+// If running from SVN checkout, update include_path
+if ('@' . 'package_version@' == '@package_version@') {
+    $classPath   = realpath(dirname(dirname(__FILE__)));
+    $includePath = array_map('realpath', explode(PATH_SEPARATOR, get_include_path()));
+    if (!in_array($classPath, $includePath)) {
+        set_include_path($classPath . PATH_SEPARATOR . get_include_path());
+    }
+}
+
 $phpunitVersion = PHPUnit_Runner_Version::id();
 if ($phpunitVersion == '@' . 'package_version@' || !version_compare($phpunitVersion, '3.6', '<=')) {
     echo "This version of PHPUnit is not supported.";

@@ -39,39 +39,44 @@ deflate encodings, redirects, monitoring the request progress with Observers...
 2.0.0RC2 repackaged as stable and depending on stable Net_URL2. No code changes.
   </notes>
   <contents>
-    <dir baseinstalldir="HTTP" name="/">
-      <dir name="Request2">
-        <dir name="Adapter">
-          <file role="php" name="Curl.php">
+    <dir name="/">
+      <dir name="HTTP">
+        <dir name="Request2">
+          <dir name="Adapter">
+            <file role="php" name="Curl.php">
+              <tasks:replace from="@package_version@" to="version" type="package-info" />
+            </file>
+            <file role="php" name="Mock.php">
+              <tasks:replace from="@package_version@" to="version" type="package-info" />
+            </file>
+            <file role="php" name="Socket.php">
+              <tasks:replace from="@package_version@" to="version" type="package-info" />
+            </file>
+          </dir>
+          <file role="php" name="Adapter.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
           </file>
-          <file role="php" name="Mock.php">
+          <file role="php" name="CookieJar.php">
+            <tasks:replace from="@package_version@" to="version" type="package-info" />
+            <tasks:replace from="@data_dir@" to="data_dir" type="pear-config" />
+          </file>
+          <file role="php" name="Exception.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
           </file>
-          <file role="php" name="Socket.php">
+          <file role="php" name="MultipartBody.php">
+            <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
+          <dir name="Observer">
+            <file role="php" name="Log.php">
+              <tasks:replace from="@package_version@" to="version" type="package-info" />
+            </file>
+          </dir>
+          <file role="php" name="Response.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
           </file>
         </dir>
-        <file role="php" name="Adapter.php">
-          <tasks:replace from="@package_version@" to="version" type="package-info" />
-        </file>
-        <file role="php" name="CookieJar.php">
-          <tasks:replace from="@package_version@" to="version" type="package-info" />
-          <tasks:replace from="@data_dir@" to="data_dir" type="pear-config" />
-        </file>
-        <file role="php" name="Exception.php">
-          <tasks:replace from="@package_version@" to="version" type="package-info" />
-        </file>
-        <file role="php" name="MultipartBody.php">
-          <tasks:replace from="@package_version@" to="version" type="package-info" />
-        </file>
-        <dir name="Observer">
-          <file role="php" name="Log.php">
+        <file role="php" name="Request2.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
-          </file>
-        </dir>
-        <file role="php" name="Response.php">
-          <tasks:replace from="@package_version@" to="version" type="package-info" />
         </file>
       </dir>
       <dir name="tests">
@@ -126,9 +131,6 @@ deflate encodings, redirects, monitoring the request progress with Observers...
         <file role="data" name="generate-list.php" />
         <file role="data" name="public-suffix-list.php" />
       </dir>
-      <file role="php" name="Request2.php">
-          <tasks:replace from="@package_version@" to="version" type="package-info" />
-      </file>
     </dir>
   </contents>
   <dependencies>

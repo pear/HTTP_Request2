@@ -41,7 +41,7 @@
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
-/** Helper for PHPUnit includes */
+/** Sets up includes */
 require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
 
 /**
