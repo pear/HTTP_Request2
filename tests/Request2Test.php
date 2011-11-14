@@ -79,7 +79,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $req2 = new HTTP_Request2();
         $req2->setUrl($urlString);
-        $this->assertType('Net_URL2', $req2->getUrl());
+        $this->assertInstanceOf('Net_URL2', $req2->getUrl());
         $this->assertEquals($urlString, $req2->getUrl()->getUrl());
 
         $req3 = new HTTP_Request2();
@@ -338,7 +338,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $req->setCookieJar();
         $jar = $req->getCookieJar();
-        $this->assertType('HTTP_Request2_CookieJar', $jar);
+        $this->assertInstanceOf('HTTP_Request2_CookieJar', $jar);
 
         $req2 = new HTTP_Request2();
         $req2->setCookieJar($jar);
