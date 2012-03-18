@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -264,6 +264,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
    /**
     *
     * @expectedException HTTP_Request2_LogicException
+    * @expectedExceptionMessage missing file
     */
     public function testUpload()
     {

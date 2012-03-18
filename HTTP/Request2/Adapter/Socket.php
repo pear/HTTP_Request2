@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,6 +131,12 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     * @var  integer
     */
     protected $redirectCountdown = null;
+
+   /**
+    * PHP warning messages raised during stream_socket_client() call
+    * @var array
+    */
+    protected $connectionWarnings = array();
 
    /**
     * Sends request to the remote server and returns its response
@@ -314,26 +320,45 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                     );
                 }
             }
-            $track = @ini_set('track_errors', 1);
-            $this->socket = @stream_socket_client(
+
+            $this->connectionWarnings = array();
+            set_error_handler(array($this, 'connectionWarningsHandler'));
+            $this->socket = stream_socket_client(
                 $remote, $errno, $errstr,
                 $this->request->getConfig('connect_timeout'),
                 STREAM_CLIENT_CONNECT, $context
             );
+            restore_error_handler();
             if (!$this->socket) {
-                $e = new HTTP_Request2_ConnectionException(
-                    "Unable to connect to {$remote}. Error: "
-                     . (empty($errstr)? $php_errormsg: $errstr), 0, $errno
+                $error = $errstr ? $errstr : implode("\n", $this->connectionWarnings);
+                throw new HTTP_Request2_ConnectionException(
+                    "Unable to connect to {$remote}. Error: {$error}", 0, $errno
                 );
             }
-            @ini_set('track_errors', $track);
-            if (isset($e)) {
-                throw $e;
-            }
+
             $this->request->setLastEvent('connect', $remote);
             self::$sockets[$socketKey] =& $this->socket;
         }
         return $keepAlive;
+    }
+
+   /**
+    * Error handler to use during stream_socket_client() call
+    *
+    * One stream_socket_client() call may produce *multiple* PHP warnings
+    * (especially OpenSSL-related), we keep them in an array to later use for
+    * the message of HTTP_Request2_ConnectionException
+    *
+    * @param int    $errno  error level
+    * @param string $errstr error message
+    * @return bool
+    */
+    protected function connectionWarningsHandler($errno, $errstr)
+    {
+        if ($errno & E_WARNING) {
+            array_unshift($this->connectionWarnings, $errstr);
+        }
+        return true;
     }
 
    /**

@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -960,15 +960,11 @@ class HTTP_Request2 implements SplSubject
             'size' => 0
         );
         if (is_string($file)) {
-            $track = @ini_set('track_errors', 1);
             if (!($fileData['fp'] = @fopen($file, 'rb'))) {
-                $e = new HTTP_Request2_LogicException(
-                    $php_errormsg, HTTP_Request2_Exception::READ_ERROR
+                $error = error_get_last();
+                throw new HTTP_Request2_LogicException(
+                    $error['message'], HTTP_Request2_Exception::READ_ERROR
                 );
-            }
-            @ini_set('track_errors', $track);
-            if (isset($e)) {
-                throw $e;
             }
             if ($detectType) {
                 $fileData['type'] = self::detectMimeType($file);
