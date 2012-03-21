@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2011, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,10 +171,10 @@ class HTTP_Request2_Observer_Log implements SplObserver
             $this->log('> ' . $event['data'] . ' byte(s) sent');
             break;
         case 'receivedHeaders':
-            $this->log(sprintf('< HTTP/%s %s %s',
-                $event['data']->getVersion(),
-                $event['data']->getStatus(),
-                $event['data']->getReasonPhrase()));
+            $this->log(sprintf(
+                '< HTTP/%s %s %s', $event['data']->getVersion(),
+                $event['data']->getStatus(), $event['data']->getReasonPhrase()
+            ));
             $headers = $event['data']->getHeader();
             foreach ($headers as $key => $val) {
                 $this->log('< ' . $key . ': ' . $val);
