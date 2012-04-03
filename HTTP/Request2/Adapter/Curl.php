@@ -331,6 +331,20 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                     curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_DIGEST);
                 }
             }
+            if ($type = $this->request->getConfig('proxy_type')) {
+                switch ($type) {
+                case 'http':
+                    curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+                    break;
+                case 'socks5':
+                    curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                    break;
+                default:
+                    throw new HTTP_Request2_NotImplementedException(
+                        "Proxy type '{$type}' is not supported"
+                    );
+                }
+            }
         }
 
         // set authentication data

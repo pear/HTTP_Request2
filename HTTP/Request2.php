@@ -158,6 +158,7 @@ class HTTP_Request2 implements SplSubject
         'proxy_user'        => '',
         'proxy_password'    => '',
         'proxy_auth_scheme' => self::AUTH_BASIC,
+        'proxy_type'        => 'http',
 
         'ssl_verify_peer'   => true,
         'ssl_verify_host'   => true,
@@ -337,6 +338,7 @@ class HTTP_Request2 implements SplSubject
      *   <li> 'store_body'        - Whether to store response body in response object.
      *                              Set to false if receiving a huge response and
      *                              using an Observer to save it (boolean)</li>
+     *   <li> 'proxy_type'        - Proxy type, 'http' or 'socks5' (string)</li>
      *   <li> 'proxy_host'        - Proxy server host (string)</li>
      *   <li> 'proxy_port'        - Proxy server port (integer)</li>
      *   <li> 'proxy_user'        - Proxy auth username (string)</li>
