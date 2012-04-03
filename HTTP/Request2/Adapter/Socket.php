@@ -235,21 +235,29 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $reqPort = $secure? 443: 80;
         }
 
-        if ($host = $this->request->getConfig('proxy_host')) {
+        $httpProxy = $socksProxy = false;
+        if (!($host = $this->request->getConfig('proxy_host'))) {
+            $host = $reqHost;
+            $port = $reqPort;
+        } else {
             if (!($port = $this->request->getConfig('proxy_port'))) {
                 throw new HTTP_Request2_LogicException(
                     'Proxy port not provided',
                     HTTP_Request2_Exception::MISSING_VALUE
                 );
             }
-            $proxy = true;
-        } else {
-            $host  = $reqHost;
-            $port  = $reqPort;
-            $proxy = false;
+            if ('http' == ($type = $this->request->getConfig('proxy_type'))) {
+                $httpProxy = true;
+            } elseif ('socks5' == $type) {
+                $socksProxy = true;
+            } else {
+                throw new HTTP_Request2_NotImplementedException(
+                    "Proxy type '{$type}' is not supported"
+                );
+            }
         }
 
-        if ($tunnel && !$proxy) {
+        if ($tunnel && !$httpProxy) {
             throw new HTTP_Request2_LogicException(
                 "Trying to perform CONNECT request without proxy",
                 HTTP_Request2_Exception::MISSING_VALUE
@@ -264,7 +272,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         // RFC 2068, section 19.7.1: A client MUST NOT send the Keep-Alive
         // connection token to a proxy server...
-        if ($proxy && !$secure && !empty($headers['connection'])
+        if ($httpProxy && !$secure && !empty($headers['connection'])
             && 'Keep-Alive' == $headers['connection']
         ) {
             $this->request->setHeader('connection');
@@ -274,7 +282,6 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                       empty($headers['connection'])) ||
                      (!empty($headers['connection']) &&
                       'Keep-Alive' == $headers['connection']);
-        $host = ((!$secure || $proxy)? 'tcp://': 'ssl://') . $host;
 
         $options = array();
         if ($secure || $tunnel) {
@@ -294,9 +301,12 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         // Changing SSL context options after connection is established does *not*
         // work, we need a new connection if options change
-        $remote    = $host . ':' . $port;
-        $socketKey = $remote . (($secure && $proxy)? "->{$reqHost}:{$reqPort}": '') .
-                     (empty($options)? '': ':' . serialize($options));
+        $remote    = ((!$secure || $httpProxy || $socksProxy)? 'tcp://': 'ssl://')
+                     . $host . ':' . $port;
+        $socketKey = $remote . (
+                        ($secure && $httpProxy || $socksProxy)
+                        ? "->{$reqHost}:{$reqPort}" : ''
+                     ) . (empty($options)? '': ':' . serialize($options));
         unset($this->socket);
 
         // We use persistent connections and have a connected socket?
@@ -306,10 +316,31 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         ) {
             $this->socket =& self::$sockets[$socketKey];
 
-        } elseif ($secure && $proxy && !$tunnel) {
+        } elseif ($socksProxy) {
+            require_once 'HTTP/Request2/SOCKS5.php';
+
+            $socks = new HTTP_Request2_SOCKS5(
+                $host, $port, $this->request->getConfig('connect_timeout'),
+                $options, $this->request->getConfig('proxy_user'),
+                $this->request->getConfig('proxy_password')
+            );
+            $this->socket = $socks->connect($reqHost, $reqPort);
+            if (!$secure) {
+                $this->request->setLastEvent(
+                    'connect', "tcp://{$reqHost}:{$reqPort} via {$remote}"
+                );
+            } else {
+                $this->establishTunnel();
+                $this->request->setLastEvent(
+                    'connect', "ssl://{$reqHost}:{$reqPort} via {$remote}"
+                );
+            }
+            self::$sockets[$socketKey] =& $this->socket;
+
+        } elseif ($secure && $httpProxy && !$tunnel) {
             $this->establishTunnel();
             $this->request->setLastEvent(
-                'connect', "ssl://{$reqHost}:{$reqPort} via {$host}:{$port}"
+                'connect', "ssl://{$reqHost}:{$reqPort} via {$remote}"
             );
             self::$sockets[$socketKey] =& $this->socket;
 
@@ -377,20 +408,22 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
      */
     protected function establishTunnel()
     {
-        $donor   = new self;
-        $connect = new HTTP_Request2(
-            $this->request->getUrl(), HTTP_Request2::METHOD_CONNECT,
-            array_merge($this->request->getConfig(), array('adapter' => $donor))
-        );
-        $response = $connect->send();
-        // Need any successful (2XX) response
-        if (200 > $response->getStatus() || 300 <= $response->getStatus()) {
-            throw new HTTP_Request2_ConnectionException(
-                'Failed to connect via HTTPS proxy. Proxy response: ' .
-                $response->getStatus() . ' ' . $response->getReasonPhrase()
+        if (empty($this->socket)) {
+            $donor   = new self;
+            $connect = new HTTP_Request2(
+                $this->request->getUrl(), HTTP_Request2::METHOD_CONNECT,
+                array_merge($this->request->getConfig(), array('adapter' => $donor))
             );
+            $response = $connect->send();
+            // Need any successful (2XX) response
+            if (200 > $response->getStatus() || 300 <= $response->getStatus()) {
+                throw new HTTP_Request2_ConnectionException(
+                    'Failed to connect via HTTPS proxy. Proxy response: ' .
+                    $response->getStatus() . ' ' . $response->getReasonPhrase()
+                );
+            }
+            $this->socket = $donor->socket;
         }
-        $this->socket = $donor->socket;
 
         $modes = array(
             STREAM_CRYPTO_METHOD_TLS_CLIENT,
