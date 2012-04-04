@@ -837,7 +837,9 @@ class HTTP_Request2 implements SplSubject
                 if (false === strpos($adapter, '_')) {
                     $adapter = 'HTTP_Request2_Adapter_' . ucfirst($adapter);
                 }
-                if (preg_match('/^HTTP_Request2_Adapter_([a-zA-Z0-9]+)$/', $adapter)) {
+                if (!class_exists($adapter, false)
+                    && preg_match('/^HTTP_Request2_Adapter_([a-zA-Z0-9]+)$/', $adapter)
+                ) {
                     include_once str_replace('_', DIRECTORY_SEPARATOR, $adapter) . '.php';
                 }
                 if (!class_exists($adapter, false)) {
