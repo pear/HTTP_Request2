@@ -344,6 +344,8 @@ class HTTP_Request2 implements SplSubject
      *   <li> 'proxy_user'        - Proxy auth username (string)</li>
      *   <li> 'proxy_password'    - Proxy auth password (string)</li>
      *   <li> 'proxy_auth_scheme' - Proxy auth scheme, one of HTTP_Request2::AUTH_* constants (string)</li>
+     *   <li> 'proxy'             - Shorthand for proxy_* parameters, proxy given as URL,
+     *                              e.g. 'socks5://localhost:1080/' (string)</li>
      *   <li> 'ssl_verify_peer'   - Whether to verify peer's SSL certificate (bool)</li>
      *   <li> 'ssl_verify_host'   - Whether to check that Common Name in SSL
      *                              certificate matches host name (bool)</li>
@@ -378,6 +380,16 @@ class HTTP_Request2 implements SplSubject
             foreach ($nameOrConfig as $name => $value) {
                 $this->setConfig($name, $value);
             }
+
+        } elseif ('proxy' == $nameOrConfig) {
+            $url = new Net_URL2($value);
+            $this->setConfig(array(
+                'proxy_type'     => $url->getScheme(),
+                'proxy_host'     => $url->getHost(),
+                'proxy_port'     => $url->getPort(),
+                'proxy_user'     => rawurldecode($url->getUser()),
+                'proxy_password' => rawurldecode($url->getPassword())
+            ));
 
         } else {
             if (!array_key_exists($nameOrConfig, $this->config)) {
@@ -940,7 +952,7 @@ class HTTP_Request2 implements SplSubject
         // strlen() and substr(); see bug #1781, bug #10605
         if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
             $oldEncoding = mb_internal_encoding();
-            mb_internal_encoding('iso-8859-1');
+            mb_internal_encoding('8bit');
         }
 
         try {

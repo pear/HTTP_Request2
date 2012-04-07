@@ -129,6 +129,18 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         } catch (HTTP_Request2_LogicException $e) {}
     }
 
+    public function testSetProxyAsUrl()
+    {
+        $req = new HTTP_Request2();
+        $req->setConfig('proxy', 'socks5://foo:bar%25baz@localhost:1080/');
+
+        $this->assertEquals('socks5', $req->getConfig('proxy_type'));
+        $this->assertEquals('localhost', $req->getConfig('proxy_host'));
+        $this->assertEquals(1080, $req->getConfig('proxy_port'));
+        $this->assertEquals('foo', $req->getConfig('proxy_user'));
+        $this->assertEquals('bar%baz', $req->getConfig('proxy_password'));
+    }
+
    /**
     *
     * @expectedException HTTP_Request2_LogicException

@@ -453,7 +453,7 @@ class HTTP_Request2_Response
         } else {
             if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
                 $oldEncoding = mb_internal_encoding();
-                mb_internal_encoding('iso-8859-1');
+                mb_internal_encoding('8bit');
             }
 
             try {
