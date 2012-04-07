@@ -81,7 +81,9 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
     /**
      * Returns the next response from the queue built by addResponse()
      *
-     * If the queue is empty it will return default empty response with status 400,
+     * Only responses without explicit URLs or with URLs equal to request URL
+     * will be considered. If matching response is not found or the queue is
+     * empty then default empty response with status 400 will be returned,
      * if an Exception object was added to the queue it will be thrown.
      *
      * @param HTTP_Request2 $request HTTP request message
@@ -91,31 +93,41 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
      */
     public function sendRequest(HTTP_Request2 $request)
     {
-        if (count($this->responses) > 0) {
-            $response = array_shift($this->responses);
-            if ($response instanceof HTTP_Request2_Response) {
-                return $response;
-            } else {
-                // rethrow the exception
-                $class   = get_class($response);
-                $message = $response->getMessage();
-                $code    = $response->getCode();
-                throw new $class($message, $code);
+        $requestUrl = (string)$request->getUrl();
+        $response   = null;
+        foreach ($this->responses as $k => $v) {
+            if (!$v[1] || $requestUrl == $v[1]) {
+                $response = $v[0];
+                array_splice($this->responses, $k, 1);
+                break;
             }
-        } else {
+        }
+        if (!$response) {
             return self::createResponseFromString("HTTP/1.1 400 Bad Request\r\n\r\n");
+
+        } elseif ($response instanceof HTTP_Request2_Response) {
+            return $response;
+
+        } else {
+            // rethrow the exception
+            $class   = get_class($response);
+            $message = $response->getMessage();
+            $code    = $response->getCode();
+            throw new $class($message, $code);
         }
     }
 
     /**
      * Adds response to the queue
      *
-     * @param mixed $response either a string, a pointer to an open file,
-     *                        an instance of HTTP_Request2_Response or Exception
+     * @param mixed  $response either a string, a pointer to an open file,
+     *                         an instance of HTTP_Request2_Response or Exception
+     * @param string $url      A request URL this response should be valid for
+     *                         (see {@link http://pear.php.net/bugs/bug.php?id=19276})
      *
      * @throws   HTTP_Request2_Exception
      */
-    public function addResponse($response)
+    public function addResponse($response, $url = null)
     {
         if (is_string($response)) {
             $response = self::createResponseFromString($response);
@@ -126,7 +138,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
         ) {
             throw new HTTP_Request2_Exception('Parameter is not a valid response');
         }
-        $this->responses[] = $response;
+        $this->responses[] = array($response, $url);
     }
 
     /**

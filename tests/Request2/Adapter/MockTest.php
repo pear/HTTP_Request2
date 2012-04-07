@@ -125,6 +125,41 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(400, $req->send()->getStatus());
     }
 
+    /**
+     * Returning URL-specific responses
+     * @link http://pear.php.net/bugs/bug.php?id=19276
+     */
+    public function testRequest19276()
+    {
+        $mock = new HTTP_Request2_Adapter_Mock();
+        $mock->addResponse(
+            "HTTP/1.1 200 OK\r\n" .
+            "Content-Type: text/plain; charset=iso-8859-1\r\n" .
+            "\r\n" .
+            "This is a response from example.org",
+            'http://example.org/'
+        );
+        $mock->addResponse(
+            "HTTP/1.1 200 OK\r\n" .
+            "Content-Type: text/plain; charset=iso-8859-1\r\n" .
+            "\r\n" .
+            "This is a response from example.com",
+            'http://example.com/'
+        );
+
+        $req1 = new HTTP_Request2('http://localhost/');
+        $req1->setAdapter($mock);
+        $this->assertEquals(400, $req1->send()->getStatus());
+
+        $req2 = new HTTP_Request2('http://example.com/');
+        $req2->setAdapter($mock);
+        $this->assertContains('example.com', $req2->send()->getBody());
+
+        $req3 = new HTTP_Request2('http://example.org');
+        $req3->setAdapter($mock);
+        $this->assertContains('example.org', $req3->send()->getBody());
+    }
+
     public function testResponseException()
     {
         $mock = new HTTP_Request2_Adapter_Mock();
