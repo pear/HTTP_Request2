@@ -68,5 +68,6 @@ define('HTTP_REQUEST2_TESTS_PROXY_PORT',        8080);
 define('HTTP_REQUEST2_TESTS_PROXY_USER',        '');
 define('HTTP_REQUEST2_TESTS_PROXY_PASSWORD',    '');
 define('HTTP_REQUEST2_TESTS_PROXY_AUTH_SCHEME', 'basic');
+define('HTTP_REQUEST2_TESTS_PROXY_TYPE',        'http');
 /**#@-*/
 ?>

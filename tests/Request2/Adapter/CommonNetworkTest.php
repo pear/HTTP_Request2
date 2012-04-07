@@ -47,6 +47,19 @@ require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
 /** Class representing a HTTP request */
 require_once 'HTTP/Request2.php';
 
+class SlowpokeObserver implements SplObserver
+{
+    public function update(SplSubject $subject)
+    {
+        $event = $subject->getLastEvent();
+
+        // force a timeout when writing request body
+        if ('sentHeaders' == $event['name']) {
+            sleep(3);
+        }
+    }
+}
+
 /**
  * Tests for HTTP_Request2 package that require a working webserver
  *
@@ -178,6 +191,20 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         try {
             $this->request->send();
             $this->fail('Expected HTTP_Request2_Exception was not thrown');
+        } catch (HTTP_Request2_MessageException $e) {
+            $this->assertEquals(HTTP_Request2_Exception::TIMEOUT, $e->getCode());
+        }
+    }
+
+    public function testTimeoutInRequest()
+    {
+        $this->request->setConfig('timeout', 2)
+                      ->setUrl($this->baseUrl . 'postparameters.php')
+                      ->addPostParameter('foo', 'some value')
+                      ->attach(new SlowpokeObserver());
+        try {
+            $this->request->send();
+            $this->fail('Expected HTTP_Request2_MessageException was not thrown');
         } catch (HTTP_Request2_MessageException $e) {
             $this->assertEquals(HTTP_Request2_Exception::TIMEOUT, $e->getCode());
         }

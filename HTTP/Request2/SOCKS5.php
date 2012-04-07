@@ -41,8 +41,8 @@
  * @link     http://pear.php.net/package/HTTP_Request2
  */
 
-/** Exception classes for HTTP_Request2 package */
-require_once 'HTTP/Request2/Exception.php';
+/** Socket wrapper class used by Socket Adapter */
+require_once 'HTTP/Request2/SocketWrapper.php';
 
 /**
  * SOCKS5 proxy connection class (used by Socket Adapter)
@@ -56,25 +56,12 @@ require_once 'HTTP/Request2/Exception.php';
  * @link     http://pear.php.net/bugs/bug.php?id=19332
  * @link     http://tools.ietf.org/html/rfc1928
  */
-class HTTP_Request2_SOCKS5
+class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
 {
-    /**
-     * Connected socket
-     * @var resource
-     */
-    protected $socket;
-
-    /**
-     * PHP warning messages raised during stream_socket_client() call
-     * @var array
-     */
-    protected $connectionWarnings = array();
-
     /**
      * Constructor, tries to connect to a SOCKS5 proxy
      *
-     * @param string $host       Proxy host
-     * @param int    $port       Proxy port
+     * @param string $address    Proxy address, e.g. 'tcp://localhost:1080'
      * @param int    $timeout    Connection timeout (seconds)
      * @param array  $sslOptions SSL context options
      * @param string $username   Proxy user name
@@ -85,29 +72,10 @@ class HTTP_Request2_SOCKS5
      * @throws HTTP_Request2_MessageException
      */
     public function __construct(
-        $host, $port, $timeout = 10, array $sslOptions = array(),
+        $address, $timeout = 10, array $sslOptions = array(),
         $username = null, $password = null
     ) {
-        $context = stream_context_create();
-        foreach ($sslOptions as $name => $value) {
-            if (!stream_context_set_option($context, 'ssl', $name, $value)) {
-                throw new HTTP_Request2_LogicException(
-                    "Error setting SSL context option '{$name}'"
-                );
-            }
-        }
-        set_error_handler(array($this, 'connectionWarningsHandler'));
-        $this->socket = stream_socket_client(
-            "tcp://{$host}:{$port}", $errno, $errstr, $timeout,
-            STREAM_CLIENT_CONNECT, $context
-        );
-        restore_error_handler();
-        if (!$this->socket) {
-            $error = $errstr ? $errstr : implode("\n", $this->connectionWarnings);
-            throw new HTTP_Request2_ConnectionException(
-                "Unable to connect to tcp://{$host}:{$port}. Error: {$error}", 0, $errno
-            );
-        }
+        parent::__construct($address, $timeout, $sslOptions);
         $this->performNegotiation();
     }
 
@@ -127,17 +95,8 @@ class HTTP_Request2_SOCKS5
         } else {
             $request = pack('C3', 5, 1, 0);
         }
-        if (false === fwrite($this->socket, $request)) {
-            throw new HTTP_Request2_MessageException(
-                'Error writing request to SOCKS5 proxy'
-            );
-        }
-        if (false === ($response = fread($this->socket, 3))) {
-            throw new HTTP_Request2_MessageException(
-                'Error reading response from SOCKS5 proxy'
-            );
-        }
-        $response = unpack('Cversion/Cmethod', $response);
+        $this->write($request);
+        $response = unpack('Cversion/Cmethod', $this->read(3));
         if (5 != $response['version']) {
             throw new HTTP_Request2_MessageException(
                 'Invalid version received from SOCKS5 proxy: ' . $response['version'],
@@ -171,17 +130,8 @@ class HTTP_Request2_SOCKS5
         $request  = pack('C2', 1, strlen($username)) . $username;
         $request .= pack('C', strlen($password)) . $password;
 
-        if (false === fwrite($this->socket, $request)) {
-            throw new HTTP_Request2_MessageException(
-                'Error writing request to SOCKS5 proxy'
-            );
-        }
-        if (false === ($response = fread($this->socket, 3))) {
-            throw new HTTP_Request2_MessageException(
-                'Error reading response from SOCKS5 proxy'
-            );
-        }
-        $response = unpack('Cvn/Cstatus', $response);
+        $this->write($request);
+        $response = unpack('Cvn/Cstatus', $this->read(3));
         if (1 != $response['vn'] || 0 != $response['status']) {
             throw new HTTP_Request2_ConnectionException(
                 'Connection rejected by proxy due to invalid username and/or password'
@@ -195,24 +145,16 @@ class HTTP_Request2_SOCKS5
      * @param string $remoteHost Remote host
      * @param int    $remotePort Remote port
      *
-     * @return resource Connected socket
      * @throws HTTP_Request2_ConnectionException
+     * @throws HTTP_Request2_MessageException
      */
     public function connect($remoteHost, $remotePort)
     {
         $request = pack('C5', 0x05, 0x01, 0x00, 0x03, strlen($remoteHost))
                    . $remoteHost . pack('n', $remotePort);
-        if (false === fwrite($this->socket, $request)) {
-            throw new HTTP_Request2_MessageException(
-                'Error writing request to SOCKS5 proxy'
-            );
-        }
-        if (false === ($response = fread($this->socket, 1024))) {
-            throw new HTTP_Request2_MessageException(
-                'Error reading response from SOCKS5 proxy'
-            );
-        }
-        $response = unpack('Cversion/Creply/Creserved', $response);
+
+        $this->write($request);
+        $response = unpack('Cversion/Creply/Creserved', $this->read(1024));
         if (5 != $response['version'] || 0 != $response['reserved']) {
             throw new HTTP_Request2_MessageException(
                 'Invalid response received from SOCKS5 proxy',
@@ -224,25 +166,6 @@ class HTTP_Request2_SOCKS5
                 0, $response['reply']
             );
         }
-
-        return $this->socket;
-    }
-
-    /**
-     * Error handler to use during stream_socket_client() call
-     *
-     * @param int    $errno  error level
-     * @param string $errstr error message
-     *
-     * @return bool
-     * @see HTTP_Request2_Adapter_Socket::connectionWarningsHandler()
-     */
-    protected function connectionWarningsHandler($errno, $errstr)
-    {
-        if ($errno & E_WARNING) {
-            array_unshift($this->connectionWarnings, $errstr);
-        }
-        return true;
     }
 }
 ?>

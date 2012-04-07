@@ -69,6 +69,7 @@ class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_Common
                 'proxy_user'        => HTTP_REQUEST2_TESTS_PROXY_USER,
                 'proxy_password'    => HTTP_REQUEST2_TESTS_PROXY_PASSWORD,
                 'proxy_auth_scheme' => HTTP_REQUEST2_TESTS_PROXY_AUTH_SCHEME,
+                'proxy_type'        => HTTP_REQUEST2_TESTS_PROXY_TYPE
             );
             parent::setUp();
         }

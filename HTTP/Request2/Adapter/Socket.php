@@ -41,10 +41,11 @@
  * @link     http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * Base class for HTTP_Request2 adapters
- */
+/** Base class for HTTP_Request2 adapters */
 require_once 'HTTP/Request2/Adapter.php';
+
+/** Socket wrapper class */
+require_once 'HTTP/Request2/SocketWrapper.php';
 
 /**
  * Socket-based adapter for HTTP_Request2
@@ -94,7 +95,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
     /**
      * Connected socket
-     * @var  resource
+     * @var  HTTP_Request2_SocketWrapper
      * @see  connect()
      */
     protected $socket;
@@ -110,12 +111,6 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
      * @var  array
      */
     protected $proxyChallenge;
-
-    /**
-     * Sum of start time and global timeout, exception will be thrown if request continues past this time
-     * @var  integer
-     */
-    protected $deadline = null;
 
     /**
      * Remaining length of the current chunk, when reading chunked response
@@ -135,12 +130,6 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected $redirectCountdown = null;
 
     /**
-     * PHP warning messages raised during stream_socket_client() call
-     * @var array
-     */
-    protected $connectionWarnings = array();
-
-    /**
      * Sends request to the remote server and returns its response
      *
      * @param HTTP_Request2 $request HTTP request message
@@ -152,30 +141,13 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     {
         $this->request = $request;
 
-        // Use global request timeout if given, see feature requests #5735, #8964
-        if ($timeout = $request->getConfig('timeout')) {
-            $this->deadline = time() + $timeout;
-        } else {
-            $this->deadline = null;
-        }
-
         try {
             $keepAlive = $this->connect();
             $headers   = $this->prepareHeaders();
-            if (false === @fwrite($this->socket, $headers, strlen($headers))) {
-                throw new HTTP_Request2_MessageException('Error writing request');
-            }
+            $this->socket->write($headers);
             // provide request headers to the observer, see request #7633
             $this->request->setLastEvent('sentHeaders', $headers);
             $this->writeBody();
-
-            if ($this->deadline && time() > $this->deadline) {
-                throw new HTTP_Request2_MessageException(
-                    'Request timed out after ' .
-                    $request->getConfig('timeout') . ' second(s)',
-                    HTTP_Request2_Exception::TIMEOUT
-                );
-            }
 
             $response = $this->readResponse();
 
@@ -299,6 +271,13 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             ksort($options);
         }
 
+        // Use global request timeout if given, see feature requests #5735, #8964
+        if ($timeout = $this->request->getConfig('timeout')) {
+            $deadline = time() + $timeout;
+        } else {
+            $deadline = null;
+        }
+
         // Changing SSL context options after connection is established does *not*
         // work, we need a new connection if options change
         $remote    = ((!$secure || $httpProxy || $socksProxy)? 'tcp://': 'ssl://')
@@ -312,88 +291,43 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         // We use persistent connections and have a connected socket?
         // Ensure that the socket is still connected, see bug #16149
         if ($keepAlive && !empty(self::$sockets[$socketKey])
-            && !feof(self::$sockets[$socketKey])
+            && !self::$sockets[$socketKey]->eof()
         ) {
             $this->socket =& self::$sockets[$socketKey];
 
-        } elseif ($socksProxy) {
-            require_once 'HTTP/Request2/SOCKS5.php';
-
-            $socks = new HTTP_Request2_SOCKS5(
-                $host, $port, $this->request->getConfig('connect_timeout'),
-                $options, $this->request->getConfig('proxy_user'),
-                $this->request->getConfig('proxy_password')
-            );
-            $this->socket = $socks->connect($reqHost, $reqPort);
-            if (!$secure) {
-                $this->request->setLastEvent(
-                    'connect', "tcp://{$reqHost}:{$reqPort} via {$remote}"
-                );
-            } else {
-                $this->establishTunnel();
-                $this->request->setLastEvent(
-                    'connect', "ssl://{$reqHost}:{$reqPort} via {$remote}"
-                );
-            }
-            self::$sockets[$socketKey] =& $this->socket;
-
-        } elseif ($secure && $httpProxy && !$tunnel) {
-            $this->establishTunnel();
-            $this->request->setLastEvent(
-                'connect', "ssl://{$reqHost}:{$reqPort} via {$remote}"
-            );
-            self::$sockets[$socketKey] =& $this->socket;
-
         } else {
-            // Set SSL context options if doing HTTPS request or creating a tunnel
-            $context = stream_context_create();
-            foreach ($options as $name => $value) {
-                if (!stream_context_set_option($context, 'ssl', $name, $value)) {
-                    throw new HTTP_Request2_LogicException(
-                        "Error setting SSL context option '{$name}'"
-                    );
-                }
-            }
+            if ($socksProxy) {
+                require_once 'HTTP/Request2/SOCKS5.php';
 
-            $this->connectionWarnings = array();
-            set_error_handler(array($this, 'connectionWarningsHandler'));
-            $this->socket = stream_socket_client(
-                $remote, $errno, $errstr,
-                $this->request->getConfig('connect_timeout'),
-                STREAM_CLIENT_CONNECT, $context
-            );
-            restore_error_handler();
-            if (!$this->socket) {
-                $error = $errstr ? $errstr : implode("\n", $this->connectionWarnings);
-                throw new HTTP_Request2_ConnectionException(
-                    "Unable to connect to {$remote}. Error: {$error}", 0, $errno
+                $this->socket = new HTTP_Request2_SOCKS5(
+                    $remote, $this->request->getConfig('connect_timeout'),
+                    $options, $this->request->getConfig('proxy_user'),
+                    $this->request->getConfig('proxy_password')
+                );
+                // handle request timeouts ASAP
+                $this->socket->setDeadline($deadline, $this->request->getConfig('timeout'));
+                $this->socket->connect($reqHost, $reqPort);
+                if (!$secure) {
+                    $conninfo = "tcp://{$reqHost}:{$reqPort} via {$remote}";
+                } else {
+                    $this->socket->enableCrypto();
+                    $conninfo = "ssl://{$reqHost}:{$reqPort} via {$remote}";
+                }
+
+            } elseif ($secure && $httpProxy && !$tunnel) {
+                $this->establishTunnel();
+                $conninfo = "ssl://{$reqHost}:{$reqPort} via {$remote}";
+
+            } else {
+                $this->socket = new HTTP_Request2_SocketWrapper(
+                    $remote, $this->request->getConfig('connect_timeout'), $options
                 );
             }
-
-            $this->request->setLastEvent('connect', $remote);
+            $this->request->setLastEvent('connect', empty($conninfo)? $remote: $conninfo);
             self::$sockets[$socketKey] =& $this->socket;
         }
+        $this->socket->setDeadline($deadline, $this->request->getConfig('timeout'));
         return $keepAlive;
-    }
-
-    /**
-     * Error handler to use during stream_socket_client() call
-     *
-     * One stream_socket_client() call may produce *multiple* PHP warnings
-     * (especially OpenSSL-related), we keep them in an array to later use for
-     * the message of HTTP_Request2_ConnectionException
-     *
-     * @param int    $errno  error level
-     * @param string $errstr error message
-     *
-     * @return bool
-     */
-    protected function connectionWarningsHandler($errno, $errstr)
-    {
-        if ($errno & E_WARNING) {
-            array_unshift($this->connectionWarnings, $errstr);
-        }
-        return true;
     }
 
     /**
@@ -408,38 +342,21 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
      */
     protected function establishTunnel()
     {
-        if (empty($this->socket)) {
-            $donor   = new self;
-            $connect = new HTTP_Request2(
-                $this->request->getUrl(), HTTP_Request2::METHOD_CONNECT,
-                array_merge($this->request->getConfig(), array('adapter' => $donor))
+        $donor   = new self;
+        $connect = new HTTP_Request2(
+            $this->request->getUrl(), HTTP_Request2::METHOD_CONNECT,
+            array_merge($this->request->getConfig(), array('adapter' => $donor))
+        );
+        $response = $connect->send();
+        // Need any successful (2XX) response
+        if (200 > $response->getStatus() || 300 <= $response->getStatus()) {
+            throw new HTTP_Request2_ConnectionException(
+                'Failed to connect via HTTPS proxy. Proxy response: ' .
+                $response->getStatus() . ' ' . $response->getReasonPhrase()
             );
-            $response = $connect->send();
-            // Need any successful (2XX) response
-            if (200 > $response->getStatus() || 300 <= $response->getStatus()) {
-                throw new HTTP_Request2_ConnectionException(
-                    'Failed to connect via HTTPS proxy. Proxy response: ' .
-                    $response->getStatus() . ' ' . $response->getReasonPhrase()
-                );
-            }
-            $this->socket = $donor->socket;
         }
-
-        $modes = array(
-            STREAM_CRYPTO_METHOD_TLS_CLIENT,
-            STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
-            STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
-            STREAM_CRYPTO_METHOD_SSLv2_CLIENT
-        );
-
-        foreach ($modes as $mode) {
-            if (stream_socket_enable_crypto($this->socket, true, $mode)) {
-                return;
-            }
-        }
-        throw new HTTP_Request2_ConnectionException(
-            'Failed to enable secure connection when connecting through proxy'
-        );
+        $this->socket = $donor->socket;
+        $this->socket->enableCrypto();
     }
 
     /**
@@ -476,8 +393,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
      */
     protected function disconnect()
     {
-        if (is_resource($this->socket)) {
-            fclose($this->socket);
+        if (!empty($this->socket)) {
             $this->socket = null;
             $this->request->setLastEvent('disconnect');
         }
@@ -979,9 +895,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             } else {
                 $str = $this->requestBody->read($bufferSize);
             }
-            if (false === @fwrite($this->socket, $str, strlen($str))) {
-                throw new HTTP_Request2_MessageException('Error writing request');
-            }
+            $this->socket->write($str);
             // Provide the length of written string to the observer, request #7630
             $this->request->setLastEvent('sentBodyPart', strlen($str));
             $position += strlen($str);
@@ -1001,10 +915,10 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         do {
             $response = new HTTP_Request2_Response(
-                $this->readLine($bufferSize), true, $this->request->getUrl()
+                $this->socket->readLine($bufferSize), true, $this->request->getUrl()
             );
             do {
-                $headerLine = $this->readLine($bufferSize);
+                $headerLine = $this->socket->readLine($bufferSize);
                 $response->parseHeaderLine($headerLine);
             } while ('' != $headerLine);
         } while (in_array($response->getStatus(), array(100, 101)));
@@ -1031,16 +945,16 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $toRead = ($chunked || null === $length)? null: $length;
             $this->chunkLength = 0;
 
-            while (!feof($this->socket) && (is_null($toRead) || 0 < $toRead)) {
+            while (!$this->socket->eof() && (is_null($toRead) || 0 < $toRead)) {
                 if ($chunked) {
                     $data = $this->readChunked($bufferSize);
                 } elseif (is_null($toRead)) {
-                    $data = $this->fread($bufferSize);
+                    $data = $this->socket->read($bufferSize);
                 } else {
-                    $data    = $this->fread(min($toRead, $bufferSize));
+                    $data    = $this->socket->read(min($toRead, $bufferSize));
                     $toRead -= strlen($data);
                 }
-                if ('' == $data && (!$this->chunkLength || feof($this->socket))) {
+                if ('' == $data && (!$this->chunkLength || $this->socket->eof())) {
                     break;
                 }
 
@@ -1063,67 +977,6 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     }
 
     /**
-     * Reads until either the end of the socket or a newline, whichever comes first
-     *
-     * Strips the trailing newline from the returned data, handles global
-     * request timeout. Method idea borrowed from Net_Socket PEAR package.
-     *
-     * @param int $bufferSize buffer size to use for reading
-     *
-     * @return   string Available data up to the newline (not including newline)
-     * @throws   HTTP_Request2_MessageException     In case of timeout
-     */
-    protected function readLine($bufferSize)
-    {
-        $line = '';
-        while (!feof($this->socket)) {
-            if ($this->deadline) {
-                stream_set_timeout($this->socket, max($this->deadline - time(), 1));
-            }
-            $line .= @fgets($this->socket, $bufferSize);
-            $info  = stream_get_meta_data($this->socket);
-            if ($info['timed_out'] || $this->deadline && time() > $this->deadline) {
-                $reason = $this->deadline
-                          ? 'after ' . $this->request->getConfig('timeout') . ' second(s)'
-                          : 'due to default_socket_timeout php.ini setting';
-                throw new HTTP_Request2_MessageException(
-                    "Request timed out {$reason}", HTTP_Request2_Exception::TIMEOUT
-                );
-            }
-            if (substr($line, -1) == "\n") {
-                return rtrim($line, "\r\n");
-            }
-        }
-        return $line;
-    }
-
-    /**
-     * Wrapper around fread(), handles global request timeout
-     *
-     * @param int $length Reads up to this number of bytes
-     *
-     * @return   string Data read from socket
-     * @throws   HTTP_Request2_MessageException     In case of timeout
-     */
-    protected function fread($length)
-    {
-        if ($this->deadline) {
-            stream_set_timeout($this->socket, max($this->deadline - time(), 1));
-        }
-        $data = fread($this->socket, $length);
-        $info = stream_get_meta_data($this->socket);
-        if ($info['timed_out'] || $this->deadline && time() > $this->deadline) {
-            $reason = $this->deadline
-                      ? 'after ' . $this->request->getConfig('timeout') . ' second(s)'
-                      : 'due to default_socket_timeout php.ini setting';
-            throw new HTTP_Request2_MessageException(
-                "Request timed out {$reason}", HTTP_Request2_Exception::TIMEOUT
-            );
-        }
-        return $data;
-    }
-
-    /**
      * Reads a part of response body encoded with chunked Transfer-Encoding
      *
      * @param int $bufferSize buffer size to use for reading
@@ -1135,7 +988,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     {
         // at start of the next chunk?
         if (0 == $this->chunkLength) {
-            $line = $this->readLine($bufferSize);
+            $line = $this->socket->readLine($bufferSize);
             if (!preg_match('/^([0-9a-f]+)/i', $line, $matches)) {
                 throw new HTTP_Request2_MessageException(
                     "Cannot decode chunked response, invalid chunk length '{$line}'",
@@ -1145,15 +998,15 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 $this->chunkLength = hexdec($matches[1]);
                 // Chunk with zero length indicates the end
                 if (0 == $this->chunkLength) {
-                    $this->readLine($bufferSize);
+                    $this->socket->readLine($bufferSize);
                     return '';
                 }
             }
         }
-        $data = $this->fread(min($this->chunkLength, $bufferSize));
+        $data = $this->socket->read(min($this->chunkLength, $bufferSize));
         $this->chunkLength -= strlen($data);
         if (0 == $this->chunkLength) {
-            $this->readLine($bufferSize); // Trailing CRLF
+            $this->socket->readLine($bufferSize); // Trailing CRLF
         }
         return $data;
     }
