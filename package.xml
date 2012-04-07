@@ -25,10 +25,10 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2011-10-20</date>
+  <date>2012-04-07</date>
   <version>
-    <release>2.0.0</release>
-    <api>2.0.0</api>
+    <release>2.1.0</release>
+    <api>2.1.0</api>
   </version>
   <stability>
     <release>stable</release>
@@ -36,7 +36,20 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-2.0.0RC2 repackaged as stable and depending on stable Net_URL2. No code changes.
+New features:
+ * Mock adapter can return responses based on request URL (request #19276)
+ * Support for SOCKS5 proxies, added 'proxy_type' configuration parameter
+   (request #19332)
+ * Proxy configuration may be given as an URL, e.g.
+   $request-&gt;setConfig('proxy', 'socks5://localhost:1080');
+
+Other changes and fixes:
+ * Coding standards fixes (request #14990)
+ * Unit tests now run from SVN checkout and under PHPUnit 3.6.x
+ * Explicit dependency on PEAR (until PEAR_Exception is a separate package)
+ * Get rid of track_errors, use a more robust solution (bug #19337)
+ * Additional class_exists() check in setAdapter() (request #19344)
+ * Public suffix list updated to current version
   </notes>
   <contents>
     <dir name="/">
@@ -145,12 +158,17 @@ deflate encodings, redirects, monitoring the request progress with Observers...
         <min>5.2.0</min>
       </php>
       <pearinstaller>
-        <min>1.5.4</min>
+        <min>1.9.2</min>
       </pearinstaller>
       <package>
         <name>Net_URL2</name>
         <channel>pear.php.net</channel>
         <min>2.0.0</min>
+      </package>
+      <package>
+        <name>PEAR</name>
+        <channel>pear.php.net</channel>
+        <min>1.9.2</min>
       </package>
     </required>
     <optional>
@@ -217,6 +235,21 @@ deflate encodings, redirects, monitoring the request progress with Observers...
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2011-10-20</date>
+      <version>
+       <release>2.0.0</release>
+       <api>2.0.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+2.0.0RC2 repackaged as stable and depending on stable Net_URL2. No code changes.
+      </notes>
+     </release>
      <release>
       <date>2011-10-01</date>
       <version>

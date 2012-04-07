@@ -231,7 +231,9 @@ return array(
   'priv' => true
  ),
  'au' => array(
-  '*' => true,
+  'com' => true,
+  'net' => true,
+  'org' => true,
   'edu' => array(
    'act' => true,
    'nsw' => true,
@@ -251,6 +253,12 @@ return array(
    'vic' => true,
    'wa' => true
   ),
+  'csiro' => true,
+  'asn' => true,
+  'id' => true,
+  'info' => true,
+  'conf' => true,
+  'oz' => true,
   'act' => true,
   'nsw' => true,
   'nt' => true,
@@ -512,7 +520,8 @@ return array(
   'qc' => true,
   'sk' => true,
   'yk' => true,
-  'gc' => true
+  'gc' => true,
+  'co' => true
  ),
  'cat' => true,
  'cc' => array(
@@ -545,11 +554,14 @@ return array(
   'gouv' => true
  ),
  'ck' => array(
-  '*' => true
+  '*' => true,
+  '!www' => true
  ),
  'cl' => array(
   'gov' => true,
-  'gob' => true
+  'gob' => true,
+  'co' => true,
+  'mil' => true
  ),
  'cm' => array(
   'gov' => true
@@ -622,6 +634,7 @@ return array(
   'de' => true,
   'eu' => true,
   'gb' => true,
+  'gr' => true,
   'hu' => true,
   'jpn' => true,
   'kr' => true,
@@ -815,6 +828,7 @@ return array(
  ),
  'cz' => true,
  'de' => array(
+  'com' => true,
   'fuettertdasnetz' => true,
   'isteingeek' => true,
   'istmein' => true,
@@ -1005,7 +1019,8 @@ return array(
  ),
  'gs' => true,
  'gt' => array(
-  '*' => true
+  '*' => true,
+  '!www' => true
  ),
  'gu' => array(
   '*' => true
@@ -1876,7 +1891,6 @@ return array(
   'grp' => true,
   'hotel' => true
  ),
- 'local' => true,
  'lr' => array(
   'com' => true,
   'edu' => true,
@@ -2632,6 +2646,7 @@ return array(
  'ne' => true,
  'net' => array(
   'gb' => true,
+  'jp' => true,
   'se' => true,
   'uk' => true,
   'za' => true,
@@ -3532,6 +3547,7 @@ return array(
  ),
  'org' => array(
   'ae' => true,
+  'us' => true,
   'za' => true,
   'dyndns' => array(
    'go' => true,
@@ -3826,6 +3842,7 @@ return array(
   'zakopane' => true,
   'co' => true
  ),
+ 'pm' => true,
  'pn' => array(
   'gov' => true,
   'co' => true,
@@ -3888,7 +3905,14 @@ return array(
   '*' => true
  ),
  'qa' => array(
-  '*' => true
+  'com' => true,
+  'edu' => true,
+  'gov' => true,
+  'mil' => true,
+  'name' => true,
+  'net' => true,
+  'org' => true,
+  'sch' => true
  ),
  're' => array(
   'com' => true,
@@ -4377,7 +4401,9 @@ return array(
   'zaporizhzhe' => true,
   'zp' => true,
   'zhitomir' => true,
-  'zt' => true
+  'zt' => true,
+  'co' => true,
+  'pp' => true
  ),
  'ug' => array(
   'co' => true,
@@ -4735,6 +4761,7 @@ return array(
   'health' => true
  ),
  'vu' => true,
+ 'wf' => true,
  'ws' => array(
   'com' => true,
   'net' => true,
@@ -4744,6 +4771,7 @@ return array(
   'dyndns' => true,
   'mypets' => true
  ),
+ 'yt' => true,
  'امارات' => true,
  'বাংলা' => true,
  '中国' => true,
@@ -4788,9 +4816,6 @@ return array(
  'اليمن' => true,
  'xxx' => true,
  'ye' => array(
-  '*' => true
- ),
- 'yu' => array(
   '*' => true
  ),
  'za' => array(
