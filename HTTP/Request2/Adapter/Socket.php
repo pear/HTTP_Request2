@@ -837,6 +837,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         } else {
             if (!$this->request->getConfig('proxy_host')
+                || 'http' != $this->request->getConfig('proxy_type')
                 || 0 == strcasecmp($url->getScheme(), 'https')
             ) {
                 $requestUrl = '';

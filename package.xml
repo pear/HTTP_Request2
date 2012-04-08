@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2012-04-07</date>
+  <date>2012-04-08</date>
   <version>
-    <release>2.1.0</release>
+    <release>2.1.1</release>
     <api>2.1.0</api>
   </version>
   <stability>
@@ -36,20 +36,7 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-New features:
- * Mock adapter can return responses based on request URL (request #19276)
- * Support for SOCKS5 proxies, added 'proxy_type' configuration parameter
-   (request #19332)
- * Proxy configuration may be given as an URL, e.g.
-   $request-&gt;setConfig('proxy', 'socks5://localhost:1080');
-
-Other changes and fixes:
- * Coding standards fixes (request #14990)
- * Unit tests now run from SVN checkout and under PHPUnit 3.6.x
- * Explicit dependency on PEAR (until PEAR_Exception is a separate package)
- * Get rid of track_errors, use a more robust solution (bug #19337)
- * Additional class_exists() check in setAdapter() (request #19344)
- * Public suffix list updated to current version
+Fixes for SOCKS5 proxies support in Socket adapter
   </notes>
   <contents>
     <dir name="/">
@@ -235,6 +222,34 @@ Other changes and fixes:
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2012-04-07</date>
+      <version>
+       <release>2.1.0</release>
+       <api>2.1.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+New features:
+ * Mock adapter can return responses based on request URL (request #19276)
+ * Support for SOCKS5 proxies, added 'proxy_type' configuration parameter
+   (request #19332)
+ * Proxy configuration may be given as an URL, e.g.
+   $request-&gt;setConfig('proxy', 'socks5://localhost:1080');
+
+Other changes and fixes:
+ * Coding standards fixes (request #14990)
+ * Unit tests now run from SVN checkout and under PHPUnit 3.6.x
+ * Explicit dependency on PEAR (until PEAR_Exception is a separate package)
+ * Get rid of track_errors, use a more robust solution (bug #19337)
+ * Additional class_exists() check in setAdapter() (request #19344)
+ * Public suffix list updated to current version
+      </notes>
+     </release>
      <release>
       <date>2011-10-20</date>
       <version>
