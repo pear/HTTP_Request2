@@ -340,5 +340,25 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $response = $this->request->send();
         $this->assertEquals(serialize(array('cookie_on_redirect' => 'success')), $response->getBody());
     }
+
+    /**
+     * @link http://pear.php.net/bugs/bug.php?id=20125
+     */
+    public function testChunkedRequest()
+    {
+        $data = array(
+            'long'      => str_repeat('a', 1000),
+            'very_long' => str_repeat('b', 2000)
+        );
+
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->setUrl($this->baseUrl . 'postparameters.php')
+                      ->setConfig('buffer_size', 512)
+                      ->setHeader('Transfer-Encoding', 'chunked')
+                      ->addPostParameter($data);
+
+        $response = $this->request->send();
+        $this->assertEquals($response->getBody(), serialize($data));
+    }
 }
 ?>
