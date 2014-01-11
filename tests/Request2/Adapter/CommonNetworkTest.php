@@ -46,17 +46,26 @@ require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
 
 /** Class representing a HTTP request */
 require_once 'HTTP/Request2.php';
+/** Class for building multipart/form-data request body */
+require_once 'HTTP/Request2/MultipartBody.php';
 
-class SlowpokeObserver implements SplObserver
+class SlowpokeBody extends HTTP_Request2_MultipartBody
 {
-    public function update(SplSubject $subject)
-    {
-        $event = $subject->getLastEvent();
+    protected $doSleep;
 
-        // force a timeout when writing request body
-        if ('sentHeaders' == $event['name']) {
+    public function rewind()
+    {
+        $this->doSleep = true;
+        parent::rewind();
+    }
+
+    public function read($length)
+    {
+        if ($this->doSleep) {
             sleep(3);
+            $this->doSleep = false;
         }
+        return parent::read($length);
     }
 }
 
@@ -200,8 +209,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     {
         $this->request->setConfig('timeout', 2)
                       ->setUrl($this->baseUrl . 'postparameters.php')
-                      ->addPostParameter('foo', 'some value')
-                      ->attach(new SlowpokeObserver());
+                      ->setBody(new SlowpokeBody(array('foo' => 'some value'), array()));
         try {
             $this->request->send();
             $this->fail('Expected HTTP_Request2_MessageException was not thrown');
