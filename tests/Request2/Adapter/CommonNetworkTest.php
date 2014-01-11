@@ -130,7 +130,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
         $this->request->getUrl()->setQueryVariables($data);
         $response = $this->request->send();
-        $this->assertEquals($response->getBody(), serialize($data));
+        $this->assertEquals(serialize($data), $response->getBody());
     }
 
     public function testPostParameters()
@@ -152,7 +152,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->addPostParameter($data);
 
         $response = $this->request->send();
-        $this->assertEquals($response->getBody(), serialize($data));
+        $this->assertEquals(serialize($data), $response->getBody());
     }
 
     public function testUploads()
@@ -177,7 +177,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
                       ->setBody($data);
         $response = $this->request->send();
-        $this->assertEquals($response->getBody(), $data);
+        $this->assertEquals($data, $response->getBody());
     }
 
     public function testCookies()
@@ -191,7 +191,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
             $this->request->addCookie($k, $v);
         }
         $response = $this->request->send();
-        $this->assertEquals($response->getBody(), serialize($cookies));
+        $this->assertEquals(serialize($cookies), $response->getBody());
     }
 
     public function testTimeout()
@@ -358,7 +358,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->addPostParameter($data);
 
         $response = $this->request->send();
-        $this->assertEquals($response->getBody(), serialize($data));
+        $this->assertEquals(serialize($data), $response->getBody());
     }
 }
 ?>

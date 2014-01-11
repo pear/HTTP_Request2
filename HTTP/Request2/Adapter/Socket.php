@@ -888,6 +888,8 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         $position   = 0;
         $bufferSize = $this->request->getConfig('buffer_size');
+        $headers    = $this->request->getHeaders();
+        $chunked    = isset($headers['transfer-encoding']);
         while ($position < $this->contentLength) {
             if (is_string($this->requestBody)) {
                 $str = substr($this->requestBody, $position, $bufferSize);
@@ -896,10 +898,19 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             } else {
                 $str = $this->requestBody->read($bufferSize);
             }
-            $this->socket->write($str);
+            if (!$chunked) {
+                $this->socket->write($str);
+            } else {
+                $this->socket->write(dechex(strlen($str)) . "\r\n{$str}\r\n");
+            }
             // Provide the length of written string to the observer, request #7630
             $this->request->setLastEvent('sentBodyPart', strlen($str));
             $position += strlen($str);
+        }
+
+        // write zero-length chunk
+        if ($chunked) {
+            $this->socket->write("0\r\n\r\n");
         }
         $this->request->setLastEvent('sentBody', $this->contentLength);
     }

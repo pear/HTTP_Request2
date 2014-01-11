@@ -48,8 +48,11 @@ require_once 'PHPUnit/Runner/Version.php';
 if ('@' . 'package_version@' == '@package_version@') {
     $classPath   = realpath(dirname(dirname(__FILE__)));
     $includePath = array_map('realpath', explode(PATH_SEPARATOR, get_include_path()));
-    if (!in_array($classPath, $includePath)) {
-        set_include_path($classPath . PATH_SEPARATOR . get_include_path());
+    if (0 !== ($key = array_search($classPath, $includePath))) {
+        if (false !== $key) {
+            unset($includePath[$key]);
+        }
+        set_include_path($classPath . PATH_SEPARATOR . implode(PATH_SEPARATOR, $includePath));
     }
 }
 

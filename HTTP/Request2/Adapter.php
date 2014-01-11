@@ -150,7 +150,10 @@ abstract class HTTP_Request2_Adapter
             if (empty($headers['content-type'])) {
                 $headers['content-type'] = 'application/x-www-form-urlencoded';
             }
-            $headers['content-length'] = $this->contentLength;
+            // Content-Length should not be sent for chunked Transfer-Encoding (bug #20125)
+            if (!isset($headers['transfer-encoding'])) {
+                $headers['content-length'] = $this->contentLength;
+            }
         }
     }
 }

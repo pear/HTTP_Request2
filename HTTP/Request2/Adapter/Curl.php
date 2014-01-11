@@ -389,7 +389,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         }
 
         $this->calculateRequestLength($headers);
-        if (isset($headers['content-length'])) {
+        if (isset($headers['content-length']) || isset($headers['transfer-encoding'])) {
             $this->workaroundPhpBug47204($ch, $headers);
         }
 
