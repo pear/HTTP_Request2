@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,11 @@
  * @package  HTTP_Request2
  * @author   Alexey Borzov <avb@php.net>
  * @license  http://opensource.org/licenses/bsd-license.php New BSD License
- * @version  SVN: $Id$
  * @link     http://pear.php.net/package/HTTP_Request2
  */
+
+/** Exception class for HTTP_Request2 package */
+require_once 'HTTP/Request2/Exception.php';
 
 /**
  * Class for building multipart/form-data request body
@@ -167,6 +169,7 @@ class HTTP_Request2_MultipartBody
      * @param integer $length Number of bytes to read
      *
      * @return   string  Up to $length bytes of data, empty string if at end
+     * @throws   HTTP_Request2_LogicException
      */
     public function read($length)
     {
@@ -194,9 +197,16 @@ class HTTP_Request2_MultipartBody
                     $length -= min(strlen($header) - $this->_pos[1], $length);
                 }
                 $filePos  = max(0, $this->_pos[1] - strlen($header));
-                if ($length > 0 && $filePos < $this->_uploads[$pos]['size']) {
-                    $ret     .= fread($this->_uploads[$pos]['fp'], $length);
-                    $length  -= min($length, $this->_uploads[$pos]['size'] - $filePos);
+                if ($filePos < $this->_uploads[$pos]['size']) {
+                    while ($length > 0 && !feof($this->_uploads[$pos]['fp'])) {
+                        if (false === ($chunk = fread($this->_uploads[$pos]['fp'], $length))) {
+                            throw new HTTP_Request2_LogicException(
+                                'Failed reading file upload', HTTP_Request2_Exception::READ_ERROR
+                            );
+                        }
+                        $ret    .= $chunk;
+                        $length -= strlen($chunk);
+                    }
                 }
                 if ($length > 0) {
                     $start   = $this->_pos[1] + ($oldLength - $length) -

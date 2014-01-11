@@ -74,5 +74,52 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
                  ->setAdapter($adapter)
                  ->send();
     }
+
+
+    /**
+     * Infinite loop with stream wrapper passed as upload
+     *
+     * Dunno how the original reporter managed to pass a file pointer
+     * that doesn't support fstat() to MultipartBody, maybe he didn't use
+     * addUpload(). So we don't use it, either.
+     *
+     * @link http://pear.php.net/bugs/bug.php?id=19934
+     */
+    public function testBug19934()
+    {
+        if (!in_array('http', stream_get_wrappers())) {
+            $this->markTestSkipped("This test requires an HTTP fopen wrapper enabled");
+        }
+
+        $fp   = fopen($this->baseUrl . '/bug19934.php', 'rb');
+        $body = new HTTP_Request2_MultipartBody(
+            array(),
+            array(
+                'upload' => array(
+                    'fp'       => $fp,
+                    'filename' => 'foo.txt',
+                    'type'     => 'text/plain',
+                    'size'     => 20000
+                )
+            )
+        );
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->setUrl($this->baseUrl . 'uploads.php')
+                      ->setBody($body);
+
+        set_error_handler(array($this, 'rewindWarningsHandler'));
+        $response = $this->request->send();
+        restore_error_handler();
+
+        $this->assertContains("upload foo.txt text/plain 20000", $response->getBody());
+    }
+
+    public function rewindWarningsHandler($errno, $errstr)
+    {
+        if (($errno & E_WARNING) && false !== strpos($errstr, 'rewind')) {
+            return true;
+        }
+        return false;
+    }
 }
 ?>

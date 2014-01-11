@@ -99,6 +99,7 @@ Fixes for SOCKS5 proxies support in Socket adapter
         </dir>
         <dir name="_network">
          <file role="test" name="basicauth.php" />
+         <file role="test" name="bug19934.php" />
          <file role="test" name="cookies.php" />
          <file role="test" name="digestauth.php" />
          <file role="test" name="getparameters.php" />
