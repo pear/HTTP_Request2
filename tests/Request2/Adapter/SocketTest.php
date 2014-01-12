@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -120,6 +119,40 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
             return true;
         }
         return false;
+    }
+
+    /**
+     * Do not send request body twice to URLs protected by digest auth
+     *
+     * @link http://pear.php.net/bugs/bug.php?id=19233
+     */
+    public function test100ContinueHandling()
+    {
+        if (!defined('HTTP_REQUEST2_TESTS_DIGEST_URL') || !HTTP_REQUEST2_TESTS_DIGEST_URL) {
+            $this->markTestSkipped('This test requires an URL protected by server digest auth');
+        }
+
+        $fp   = fopen(dirname(dirname(dirname(__FILE__))) . '/_files/bug_15305', 'rb');
+        $body = $this->getMock(
+            'HTTP_Request2_MultipartBody', array('read'), array(
+                array(),
+                array(
+                    'upload' => array(
+                        'fp'       => $fp,
+                        'filename' => 'bug_15305',
+                        'type'     => 'application/octet-stream',
+                        'size'     => 16338
+                    )
+                )
+            )
+        );
+        $body->expects($this->never())->method('read');
+
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->setUrl(HTTP_REQUEST2_TESTS_DIGEST_URL)
+                      ->setBody($body);
+
+        $this->assertEquals(401, $this->request->send()->getStatus());
     }
 }
 ?>

@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -66,6 +65,21 @@ class SlowpokeBody extends HTTP_Request2_MultipartBody
             $this->doSleep = false;
         }
         return parent::read($length);
+    }
+}
+
+class HeaderObserver implements SplObserver
+{
+    public $headers;
+
+    public function update(SplSubject $subject)
+    {
+        $event = $subject->getLastEvent();
+
+        // force a timeout when writing request body
+        if ('sentHeaders' == $event['name']) {
+            $this->headers = $event['data'];
+        }
     }
 }
 
@@ -359,6 +373,37 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
         $response = $this->request->send();
         $this->assertEquals(serialize($data), $response->getBody());
+    }
+
+    /**
+     * @link http://pear.php.net/bugs/bug.php?id=19233
+     * @link http://pear.php.net/bugs/bug.php?id=15937
+     */
+    public function testPreventExpectHeader()
+    {
+        $fp       = fopen(dirname(dirname(dirname(__FILE__))) . '/_files/bug_15305', 'rb');
+        $observer = new HeaderObserver();
+        $body     = new HTTP_Request2_MultipartBody(
+            array(),
+            array(
+                'upload' => array(
+                    'fp'       => $fp,
+                    'filename' => 'bug_15305',
+                    'type'     => 'application/octet-stream',
+                    'size'     => 16338
+                )
+            )
+        );
+
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->setUrl($this->baseUrl . 'uploads.php')
+                      ->setHeader('Expect', '')
+                      ->setBody($body)
+                      ->attach($observer);
+
+        $response = $this->request->send();
+        $this->assertNotContains('Expect:', $observer->headers);
+        $this->assertContains('upload bug_15305 application/octet-stream 16338', $response->getBody());
     }
 }
 ?>

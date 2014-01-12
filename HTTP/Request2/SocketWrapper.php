@@ -165,20 +165,32 @@ class HTTP_Request2_SocketWrapper
      * Strips the trailing newline from the returned data, handles global
      * request timeout. Method idea borrowed from Net_Socket PEAR package.
      *
-     * @param int $bufferSize buffer size to use for reading
+     * @param int $bufferSize   buffer size to use for reading
+     * @param int $localTimeout timeout value to use just for this call
      *
      * @return   string Available data up to the newline (not including newline)
      * @throws   HTTP_Request2_MessageException     In case of timeout
      */
-    public function readLine($bufferSize)
+    public function readLine($bufferSize, $localTimeout = null)
     {
         $line = '';
         while (!feof($this->socket)) {
-            if ($this->deadline) {
+            if (null !== $localTimeout) {
+                stream_set_timeout($this->socket, $localTimeout);
+            } elseif ($this->deadline) {
                 stream_set_timeout($this->socket, max($this->deadline - time(), 1));
             }
             $line .= @fgets($this->socket, $bufferSize);
-            $this->checkTimeout();
+            if (null !== $localTimeout) {
+                $info = stream_get_meta_data($this->socket);
+                if ($info['timed_out']) {
+                    throw new HTTP_Request2_MessageException(
+                        "readLine() call timed out", HTTP_Request2_Exception::TIMEOUT
+                    );
+                }
+            } else {
+                $this->checkTimeout();
+            }
             if (substr($line, -1) == "\n") {
                 return rtrim($line, "\r\n");
             }

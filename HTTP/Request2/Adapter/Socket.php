@@ -69,7 +69,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     /**
      * Regular expression for 'quoted-string' rule from RFC 2616
      */
-    const REGEXP_QUOTED_STRING = '"(?:\\\\.|[^\\\\"])*"';
+    const REGEXP_QUOTED_STRING = '"(?>[^"\\\\]+|\\\\.)*"';
 
     /**
      * Connected sockets, needed for Keep-Alive support
@@ -129,6 +129,12 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected $redirectCountdown = null;
 
     /**
+     * Whether to wait for "100 Continue" response before sending request body
+     * @var bool
+     */
+    protected $expect100Continue = false;
+
+    /**
      * Sends request to the remote server and returns its response
      *
      * @param HTTP_Request2 $request HTTP request message
@@ -146,9 +152,21 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $this->socket->write($headers);
             // provide request headers to the observer, see request #7633
             $this->request->setLastEvent('sentHeaders', $headers);
-            $this->writeBody();
 
-            $response = $this->readResponse();
+            if (!$this->expect100Continue) {
+                $this->writeBody();
+                $response = $this->readResponse();
+
+            } else {
+                $response = $this->readResponse();
+                if (!$response || 100 == $response->getStatus()) {
+                    $this->expect100Continue = false;
+                    // either got "100 Continue" or timed out -> send body
+                    $this->writeBody();
+                    $response = $this->readResponse();
+                }
+            }
+
 
             if ($jar = $request->getCookieJar()) {
                 $jar->addCookiesFromResponse($response, $request->getUrl());
@@ -868,6 +886,11 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         $this->addAuthorizationHeader($headers, $host, $requestUrl);
         $this->addProxyAuthorizationHeader($headers, $requestUrl);
         $this->calculateRequestLength($headers);
+        if ('1.1' == $this->request->getConfig('protocol_version')) {
+            $this->updateExpectHeader($headers);
+        } else {
+            $this->expect100Continue = false;
+        }
 
         $headersStr = $this->request->getMethod() . ' ' . $requestUrl . ' HTTP/' .
                       $this->request->getConfig('protocol_version') . "\r\n";
@@ -876,6 +899,78 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             $headersStr   .= $canonicalName . ': ' . $value . "\r\n";
         }
         return $headersStr . "\r\n";
+    }
+
+    /**
+     * Adds or removes 'Expect: 100-continue' header from request headers
+     *
+     * Also sets the $expect100Continue property. Parsing of existing header
+     * is somewhat needed due to its complex structure and due to the
+     * requirement in section 8.2.3 of RFC 2616:
+     * > A client MUST NOT send an Expect request-header field (section
+     * > 14.20) with the "100-continue" expectation if it does not intend
+     * > to send a request body.
+     *
+     * @param array &$headers Array of headers prepared for the request
+     *
+     * @throws HTTP_Request2_LogicException
+     * @link http://pear.php.net/bugs/bug.php?id=19233
+     * @link http://tools.ietf.org/html/rfc2616#section-8.2.3
+     */
+    protected function updateExpectHeader(&$headers)
+    {
+        $this->expect100Continue = false;
+        $expectations = array();
+        if (isset($headers['expect'])) {
+            if ('' === $headers['expect']) {
+                // empty 'Expect' header is technically invalid, so just get rid of it
+                unset($headers['expect']);
+                return;
+            }
+            // build regexp to parse the value of existing Expect header
+            $expectParam     = ';\s*' . self::REGEXP_TOKEN . '(?:\s*=\s*(?:'
+                               . self::REGEXP_TOKEN . '|'
+                               . self::REGEXP_QUOTED_STRING . '))?\s*';
+            $expectExtension = self::REGEXP_TOKEN . '(?:\s*=\s*(?:'
+                               . self::REGEXP_TOKEN . '|'
+                               . self::REGEXP_QUOTED_STRING . ')\s*(?:'
+                               . $expectParam . ')*)?';
+            $expectItem      = '!(100-continue|' . $expectExtension . ')!A';
+
+            $pos    = 0;
+            $length = strlen($headers['expect']);
+
+            while ($pos < $length) {
+                $pos += strspn($headers['expect'], " \t", $pos);
+                if (',' === substr($headers['expect'], $pos, 1)) {
+                    $pos++;
+                    continue;
+
+                } elseif (!preg_match($expectItem, $headers['expect'], $m, 0, $pos)) {
+                    throw new HTTP_Request2_LogicException(
+                        "Cannot parse value '{$headers['expect']}' of Expect header",
+                        HTTP_Request2_Exception::INVALID_ARGUMENT
+                    );
+
+                } else {
+                    $pos += strlen($m[0]);
+                    if (strcasecmp('100-continue', $m[0])) {
+                        $expectations[]  = $m[0];
+                    }
+                }
+            }
+        }
+
+        if (1024 < $this->contentLength) {
+            $expectations[] = '100-continue';
+            $this->expect100Continue = true;
+        }
+
+        if (empty($expectations)) {
+            unset($headers['expect']);
+        } else {
+            $headers['expect'] = implode(',', $expectations);
+        }
     }
 
     /**
@@ -929,15 +1024,31 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected function readResponse()
     {
         $bufferSize = $this->request->getConfig('buffer_size');
+        // http://tools.ietf.org/html/rfc2616#section-8.2.3
+        // ...the client SHOULD NOT wait for an indefinite period before sending the request body
+        $timeout    = $this->expect100Continue ? 1 : null;
 
         do {
-            $response = new HTTP_Request2_Response(
-                $this->socket->readLine($bufferSize), true, $this->request->getUrl()
-            );
-            do {
-                $headerLine = $this->socket->readLine($bufferSize);
-                $response->parseHeaderLine($headerLine);
-            } while ('' != $headerLine);
+            try {
+                $response = new HTTP_Request2_Response(
+                    $this->socket->readLine($bufferSize, $timeout), true, $this->request->getUrl()
+                );
+                do {
+                    $headerLine = $this->socket->readLine($bufferSize);
+                    $response->parseHeaderLine($headerLine);
+                } while ('' != $headerLine);
+
+            } catch (HTTP_Request2_MessageException $e) {
+                if (HTTP_Request2_Exception::TIMEOUT === $e->getCode()
+                    && $this->expect100Continue
+                ) {
+                    return null;
+                }
+                throw $e;
+            }
+            if ($this->expect100Continue && 100 == $response->getStatus()) {
+                return $response;
+            }
         } while (in_array($response->getStatus(), array(100, 101)));
 
         $this->request->setLastEvent('receivedHeaders', $response);

@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package    HTTP_Request2
  * @author     Alexey Borzov <avb@php.net>
  * @license    http://opensource.org/licenses/bsd-license.php New BSD License
- * @version    SVN: $Id$
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
@@ -56,6 +55,14 @@
  * there. Set this constant to point to the URL of that directory.
  */
 define('HTTP_REQUEST2_TESTS_BASE_URL',          null);
+
+/**
+ * URL that is protected by server digest authentication
+ *
+ * This is needed for testing of 100 Continue handling, we can't implement
+ * digest in PHP since it will kick in a bit later
+ */
+define('HTTP_REQUEST2_TESTS_DIGEST_URL',        null);
 
 /**#@+
  * Proxy setup for Socket Adapter tests
