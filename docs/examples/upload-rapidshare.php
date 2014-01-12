@@ -4,8 +4,6 @@
  *
  * Inspired by Perl usage example: http://images.rapidshare.com/software/rsapi.pl
  * Rapidshare API description: http://rapidshare.com/dev.html
- *
- * $Id$
  */
 
 require_once 'HTTP/Request2.php';
