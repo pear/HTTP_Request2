@@ -25,10 +25,10 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2012-04-08</date>
+  <date>2014-01-12</date>
   <version>
-    <release>2.1.1</release>
-    <api>2.1.0</api>
+    <release>2.2.0</release>
+    <api>2.2.0</api>
   </version>
   <stability>
     <release>stable</release>
@@ -36,7 +36,21 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
   <notes>
-Fixes for SOCKS5 proxies support in Socket adapter
+New features
+ * Socket adapter will send &quot;Expect: 100-continue&quot; header and wait for
+   &quot;100 Continue&quot; response by default before sending large request body
+   (request #19233). This can be disabled by setting an empty &quot;Expect&quot;
+   header, the same way as done with Curl adapter (see bug #15937)
+ * It is possible to specify a local IP address to bind to using 'local_ip'
+   configuration parameter (request #19515)
+
+Other changes and fixes
+ * An infinite loop was possible when using a stream wrapper instead of
+   a regular file with MultipartBody (bug #19934)
+ * Socket adapter will properly send chunked request body if
+   &quot;Transfer-Encoding: chunked&quot; header is set for the request (bug #20125)
+ * Updated Public Suffix List to the latest version and updated its download script
+ * Unit tests fixes
   </notes>
   <contents>
     <dir name="/">
@@ -198,6 +212,7 @@ Fixes for SOCKS5 proxies support in Socket adapter
     <install as="_files/response_headers" name="tests/_files/response_headers" />
 
     <install as="_network/basicauth.php" name="tests/_network/basicauth.php" />
+    <install as="_network/bug19934.php" name="tests/_network/bug19934.php" />
     <install as="_network/cookies.php" name="tests/_network/cookies.php" />
     <install as="_network/digestauth.php" name="tests/_network/digestauth.php" />
     <install as="_network/getparameters.php" name="tests/_network/getparameters.php" />
@@ -223,6 +238,21 @@ Fixes for SOCKS5 proxies support in Socket adapter
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2012-04-08</date>
+      <version>
+       <release>2.1.1</release>
+       <api>2.1.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+Fixes for SOCKS5 proxies support in Socket adapter
+      </notes>
+     </release>
      <release>
       <date>2012-04-07</date>
       <version>
