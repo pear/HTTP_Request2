@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package  HTTP_Request2
  * @author   Alexey Borzov <avb@php.net>
  * @license  http://opensource.org/licenses/bsd-license.php New BSD License
- * @version  SVN: $Id$
  * @link     http://pear.php.net/package/HTTP_Request2
  */
 
@@ -238,6 +237,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
      *
      * @return   resource    a cURL handle, as created by curl_init()
      * @throws   HTTP_Request2_LogicException
+     * @throws   HTTP_Request2_NotImplementedException
      */
     protected function createCurlHandle()
     {
@@ -276,6 +276,11 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             if ($this->request->getConfig('strict_redirects') && defined('CURLOPT_POSTREDIR')) {
                 curl_setopt($ch, CURLOPT_POSTREDIR, 3);
             }
+        }
+
+        // set local IP via CURLOPT_INTERFACE (request #19515)
+        if ($ip = $this->request->getConfig('local_ip')) {
+            curl_setopt($ch, CURLOPT_INTERFACE, $ip);
         }
 
         // request timeout

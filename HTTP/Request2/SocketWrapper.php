@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package  HTTP_Request2
  * @author   Alexey Borzov <avb@php.net>
  * @license  http://opensource.org/licenses/bsd-license.php New BSD License
- * @version  SVN: $Id$
  * @link     http://pear.php.net/package/HTTP_Request2
  */
 
@@ -88,22 +87,30 @@ class HTTP_Request2_SocketWrapper
     /**
      * Class constructor, tries to establish connection
      *
-     * @param string $address    Address for stream_socket_client() call,
-     *                           e.g. 'tcp://localhost:80'
-     * @param int    $timeout    Connection timeout (seconds)
-     * @param array  $sslOptions SSL context options
+     * @param string $address        Address for stream_socket_client() call,
+     *                               e.g. 'tcp://localhost:80'
+     * @param int    $timeout        Connection timeout (seconds)
+     * @param array  $contextOptions Context options
      *
      * @throws HTTP_Request2_LogicException
      * @throws HTTP_Request2_ConnectionException
      */
-    public function __construct($address, $timeout, array $sslOptions = array())
+    public function __construct($address, $timeout, array $contextOptions = array())
     {
+        if (!empty($contextOptions)
+            && !isset($contextOptions['socket']) && !isset($contextOptions['ssl'])
+        ) {
+            // Backwards compatibility with 2.1.0 and 2.1.1 releases
+            $contextOptions = array('ssl' => $contextOptions);
+        }
         $context = stream_context_create();
-        foreach ($sslOptions as $name => $value) {
-            if (!stream_context_set_option($context, 'ssl', $name, $value)) {
-                throw new HTTP_Request2_LogicException(
-                    "Error setting SSL context option '{$name}'"
-                );
+        foreach ($contextOptions as $wrapper => $options) {
+            foreach ($options as $name => $value) {
+                if (!stream_context_set_option($context, $wrapper, $name, $value)) {
+                    throw new HTTP_Request2_LogicException(
+                        "Error setting '{$wrapper}' wrapper context option '{$name}'"
+                    );
+                }
             }
         }
         set_error_handler(array($this, 'connectionWarningsHandler'));
@@ -111,7 +118,14 @@ class HTTP_Request2_SocketWrapper
             $address, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context
         );
         restore_error_handler();
-        if (!$this->socket) {
+        // if we fail to bind to a specified local address (see request #19515),
+        // connection still succeeds, albeit with a warning. Throw an Exception
+        // with the warning text in this case as the that connection is unlikely
+        // to be what user wants and as Curl throws an error in similar case.
+        if ($this->connectionWarnings) {
+            if ($this->socket) {
+                fclose($this->socket);
+            }
             $error = $errstr ? $errstr : implode("\n", $this->connectionWarnings);
             throw new HTTP_Request2_ConnectionException(
                 "Unable to connect to {$address}. Error: {$error}", 0, $errno

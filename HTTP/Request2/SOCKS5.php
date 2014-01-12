@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package  HTTP_Request2
  * @author   Alexey Borzov <avb@php.net>
  * @license  http://opensource.org/licenses/bsd-license.php New BSD License
- * @version  SVN: $Id$
  * @link     http://pear.php.net/package/HTTP_Request2
  */
 
@@ -61,21 +60,21 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
     /**
      * Constructor, tries to connect and authenticate to a SOCKS5 proxy
      *
-     * @param string $address    Proxy address, e.g. 'tcp://localhost:1080'
-     * @param int    $timeout    Connection timeout (seconds)
-     * @param array  $sslOptions SSL context options
-     * @param string $username   Proxy user name
-     * @param string $password   Proxy password
+     * @param string $address        Proxy address, e.g. 'tcp://localhost:1080'
+     * @param int    $timeout        Connection timeout (seconds)
+     * @param array  $contextOptions Stream context options
+     * @param string $username       Proxy user name
+     * @param string $password       Proxy password
      *
      * @throws HTTP_Request2_LogicException
      * @throws HTTP_Request2_ConnectionException
      * @throws HTTP_Request2_MessageException
      */
     public function __construct(
-        $address, $timeout = 10, array $sslOptions = array(),
+        $address, $timeout = 10, array $contextOptions = array(),
         $username = null, $password = null
     ) {
-        parent::__construct($address, $timeout, $sslOptions);
+        parent::__construct($address, $timeout, $contextOptions);
 
         if (strlen($username)) {
             $request = pack('C4', 5, 2, 0, 2);

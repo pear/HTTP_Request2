@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package  HTTP_Request2
  * @author   Alexey Borzov <avb@php.net>
  * @license  http://opensource.org/licenses/bsd-license.php New BSD License
- * @version  SVN: $Id$
  * @link     http://pear.php.net/package/HTTP_Request2
  */
 
@@ -152,6 +151,7 @@ class HTTP_Request2 implements SplSubject
         'protocol_version'  => '1.1',
         'buffer_size'       => 16384,
         'store_body'        => true,
+        'local_ip'          => null,
 
         'proxy_host'        => '',
         'proxy_port'        => '',
@@ -338,6 +338,8 @@ class HTTP_Request2 implements SplSubject
      *   <li> 'store_body'        - Whether to store response body in response object.
      *                              Set to false if receiving a huge response and
      *                              using an Observer to save it (boolean)</li>
+     *   <li> 'local_ip'          - Specifies the IP address that will be used for accessing
+     *                              the network (string)</li>
      *   <li> 'proxy_type'        - Proxy type, 'http' or 'socks5' (string)</li>
      *   <li> 'proxy_host'        - Proxy server host (string)</li>
      *   <li> 'proxy_port'        - Proxy server port (integer)</li>

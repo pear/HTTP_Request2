@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008-2012, Alexey Borzov <avb@php.net>
+ * Copyright (c) 2008-2014, Alexey Borzov <avb@php.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@
  * @package  HTTP_Request2
  * @author   Alexey Borzov <avb@php.net>
  * @license  http://opensource.org/licenses/bsd-license.php New BSD License
- * @version  SVN: $Id$
  * @link     http://pear.php.net/package/HTTP_Request2
  */
 
@@ -256,19 +255,25 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                       'Keep-Alive' == $headers['connection']);
 
         $options = array();
+        if ($ip = $this->request->getConfig('local_ip')) {
+            $options['socket'] = array(
+                'bindto' => (false === strpos($ip, ':') ? $ip : '[' . $ip . ']') . ':0'
+            );
+        }
         if ($secure || $tunnel) {
+            $options['ssl'] = array();
             foreach ($this->request->getConfig() as $name => $value) {
                 if ('ssl_' == substr($name, 0, 4) && null !== $value) {
                     if ('ssl_verify_host' == $name) {
                         if ($value) {
-                            $options['CN_match'] = $reqHost;
+                            $options['ssl']['CN_match'] = $reqHost;
                         }
                     } else {
-                        $options[substr($name, 4)] = $value;
+                        $options['ssl'][substr($name, 4)] = $value;
                     }
                 }
             }
-            ksort($options);
+            ksort($options['ssl']);
         }
 
         // Use global request timeout if given, see feature requests #5735, #8964
