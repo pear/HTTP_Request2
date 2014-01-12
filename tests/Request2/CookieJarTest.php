@@ -322,8 +322,8 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
             array('whatever.msk.ru', '.msk.ru', false),
             array('whatever.co.uk', '.co.uk', false),
             array('whatever.uk', '.whatever.uk', false),
-            array('whatever.tokyo.jp', '.whatever.tokyo.jp', false),
-            array('metro.tokyo.jp', '.metro.tokyo.jp', true),
+            array('whatever.tr', '.whatever.tr', false),
+            array('nic.tr', '.nic.tr', true),
             array('foo.bar', '.foo.bar', true)
         );
     }
