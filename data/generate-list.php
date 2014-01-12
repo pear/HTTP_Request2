@@ -4,8 +4,6 @@
  *
  * You can run this script to update PSL to the current version instead of
  * waiting for a new release of HTTP_Request2.
- *
- * @version SVN: $Id$
  */
 
 /** URL to download Public Suffix List from */
@@ -62,7 +60,7 @@ try {
                             $response->getStatus() . ' ' . $response->getReasonPhrase());
     }
     $list     = $response->getBody();
-    if (false === strpos($list, 'The Original Code is the Public Suffix List.')) {
+    if (false === strpos($list, '// ===BEGIN ICANN DOMAINS===')) {
         throw new Exception("List download URL does not contain expected phrase");
     }
     if (!($fp = @fopen(OUTPUT_FILE, 'wt'))) {
@@ -83,11 +81,11 @@ foreach (array_filter(array_map('trim', explode("\n", $list))) as $line) {
         buildSubdomain($tldTree, explode('.', $line));
 
     } elseif ($license) {
-        fwrite($fp, $line . "\n");
-
-        if (0 === strpos($line, "// ***** END LICENSE BLOCK")) {
-            $license = false;
+        if (0 === strpos($line, "// ===BEGIN ICANN DOMAINS===")) {
             fwrite($fp, "\n");
+            $license = false;
+        } else {
+            fwrite($fp, $line . "\n");
         }
     }
 }
