@@ -120,7 +120,7 @@ class HTTP_Request2_SocketWrapper
         restore_error_handler();
         // if we fail to bind to a specified local address (see request #19515),
         // connection still succeeds, albeit with a warning. Throw an Exception
-        // with the warning text in this case as the that connection is unlikely
+        // with the warning text in this case as that connection is unlikely
         // to be what user wants and as Curl throws an error in similar case.
         if ($this->connectionWarnings) {
             if ($this->socket) {
