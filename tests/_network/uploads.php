@@ -40,6 +40,10 @@
  * @link       http://pear.php.net/package/HTTP_Request2
  */
 
+if (isset($_GET['slowpoke'])) {
+    sleep(3);
+}
+
 if (!empty($_FILES)) {
     foreach ($_FILES as $name => $file) {
         if (is_array($file['name'])) {

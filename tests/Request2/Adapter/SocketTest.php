@@ -154,5 +154,28 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
 
         $this->assertEquals(401, $this->request->send()->getStatus());
     }
+
+    public function test100ContinueTimeoutBug()
+    {
+        $fp       = fopen(dirname(dirname(dirname(__FILE__))) . '/_files/bug_15305', 'rb');
+        $body     = new HTTP_Request2_MultipartBody(
+            array(),
+            array(
+                'upload' => array(
+                    'fp'       => $fp,
+                    'filename' => 'bug_15305',
+                    'type'     => 'application/octet-stream',
+                    'size'     => 16338
+                )
+            )
+        );
+
+        $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->setUrl($this->baseUrl . 'uploads.php?slowpoke')
+                      ->setBody($body);
+
+        $response = $this->request->send();
+        $this->assertContains('upload bug_15305 application/octet-stream 16338', $response->getBody());
+    }
 }
 ?>

@@ -167,6 +167,7 @@ class HTTP_Request2_SocketWrapper
      *
      * @param int $bufferSize   buffer size to use for reading
      * @param int $localTimeout timeout value to use just for this call
+     *                          (used when waiting for "100 Continue" response)
      *
      * @return   string Available data up to the newline (not including newline)
      * @throws   HTTP_Request2_MessageException     In case of timeout
@@ -180,16 +181,25 @@ class HTTP_Request2_SocketWrapper
             } elseif ($this->deadline) {
                 stream_set_timeout($this->socket, max($this->deadline - time(), 1));
             }
+
             $line .= @fgets($this->socket, $bufferSize);
-            if (null !== $localTimeout) {
+
+            if (null === $localTimeout) {
+                $this->checkTimeout();
+
+            } else {
                 $info = stream_get_meta_data($this->socket);
+                // reset socket timeout if we don't have request timeout specified,
+                // prevents further calls failing with a bogus Exception
+                if (!$this->deadline) {
+                    $default = (int)@ini_get('default_socket_timeout');
+                    stream_set_timeout($this->socket, $default > 0 ? $default : PHP_INT_MAX);
+                }
                 if ($info['timed_out']) {
                     throw new HTTP_Request2_MessageException(
                         "readLine() call timed out", HTTP_Request2_Exception::TIMEOUT
                     );
                 }
-            } else {
-                $this->checkTimeout();
             }
             if (substr($line, -1) == "\n") {
                 return rtrim($line, "\r\n");
