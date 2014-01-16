@@ -37,9 +37,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
  * Fixed a bogus timeout Exception in Socket adapter after waiting for
-   &quot;100 Continue&quot; response: the same one second timeout was used
+   &quot;100 Continue&quot; response: the same one-second timeout was used
    for further socket operations if explicit 'timeout' parameter was not set.
-   Thanks to Andrea Brancatelli (abrancatelli as schema31 dot it) for the report.
+   Thanks to Andrea Brancatelli (abrancatelli at schema31 dot it) for the report.
  * Bundled a separate LICENSE file (request #20175). Updated phrasing and links
    to mention 3-Clause BSD license the package actually uses.
   </notes>
