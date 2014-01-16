@@ -25,32 +25,23 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2014-01-12</date>
+  <date>2014-01-16</date>
   <version>
-    <release>2.2.0</release>
+    <release>2.2.1</release>
     <api>2.2.0</api>
   </version>
   <stability>
     <release>stable</release>
     <api>stable</api>
   </stability>
-  <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+  <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
-New features
- * Socket adapter will send &quot;Expect: 100-continue&quot; header and wait for
-   &quot;100 Continue&quot; response by default before sending large request body
-   (request #19233). This can be disabled by setting an empty &quot;Expect&quot;
-   header, the same way as done with Curl adapter (see bug #15937)
- * It is possible to specify a local IP address to bind to using 'local_ip'
-   configuration parameter (request #19515)
-
-Other changes and fixes
- * An infinite loop was possible when using a stream wrapper instead of
-   a regular file with MultipartBody (bug #19934)
- * Socket adapter will properly send chunked request body if
-   &quot;Transfer-Encoding: chunked&quot; header is set for the request (bug #20125)
- * Updated Public Suffix List to the latest version and updated its download script
- * Unit tests fixes
+ * Fixed a bogus timeout Exception in Socket adapter after waiting for
+   &quot;100 Continue&quot; response: the same one second timeout was used
+   for further socket operations if explicit 'timeout' parameter was not set.
+   Thanks to Andrea Brancatelli (abrancatelli as schema31 dot it) for the report.
+ * Bundled a separate LICENSE file (request #20175). Updated phrasing and links
+   to mention 3-Clause BSD license the package actually uses.
   </notes>
   <contents>
     <dir name="/">
@@ -145,8 +136,9 @@ Other changes and fixes
         <file role="test" name="Request2Test.php" />
         <file role="test" name="TestHelper.php" />
       </dir>
-      <dir name="docs/examples">
-        <file role="doc" name="upload-rapidshare.php" />
+      <dir name="docs">
+        <file role="doc" name="LICENSE" />
+        <file role="doc" name="examples/upload-rapidshare.php" />
       </dir>
       <dir name="data">
         <file role="data" name="generate-list.php" />
@@ -190,6 +182,7 @@ Other changes and fixes
   </dependencies>
   <phprelease>
    <filelist>
+    <install as="LICENSE" name="docs/LICENSE" />
     <install as="examples/upload-rapidshare.php" name="docs/examples/upload-rapidshare.php" />
 
     <install as="generate-list.php" name="data/generate-list.php" />
@@ -238,6 +231,35 @@ Other changes and fixes
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2014-01-12</date>
+      <version>
+       <release>2.2.0</release>
+       <api>2.2.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/bsd-license.php">BSD License</license>
+      <notes>
+New features
+ * Socket adapter will send &quot;Expect: 100-continue&quot; header and wait for
+   &quot;100 Continue&quot; response by default before sending large request body
+   (request #19233). This can be disabled by setting an empty &quot;Expect&quot;
+   header, the same way as done with Curl adapter (see bug #15937)
+ * It is possible to specify a local IP address to bind to using 'local_ip'
+   configuration parameter (request #19515)
+
+Other changes and fixes
+ * An infinite loop was possible when using a stream wrapper instead of
+   a regular file with MultipartBody (bug #19934)
+ * Socket adapter will properly send chunked request body if
+   &quot;Transfer-Encoding: chunked&quot; header is set for the request (bug #20125)
+ * Updated Public Suffix List to the latest version and updated its download script
+ * Unit tests fixes
+      </notes>
+     </release>
      <release>
       <date>2012-04-08</date>
       <version>
