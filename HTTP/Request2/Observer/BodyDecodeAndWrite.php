@@ -38,8 +38,8 @@ require_once 'HTTP/Request2/Response.php';
     #$outPath = "/dev/null";
     $outPath = "delme";
 
-    $stream = \fopen( $outPath, 'w' );
-    if( ! $stream ) throw new \Exception( 'fopen failed' );
+    $stream = fopen( $outPath, 'w' );
+    if( ! $stream ) throw new Exception( 'fopen failed' );
 
     $request = new HTTP_Request2(
         $inPath,
@@ -58,12 +58,12 @@ require_once 'HTTP/Request2/Response.php';
         )
     );
 
-    $observer = new \DrKey\external\HTTP\Request2\Observer\BodyDecodeAndWrite( $stream, 9999999 );
+    $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite( $stream, 9999999 );
     $request->attach( $observer );
 
     $response = $request->send();
 
-    \fclose( $stream );
+    fclose( $stream );
     echo "OK\n";
  *
  * </code>
