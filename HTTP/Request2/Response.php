@@ -465,25 +465,40 @@ class HTTP_Request2_Response
     }
 
     /**
-     * Decodes the message-body encoded by gzip
+     * This function tries to parse "$data" as GZIP header. It does some sanity
+     * checks on the header and if they pass the header length is returned.
+     * If some of the sanity checks fail an exception is thrown.
      *
-     * The real decoding work is done by gzinflate() built-in function, this
-     * method only parses the header and checks data for compliance with
-     * RFC 1952
+     * Note: This function might be usable outside of HTTP_Request2 so it might
+     * be good idea to be moved to some common package. (Delian Krustev)
      *
-     * @param string $data gzip-encoded data
+     * @param string $data - might be the complete gzip content, just the header
+     *                       or the first chunk of data.
+     * @param boolean $is_data_complete
      *
-     * @return   string  decoded data
-     * @throws   HTTP_Request2_LogicException
-     * @throws   HTTP_Request2_MessageException
+     * @return   gzip header length in bytes
+     *
+     * @throws HTTP_Request2_MessageException
+     * @throws HTTP_Request2_LogicException
+     *
      * @link     http://tools.ietf.org/html/rfc1952
      */
-    public static function decodeGzip($data)
+    public static function gzipGetHeadersLength( $data, $is_data_complete = false )
     {
         $length = strlen($data);
+
         // If it doesn't look like gzip-encoded data, don't bother
-        if (18 > $length || strcmp(substr($data, 0, 2), "\x1f\x8b")) {
-            return $data;
+        if ($length < ($is_data_complete ? 18 : 10) ) {
+            throw new HTTP_Request2_MessageException(
+                'Error parsing gzip header: Header too short',
+                HTTP_Request2_Exception::DECODE_ERROR
+            );
+        }
+        if ( strcmp(substr($data, 0, 2), "\x1f\x8b")) {
+            throw new HTTP_Request2_MessageException(
+                'Error parsing gzip header: Invalid magic',
+                HTTP_Request2_Exception::DECODE_ERROR
+            );
         }
         if (!function_exists('gzinflate')) {
             throw new HTTP_Request2_LogicException(
@@ -510,7 +525,7 @@ class HTTP_Request2_Response
         $headerLength = 10;
         // extra fields, need to skip 'em
         if ($flags & 4) {
-            if ($length - $headerLength - 2 < 8) {
+            if ($length - $headerLength - 2 < ( $is_data_complete ? 8 : 0 ) ) {
                 throw new HTTP_Request2_MessageException(
                     'Error parsing gzip header: data too short',
                     HTTP_Request2_Exception::DECODE_ERROR
@@ -527,14 +542,17 @@ class HTTP_Request2_Response
         }
         // file name, need to skip that
         if ($flags & 8) {
-            if ($length - $headerLength - 1 < 8) {
+            if ($length - $headerLength - 1 < ( $is_data_complete ? 8 : 0 ) ) {
                 throw new HTTP_Request2_MessageException(
                     'Error parsing gzip header: data too short',
                     HTTP_Request2_Exception::DECODE_ERROR
                 );
             }
             $filenameLength = strpos(substr($data, $headerLength), chr(0));
-            if (false === $filenameLength || $length - $headerLength - $filenameLength - 1 < 8) {
+            if (
+                false === $filenameLength ||
+                $length - $headerLength - $filenameLength - 1 < ( $is_data_complete ? 8 : 0 )
+            ) {
                 throw new HTTP_Request2_MessageException(
                     'Error parsing gzip header: data too short',
                     HTTP_Request2_Exception::DECODE_ERROR
@@ -544,14 +562,17 @@ class HTTP_Request2_Response
         }
         // comment, need to skip that also
         if ($flags & 16) {
-            if ($length - $headerLength - 1 < 8) {
+            if ($length - $headerLength - 1 < ( $is_data_complete ? 8 : 0 ) ) {
                 throw new HTTP_Request2_MessageException(
                     'Error parsing gzip header: data too short',
                     HTTP_Request2_Exception::DECODE_ERROR
                 );
             }
             $commentLength = strpos(substr($data, $headerLength), chr(0));
-            if (false === $commentLength || $length - $headerLength - $commentLength - 1 < 8) {
+            if (
+                false === $commentLength ||
+                $length - $headerLength - $commentLength - 1 < ( $is_data_complete ? 8 : 0 )
+            ) {
                 throw new HTTP_Request2_MessageException(
                     'Error parsing gzip header: data too short',
                     HTTP_Request2_Exception::DECODE_ERROR
@@ -577,10 +598,32 @@ class HTTP_Request2_Response
             }
             $headerLength += 2;
         }
+        return $headerLength;
+    }
+
+    /**
+     * Decodes the message-body encoded by gzip
+     *
+     * The real decoding work is done by gzinflate() built-in function, this
+     * method only parses the header and checks data for compliance with
+     * RFC 1952
+     *
+     * @param string $data gzip-encoded data
+     *
+     * @return   string  decoded data
+     * @throws   HTTP_Request2_LogicException
+     * @throws   HTTP_Request2_MessageException
+     * @link     http://tools.ietf.org/html/rfc1952
+     */
+    public static function decodeGzip($data)
+    {
+
         // unpacked data CRC and size at the end of encoded data
         $tmp = unpack('V2', substr($data, -8));
         $dataCrc  = $tmp[1];
         $dataSize = $tmp[2];
+
+        $headerLength = self::gzipGetHeadersLength($data, true);
 
         // finally, call the gzinflate() function
         // don't pass $dataSize to gzinflate, see bugs #13135, #14370
