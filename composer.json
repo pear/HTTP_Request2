@@ -22,18 +22,15 @@
     },
     "require": {
         "php": ">=5.2.0",
-        "pear/net_url2": ">=2.0.0",
+        "pear/net_url2": "*",
         "pear/pear_exception": "*"
     },
     "suggest": {
-        "ext-curl": "May require the curl PHP extension",
-        "ext-fileinfo": "May require the fileinfo PHP extension",
-        "ext-zlib": "May require the zlib PHP extension",
-        "ext-openssl": "May require the openssl PHP extension"
+        "ext-curl": "May require the curl PHP extension"
     },
     "autoload": {
         "psr-0": {
-            "HTTP_Request2": ""
+            "HTTP": "./"
         }
     },
     "include-path": [
