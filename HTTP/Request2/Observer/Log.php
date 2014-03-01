@@ -85,6 +85,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
      */
     public $events = array(
         'connect',
+        'request',
         'sentHeaders',
         'sentBody',
         'receivedHeaders',
@@ -136,6 +137,9 @@ class HTTP_Request2_Observer_Log implements SplObserver
         switch ($event['name']) {
         case 'connect':
             $this->log('* Connected to ' . $event['data']);
+            break;
+        case 'request':
+            $this->log('> Request');
             break;
         case 'sentHeaders':
             $headers = explode("\r\n", $event['data']);
