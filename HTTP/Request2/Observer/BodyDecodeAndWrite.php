@@ -121,7 +121,7 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver {
                             $offset = 2;
                     }
                     if( $this->encoding === 'gzip' ) {
-                        $offset = HTTP_Request2_Response::gzipGetHeadersLength( $event['data'], false );
+                        $offset = HTTP_Request2_Response::parseGzipHeader( $event['data'], false );
                     }
 
                     $this->flag_first_body_chunk = false;
