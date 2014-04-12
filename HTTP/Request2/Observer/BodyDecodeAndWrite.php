@@ -1,8 +1,29 @@
 <?php
+/**
+ * An observer that saves response body to stream, possibly uncompressing it
+ *
+ * PHP version 5
+ *
+ * LICENSE
+ *
+ * This source file is subject to BSD 3-Clause License that is bundled
+ * with this package in the file LICENSE and available at the URL
+ * https://raw.github.com/pear/HTTP_Request2/trunk/docs/LICENSE
+ *
+ * @category  HTTP
+ * @package   HTTP_Request2
+ * @author    Delian Krustev <krustev@krustev.net>
+ * @author    Alexey Borzov <avb@php.net>
+ * @copyright 2008-2014 Alexey Borzov <avb@php.net>
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
+ * @link      http://pear.php.net/package/HTTP_Request2
+ */
 
 require_once 'HTTP/Request2/Response.php';
 
 /**
+ * An observer that saves response body to stream, possibly uncompressing it
+ *
  * This Observer is written in compliment to pear's HTTP_Request2 in order to
  * avoid reading the whole response body in memory. Instead it writes the body
  * to a stream. If the body is transferred with content-encoding set to
@@ -29,47 +50,56 @@ require_once 'HTTP/Request2/Response.php';
  * Example usage follows:
  *
  * <code>
-    require_once 'HTTP/Request2.php';
-    require_once 'HTTP/Request2/Observer/BodyDecodeAndWrite.php';
-
-    #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html';
-    #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html?deflate=on';
-    $inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html?deflate=on&zlib=on';
-    #$outPath = "/dev/null";
-    $outPath = "delme";
-
-    $stream = fopen( $outPath, 'w' );
-    if( ! $stream ) throw new Exception( 'fopen failed' );
-
-    $request = new HTTP_Request2(
-        $inPath,
-        HTTP_Request2::METHOD_GET,
-        array(
-            'store_body'        => false,
-            'connect_timeout'   => 5,
-            'timeout'           => 10,
-            'ssl_verify_peer'   => true,
-            'ssl_verify_host'   => true,
-            'ssl_cafile'        => null,
-            'ssl_capath'        => '/etc/ssl/certs',
-            'max_redirects'     => 10,
-            'follow_redirects' => true,
-            'strict_redirects'  => false
-        )
-    );
-
-    $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite( $stream, 9999999 );
-    $request->attach( $observer );
-
-    $response = $request->send();
-
-    fclose( $stream );
-    echo "OK\n";
+ * require_once 'HTTP/Request2.php';
+ * require_once 'HTTP/Request2/Observer/BodyDecodeAndWrite.php';
  *
+ * #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html';
+ * #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html?deflate=on';
+ * $inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html?deflate=on&zlib=on';
+ * #$outPath = "/dev/null";
+ * $outPath = "delme";
+ *
+ * $stream = fopen($outPath, 'wb');
+ * if (!$stream) {
+ *     throw new Exception('fopen failed');
+ * }
+ *
+ * $request = new HTTP_Request2(
+ *     $inPath,
+ *     HTTP_Request2::METHOD_GET,
+ *     array(
+ *         'store_body'        => false,
+ *         'connect_timeout'   => 5,
+ *         'timeout'           => 10,
+ *         'ssl_verify_peer'   => true,
+ *         'ssl_verify_host'   => true,
+ *         'ssl_cafile'        => null,
+ *         'ssl_capath'        => '/etc/ssl/certs',
+ *         'max_redirects'     => 10,
+ *         'follow_redirects'  => true,
+ *         'strict_redirects'  => false
+ *     )
+ * );
+ *
+ * $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($stream, 9999999);
+ * $request->attach($observer);
+ *
+ * $response = $request->send();
+ *
+ * fclose($stream);
+ * echo "OK\n";
  * </code>
+ *
+ * @category HTTP
+ * @package  HTTP_Request2
+ * @author   Delian Krustev <krustev@krustev.net>
+ * @author   Alexey Borzov <avb@php.net>
+ * @license  http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
+ * @version  Release: @package_version@
+ * @link     http://pear.php.net/package/HTTP_Request2
  */
-class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver {
-
+class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
+{
     protected $stream;
     protected $stream_filter;
     protected $encoding;
@@ -80,73 +110,87 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver {
 
 
     /**
-     * 
+     * Class constructor
+     *
      * Note that there might be problems with max_bytes and files bigger
      * than 2 GB on 32bit platforms
      *
-     * @param type $stream - a stream (or file descriptor) opened for writing.
-     * @param int $max_bytes
+     * @param resource $stream    a stream (or file descriptor) opened for writing.
+     * @param int      $max_bytes maximum bytes to write
      */
-    public function __construct( $stream, $max_bytes = null ) {
+    public function __construct($stream, $max_bytes = null)
+    {
         $this->stream = $stream;
-        if( $max_bytes ) {
+        if ($max_bytes) {
             $this->max_bytes = $max_bytes;
-            $this->start_bytes = ftell( $this->stream );
+            $this->start_bytes = ftell($this->stream);
         }
     }
 
-    public function update( SplSubject $request ) {
-
+    /**
+     * Called when the request notifies us of an event.
+     *
+     * @param SplSubject $request The HTTP_Request2 instance
+     *
+     * @return void
+     */
+    public function update(SplSubject $request)
+    {
+        /* @var $request HTTP_Request2 */
         $event = $request->getLastEvent();
 
-        switch ( $event['name'] ) {
-            case 'receivedHeaders':
-                $this->response = $event[ 'data' ];
-                $this->encoding = strtolower( $this->response->getHeader( 'content-encoding' ) );
+        switch ($event['name']) {
+        case 'receivedHeaders':
+            $this->response = $event['data'];
+            $this->encoding = strtolower($this->response->getHeader('content-encoding'));
+            break;
+
+        case 'receivedBodyPart':
+        case 'receivedEncodedBodyPart':
+            if ($this->response->isRedirect()) {
                 break;
-
-            case 'receivedBodyPart':
-            case 'receivedEncodedBodyPart':
-                if ( $this->response->isRedirect() ) break;
-                $offset = 0;
-                if( $this->flag_first_body_chunk ) {
-                    if( $this->encoding === 'deflate' || $this->encoding === 'gzip' ) {
-                        $this->stream_fiter = stream_filter_append(
-                           $this->stream, 'zlib.inflate', STREAM_FILTER_WRITE
-                        );
+            }
+            $offset = 0;
+            if ($this->flag_first_body_chunk) {
+                if ($this->encoding === 'deflate' || $this->encoding === 'gzip') {
+                    $this->stream_filter = stream_filter_append(
+                        $this->stream, 'zlib.inflate', STREAM_FILTER_WRITE
+                    );
+                }
+                if ($this->encoding === 'deflate') {
+                    $header = unpack('n', substr($event['data'], 0, 2));
+                    if (0 == $header[1] % 31) {
+                        $offset = 2;
                     }
-                    if( $this->encoding === 'deflate' ) {
-                        $header = unpack('n', substr( $event['data'], 0, 2));
-                        if (0 == $header[1] % 31)
-                            $offset = 2;
-                    }
-                    if( $this->encoding === 'gzip' ) {
-                        $offset = HTTP_Request2_Response::parseGzipHeader( $event['data'], false );
-                    }
-
-                    $this->flag_first_body_chunk = false;
+                }
+                if ($this->encoding === 'gzip') {
+                    $offset = HTTP_Request2_Response::parseGzipHeader($event['data'], false);
                 }
 
-                $bytes = $offset ?
-                    fwrite( $this->stream, substr( $event['data'], $offset ) ):
-                    fwrite( $this->stream, $event['data']);
+                $this->flag_first_body_chunk = false;
+            }
 
-                if( $bytes === FALSE )
-                    throw new Exception('fwrite failed.');
+            $bytes = $offset ?
+                fwrite($this->stream, substr($event['data'], $offset)) :
+                fwrite($this->stream, $event['data']);
 
-                if (
-                    $this->max_bytes &&
-                    ftell( $this->stream ) - $this->start_bytes > $this->max_bytes
-                )
-                    throw new Exception('Max bytes reached.');
-                break;
+            if (false === $bytes) {
+                throw new Exception('fwrite failed.');
+            }
 
-            case 'receivedBody':
-                if( $this->stream_filter ) {
-                    stream_filter_remove( $this->stream_fiter );
-                    $this->stream_filter = NULL;
-                }
-                break;
+            if ($this->max_bytes
+                && ftell($this->stream) - $this->start_bytes > $this->max_bytes
+            ) {
+                throw new Exception('Max bytes reached.');
+            }
+            break;
+
+        case 'receivedBody':
+            if ($this->stream_filter) {
+                stream_filter_remove($this->stream_filter);
+                $this->stream_filter = null;
+            }
+            break;
         }
     }
 }
