@@ -190,10 +190,6 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->addCookie('invalid cookie', 'value');
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    */
     public function testPlainBody()
     {
         $req = new HTTP_Request2();
