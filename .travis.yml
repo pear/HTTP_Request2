@@ -1,0 +1,8 @@
+language: php
+php:
+  - 5.2
+  - 5.3
+  - 5.4
+  - 5.5
+install: pear install Net_URL2
+script: phpunit tests
