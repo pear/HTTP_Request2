@@ -5,4 +5,4 @@ php:
   - 5.4
   - 5.5
 install: pear install Net_URL2
-script: phpunit tests
+script: phpunit --verbose --debug tests
