@@ -1022,7 +1022,7 @@ class HTTP_Request2 implements SplSubject
         }
         // (deprecated) mime_content_type function available
         if (empty($info) && function_exists('mime_content_type')) {
-            return mime_content_type($filename);
+            $info = mime_content_type($filename);
         }
         return empty($info)? 'application/octet-stream': $info;
     }
