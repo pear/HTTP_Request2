@@ -190,6 +190,10 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->addCookie('invalid cookie', 'value');
     }
 
+    /**
+     *
+     * @expectedException HTTP_Request2_LogicException
+     */
     public function testPlainBody()
     {
         $req = new HTTP_Request2();
@@ -198,6 +202,9 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $req->setBody(dirname(__FILE__) . '/_files/plaintext.txt', true);
         $headers = $req->getHeaders();
+        if (!is_string($headers['content_type'])) {
+            $this->fail(var_export($headers, true));
+        }
         $this->assertRegexp(
             '!^(text/plain|application/octet-stream)!',
             $headers['content-type']
