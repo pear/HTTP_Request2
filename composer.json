@@ -31,5 +31,5 @@
 			"HTTP_Request2" : ""
 		}
 	},
-    "include-path": "./"
+    "include-path": ["./"]
 }
