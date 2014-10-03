@@ -1,0 +1,7 @@
+language: php
+
+install: echo "Do nothing"
+
+script:
+  - composer validate
+  - phpunit tests/
