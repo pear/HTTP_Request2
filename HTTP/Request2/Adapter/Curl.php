@@ -288,6 +288,21 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             break;
         case HTTP_Request2::METHOD_PUT:
             curl_setopt($ch, CURLOPT_UPLOAD, true);
+            
+            // In case of request has a body, write body to a temporary file 
+            // and set infile and infilesize params.
+            $body = $this->request->getBody();
+            if (!empty($body)) {
+                $fh = tmpfile();
+                fwrite($fh, $body);
+                fseek($fh, 0);
+
+                curl_setopt($ch, CURLOPT_UPLOAD, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_INFILE, $fh);
+                curl_setopt($ch, CURLOPT_INFILESIZE, strlen($body));
+            }
+		
             break;
         default:
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $this->request->getMethod());
