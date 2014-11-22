@@ -25,6 +25,8 @@ require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
 require_once 'HTTP/Request2.php';
 /** Class for building multipart/form-data request body */
 require_once 'HTTP/Request2/MultipartBody.php';
+/** An observer that saves response body to stream, possibly uncompressing it */
+require_once 'HTTP/Request2/Observer/BodyDecodeAndWrite.php';
 
 class SlowpokeBody extends HTTP_Request2_MultipartBody
 {
@@ -382,6 +384,56 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $response = $this->request->send();
         $this->assertNotContains('Expect:', $observer->headers);
         $this->assertContains('upload bug_15305 application/octet-stream 16338', $response->getBody());
+    }
+
+    public function testDownloadObserverWithPlainBody()
+    {
+        $fp       = fopen('php://memory', 'r+');
+        $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($fp);
+
+        $this->request->setConfig('store_body', false)
+                      ->setUrl($this->baseUrl . 'download.php')
+                      ->attach($observer);
+
+        $this->request->send();
+        rewind($fp);
+        $this->assertEquals(str_repeat('0123456789abcdef', 128), fread($fp, 8192));
+    }
+
+    public function testDownloadObserverWithGzippedBody()
+    {
+        $fp       = fopen('php://memory', 'r+');
+        $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($fp);
+
+        $this->request->setConfig('store_body', false)
+                      ->attach($observer);
+
+        $normal = clone $this->request;
+        $normal->setUrl($this->baseUrl . 'download.php?gzip')
+               ->send();
+
+        $slow = clone $this->request;
+        $slow->setUrl($this->baseUrl . 'download.php?gzip&slowpoke')
+             ->send();
+
+        rewind($fp);
+        $this->assertEquals(str_repeat('0123456789abcdef', 256), fread($fp, 8192));
+    }
+
+    /**
+     * @expectedException HTTP_Request2_MessageException
+     * @expectedExceptionMessage Body length limit
+     */
+    public function testDownloadObserverEnforcesSizeLimit()
+    {
+        $fp       = fopen('php://memory', 'r+');
+        $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($fp, 1000);
+
+        $this->request->setConfig('store_body', false)
+                      ->setUrl($this->baseUrl . 'download.php?gzip')
+                      ->attach($observer);
+
+        $this->request->send();
     }
 }
 ?>

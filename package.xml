@@ -107,6 +107,7 @@ deflate encodings, redirects, monitoring the request progress with Observers...
          <file role="test" name="bug19934.php" />
          <file role="test" name="cookies.php" />
          <file role="test" name="digestauth.php" />
+         <file role="test" name="download.php" />
          <file role="test" name="getparameters.php" />
          <file role="test" name="postparameters.php" />
          <file role="test" name="rawpostdata.php" />
@@ -207,6 +208,7 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <install as="_network/basicauth.php" name="tests/_network/basicauth.php" />
     <install as="_network/bug19934.php" name="tests/_network/bug19934.php" />
     <install as="_network/cookies.php" name="tests/_network/cookies.php" />
+    <install as="_network/download.php" name="tests/_network/download.php" />
     <install as="_network/digestauth.php" name="tests/_network/digestauth.php" />
     <install as="_network/getparameters.php" name="tests/_network/getparameters.php" />
     <install as="_network/postparameters.php" name="tests/_network/postparameters.php" />
