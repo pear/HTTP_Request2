@@ -137,7 +137,8 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
     public function update(SplSubject $request)
     {
         /* @var $request HTTP_Request2 */
-        $event = $request->getLastEvent();
+        $event   = $request->getLastEvent();
+        $encoded = false;
 
         switch ($event['name']) {
         case 'receivedHeaders':
@@ -146,13 +147,15 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
             $this->encoding = strtolower($this->response->getHeader('content-encoding'));
             break;
 
-        case 'receivedBodyPart':
         case 'receivedEncodedBodyPart':
+            $encoded = true;
+            // fall-through is intentional
+        case 'receivedBodyPart':
             if ($this->response->isRedirect()) {
                 break;
             }
             $offset = 0;
-            if ($this->flag_first_body_chunk) {
+            if ($encoded && $this->flag_first_body_chunk) {
                 if ($this->encoding === 'deflate' || $this->encoding === 'gzip') {
                     $this->stream_filter = stream_filter_append(
                         $this->stream, 'zlib.inflate', STREAM_FILTER_WRITE
