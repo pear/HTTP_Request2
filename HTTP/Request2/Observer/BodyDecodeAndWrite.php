@@ -141,6 +141,7 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
 
         switch ($event['name']) {
         case 'receivedHeaders':
+            $this->flag_first_body_chunk = true;
             $this->response = $event['data'];
             $this->encoding = strtolower($this->response->getHeader('content-encoding'));
             break;
@@ -181,7 +182,10 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
             if ($this->max_bytes
                 && ftell($this->stream) - $this->start_bytes > $this->max_bytes
             ) {
-                throw new Exception('Max bytes reached.');
+                throw new HTTP_Request2_MessageException(sprintf(
+                    'Body length limit (%d bytes) reached',
+                    $this->max_bytes
+                ));
             }
             break;
 
