@@ -104,10 +104,20 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
     protected $stream_filter;
     protected $encoding;
     protected $flag_first_body_chunk = true;
-    protected $response;
     protected $start_bytes = 0;
     protected $max_bytes;
 
+    /**
+     * Whether response being received is a redirect
+     * @var bool
+     */
+    protected $redirect = false;
+
+    /**
+     * Accumulated body chunks that may contain (gzip) header
+     * @var string
+     */
+    protected $possibleHeader = '';
 
     /**
      * Class constructor
@@ -143,40 +153,61 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
         switch ($event['name']) {
         case 'receivedHeaders':
             $this->flag_first_body_chunk = true;
-            $this->response = $event['data'];
-            $this->encoding = strtolower($this->response->getHeader('content-encoding'));
+            $this->redirect = $event['data']->isRedirect();
+            $this->encoding = strtolower($event['data']->getHeader('content-encoding'));
+            $this->possibleHeader = '';
             break;
 
         case 'receivedEncodedBodyPart':
+            if (!$this->stream_filter
+                && ($this->encoding === 'deflate' || $this->encoding === 'gzip')
+            ) {
+                $this->stream_filter = stream_filter_append(
+                    $this->stream, 'zlib.inflate', STREAM_FILTER_WRITE
+                );
+            }
             $encoded = true;
             // fall-through is intentional
+
         case 'receivedBodyPart':
-            if ($this->response->isRedirect()) {
+            if ($this->redirect) {
                 break;
             }
-            $offset = 0;
-            if ($encoded && $this->flag_first_body_chunk) {
-                if ($this->encoding === 'deflate' || $this->encoding === 'gzip') {
-                    $this->stream_filter = stream_filter_append(
-                        $this->stream, 'zlib.inflate', STREAM_FILTER_WRITE
-                    );
-                }
-                if ($this->encoding === 'deflate') {
-                    $header = unpack('n', substr($event['data'], 0, 2));
+
+            if (!$encoded || !$this->flag_first_body_chunk) {
+                $bytes = fwrite($this->stream, $event['data']);
+
+            } else {
+                $offset = 0;
+                $this->possibleHeader .= $event['data'];
+                if ('deflate' === $this->encoding) {
+                    if (2 > strlen($this->possibleHeader)) {
+                        break;
+                    }
+                    $header = unpack('n', substr($this->possibleHeader, 0, 2));
                     if (0 == $header[1] % 31) {
                         $offset = 2;
                     }
-                }
-                if ($this->encoding === 'gzip') {
-                    $offset = HTTP_Request2_Response::parseGzipHeader($event['data'], false);
+
+                } elseif ('gzip' === $this->encoding) {
+                    if (10 > strlen($this->possibleHeader)) {
+                        break;
+                    }
+                    try {
+                        $offset = HTTP_Request2_Response::parseGzipHeader($this->possibleHeader, false);
+
+                    } catch (HTTP_Request2_MessageException $e) {
+                        // need more data?
+                        if (false !== strpos($e->getMessage(), 'data too short')) {
+                            break;
+                        }
+                        throw $e;
+                    }
                 }
 
                 $this->flag_first_body_chunk = false;
+                $bytes = fwrite($this->stream, substr($this->possibleHeader, $offset));
             }
-
-            $bytes = $offset ?
-                fwrite($this->stream, substr($event['data'], $offset)) :
-                fwrite($this->stream, $event['data']);
 
             if (false === $bytes) {
                 throw new Exception('fwrite failed.');
