@@ -34,10 +34,7 @@ if ('@' . 'package_version@' == '@package_version@') {
 }
 
 $phpunitVersion = PHPUnit_Runner_Version::id();
-if ($phpunitVersion == '@' . 'package_version@' || !version_compare($phpunitVersion, '3.8', '<=')) {
-    echo "This version of PHPUnit is not supported.";
-    exit(1);
-} elseif (version_compare($phpunitVersion, '3.5.0', '>=')) {
+if (version_compare($phpunitVersion, '3.5.0', '>=')) {
     require_once 'PHPUnit/Autoload.php';
 } else {
     require_once 'PHPUnit/Framework.php';
