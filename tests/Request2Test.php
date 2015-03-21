@@ -275,7 +275,16 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $req->setConfig('use_brackets', true)->setUrl('http://php.example.com/');
         $req->getUrl()->setQueryVariable('foo', array('bar', 'baz'));
-        $this->assertEquals('http://php.example.com/?foo[0]=bar&foo[1]=baz', $req->getUrl()->__toString());
+
+        require 'PEAR/Registry.php';
+        $reg = new PEAR_Registry;
+        $pkg = $reg->getPackage('Net_URL2');
+        $version = $pkg->getVersion();
+        if (version_compare($version, '2.1.1', '>=')){
+            $this->assertEquals('http://php.example.com/?foo[]=bar&foo[]=baz', $req->getUrl()->__toString());
+        } else {
+            $this->assertEquals('http://php.example.com/?foo[0]=bar&foo[1]=baz', $req->getUrl()->__toString());
+        }
     }
 
     public function testSetBodyRemovesPostParameters()
