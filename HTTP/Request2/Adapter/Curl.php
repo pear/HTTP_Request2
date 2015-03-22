@@ -173,6 +173,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         $this->eventReceivedHeaders = false;
 
         try {
+            $this->request->setLastEvent('request');
             if (false === curl_exec($ch = $this->createCurlHandle())) {
                 $e = self::wrapCurlError($ch);
             }

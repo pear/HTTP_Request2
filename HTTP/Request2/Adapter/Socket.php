@@ -126,7 +126,8 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         try {
             $keepAlive = $this->connect();
-            $headers   = $this->prepareHeaders();
+            $this->request->setLastEvent('request');
+            $headers = $this->prepareHeaders();
             $this->socket->write($headers);
             // provide request headers to the observer, see request #7633
             $this->request->setLastEvent('sentHeaders', $headers);

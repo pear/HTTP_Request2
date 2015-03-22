@@ -779,6 +779,7 @@ class HTTP_Request2 implements SplSubject
      * <ul>
      *   <li>'connect'                 - after connection to remote server,
      *                                   data is the destination (string)</li>
+     *   <li>'request'                 - before sending the request</li>
      *   <li>'disconnect'              - after disconnection from server</li>
      *   <li>'sentHeaders'             - after sending the request headers,
      *                                   data is the headers sent (string)</li>
