@@ -17,7 +17,7 @@
 	},
 	"require"     : {
 		"php"                 : ">=5.2.0",
-		"pear/net_url2"       : ">=2.0.0",
+		"pear/net_url2"       : "~2.2.0",
 		"pear/pear_exception" : "*"
 	},
 	"suggest"     : {
