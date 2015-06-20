@@ -21,7 +21,23 @@
 /** Tests for HTTP_Request2 package that require a working webserver */
 require_once dirname(__FILE__) . '/CommonNetworkTest.php';
 
-/** Adapter for HTTP_Request2 wrapping around cURL extension */
+class UploadSizeObserver implements SplObserver
+{
+    public $size;
+
+    public function update(SplSubject $subject)
+    {
+        /* @var $subject HTTP_Request2 */
+        $event = $subject->getLastEvent();
+
+        if ('sentHeaders' == $event['name']) {
+            $this->size = null;
+        } elseif ('sentBody' == $event['name']) {
+            $this->size = $event['data'];
+        }
+    }
+
+}
 
 /**
  * Unit test for Curl Adapter of HTTP_Request2
@@ -115,6 +131,26 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
         } catch (HTTP_Request2_LogicException $e) {
             $this->assertEquals(HTTP_Request2_Exception::MISCONFIGURATION, $e->getCode());
         }
+    }
+
+    public function testBug20440()
+    {
+        $observer = new UploadSizeObserver();
+
+        $this->request->setUrl($this->baseUrl . 'rawpostdata.php')
+            ->setMethod(HTTP_Request2::METHOD_PUT)
+            ->setHeader('Expect', '')
+            ->setBody('This is a test')
+            ->setConfig('follow_redirects', false)
+            ->attach($observer);
+
+        $this->request->send();
+        // Curl sends body with Transfer-encoding: chunked, so size can be larger
+        $this->assertGreaterThanOrEqual(14, $observer->size);
+
+        $this->request->setConfig('follow_redirects', true);
+        $this->request->send();
+        $this->assertGreaterThanOrEqual(14, $observer->size);
     }
 }
 ?>
