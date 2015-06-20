@@ -51,7 +51,7 @@ require_once 'HTTP/Request2/Response.php';
  *
  * <code>
  * require_once 'HTTP/Request2.php';
- * require_once 'HTTP/Request2/Observer/BodyDecodeAndWrite.php';
+ * require_once 'HTTP/Request2/Observer/UncompressingDownload.php';
  *
  * #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html';
  * #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html?deflate=on';
@@ -81,7 +81,7 @@ require_once 'HTTP/Request2/Response.php';
  *     )
  * );
  *
- * $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($stream, 9999999);
+ * $observer = new HTTP_Request2_Observer_UncompressingDownload($stream, 9999999);
  * $request->attach($observer);
  *
  * $response = $request->send();
@@ -98,7 +98,7 @@ require_once 'HTTP/Request2/Response.php';
  * @version  Release: @package_version@
  * @link     http://pear.php.net/package/HTTP_Request2
  */
-class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
+class HTTP_Request2_Observer_UncompressingDownload implements SplObserver
 {
     /**
      * The stream to write response body to

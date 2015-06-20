@@ -26,7 +26,7 @@ require_once 'HTTP/Request2.php';
 /** Class for building multipart/form-data request body */
 require_once 'HTTP/Request2/MultipartBody.php';
 /** An observer that saves response body to stream, possibly uncompressing it */
-require_once 'HTTP/Request2/Observer/BodyDecodeAndWrite.php';
+require_once 'HTTP/Request2/Observer/UncompressingDownload.php';
 
 class SlowpokeBody extends HTTP_Request2_MultipartBody
 {
@@ -389,7 +389,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testDownloadObserverWithPlainBody()
     {
         $fp       = fopen('php://memory', 'r+');
-        $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($fp);
+        $observer = new HTTP_Request2_Observer_UncompressingDownload($fp);
 
         $this->request->setConfig('store_body', false)
                       ->setUrl($this->baseUrl . 'download.php')
@@ -403,7 +403,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testDownloadObserverWithGzippedBody()
     {
         $fp       = fopen('php://memory', 'r+');
-        $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($fp);
+        $observer = new HTTP_Request2_Observer_UncompressingDownload($fp);
 
         $this->request->setConfig('store_body', false)
                       ->attach($observer);
@@ -427,7 +427,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testDownloadObserverEnforcesSizeLimit()
     {
         $fp       = fopen('php://memory', 'r+');
-        $observer = new HTTP_Request2_Observer_BodyDecodeAndWrite($fp, 1000);
+        $observer = new HTTP_Request2_Observer_UncompressingDownload($fp, 1000);
 
         $this->request->setConfig('store_body', false)
                       ->setUrl($this->baseUrl . 'download.php?gzip')
