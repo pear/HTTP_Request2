@@ -400,9 +400,12 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     protected function workaroundPhpBug47204($ch, &$headers)
     {
         // no redirects, no digest auth -> probably no rewind needed
+        // also apply workaround only for POSTs, othrerwise we get
+        // https://pear.php.net/bugs/bug.php?id=20440 for PUTs
         if (!$this->request->getConfig('follow_redirects')
             && (!($auth = $this->request->getAuth())
                 || HTTP_Request2::AUTH_DIGEST != $auth['scheme'])
+            || HTTP_Request2::METHOD_POST !== $this->request->getMethod()
         ) {
             curl_setopt($ch, CURLOPT_READFUNCTION, array($this, 'callbackReadBody'));
 
