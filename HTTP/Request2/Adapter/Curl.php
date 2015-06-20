@@ -444,6 +444,11 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         if (in_array($this->request->getMethod(), self::$bodyDisallowed)
             || 0 == $this->contentLength || $this->position >= $this->contentLength
         ) {
+            if (0 != $this->contentLength && $this->position >= $this->contentLength) {
+                $this->request->setLastEvent(
+                    'sentBody', curl_getinfo($ch, CURLINFO_SIZE_UPLOAD)
+                );
+            }
             return '';
         }
         if (is_string($this->requestBody)) {
