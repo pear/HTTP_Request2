@@ -158,7 +158,7 @@ deflate encodings, redirects, monitoring the request progress with Observers...
       <package>
         <name>Net_URL2</name>
         <channel>pear.php.net</channel>
-        <min>2.0.0</min>
+        <min>2.1.1</min>
       </package>
       <package>
         <name>PEAR</name>
