@@ -21,7 +21,9 @@
 /**
  * A class representing an URL as per RFC 3986.
  */
-require_once 'Net/URL2.php';
+if (!class_exists('Net_URL2', true)) {
+    require_once 'Net/URL2.php';
+}
 
 /**
  * Exception class for HTTP_Request2 package
