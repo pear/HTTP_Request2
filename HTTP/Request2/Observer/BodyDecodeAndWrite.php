@@ -100,24 +100,53 @@ require_once 'HTTP/Request2/Response.php';
  */
 class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
 {
-    protected $stream;
-    protected $stream_filter;
-    protected $encoding;
-    protected $flag_first_body_chunk = true;
-    protected $start_bytes = 0;
-    protected $max_bytes;
+    /**
+     * The stream to write response body to
+     * @var resource
+     */
+    private $_stream;
+
+    /**
+     * zlib.inflate filter possibly added to stream
+     * @var resource
+     */
+    private $_streamFilter;
+
+    /**
+     * The value of response's Content-Encoding header
+     * @var string
+     */
+    private $_encoding;
+
+    /**
+     * Whether the observer is still waiting for gzip/deflate header
+     * @var bool
+     */
+    private $_processingHeader = true;
+
+    /**
+     * Starting position in the stream observer writes to
+     * @var int
+     */
+    private $_startPosition = 0;
+
+    /**
+     * Maximum bytes to write
+     * @var int|null
+     */
+    private $_maxDownloadSize;
 
     /**
      * Whether response being received is a redirect
      * @var bool
      */
-    protected $redirect = false;
+    private $_redirect = false;
 
     /**
      * Accumulated body chunks that may contain (gzip) header
      * @var string
      */
-    protected $possibleHeader = '';
+    private $_possibleHeader = '';
 
     /**
      * Class constructor
@@ -125,15 +154,15 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
      * Note that there might be problems with max_bytes and files bigger
      * than 2 GB on 32bit platforms
      *
-     * @param resource $stream    a stream (or file descriptor) opened for writing.
-     * @param int      $max_bytes maximum bytes to write
+     * @param resource $stream          a stream (or file descriptor) opened for writing.
+     * @param int      $maxDownloadSize maximum bytes to write
      */
-    public function __construct($stream, $max_bytes = null)
+    public function __construct($stream, $maxDownloadSize = null)
     {
-        $this->stream = $stream;
-        if ($max_bytes) {
-            $this->max_bytes = $max_bytes;
-            $this->start_bytes = ftell($this->stream);
+        $this->_stream = $stream;
+        if ($maxDownloadSize) {
+            $this->_maxDownloadSize = $maxDownloadSize;
+            $this->_startPosition   = ftell($this->_stream);
         }
     }
 
@@ -143,6 +172,7 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
      * @param SplSubject $request The HTTP_Request2 instance
      *
      * @return void
+     * @throws HTTP_Request2_MessageException
      */
     public function update(SplSubject $request)
     {
@@ -150,51 +180,52 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
         $event   = $request->getLastEvent();
         $encoded = false;
 
+        /* @var $event['data'] HTTP_Request2_Response */
         switch ($event['name']) {
         case 'receivedHeaders':
-            $this->flag_first_body_chunk = true;
-            $this->redirect = $event['data']->isRedirect();
-            $this->encoding = strtolower($event['data']->getHeader('content-encoding'));
-            $this->possibleHeader = '';
+            $this->_processingHeader = true;
+            $this->_redirect = $event['data']->isRedirect();
+            $this->_encoding = strtolower($event['data']->getHeader('content-encoding'));
+            $this->_possibleHeader = '';
             break;
 
         case 'receivedEncodedBodyPart':
-            if (!$this->stream_filter
-                && ($this->encoding === 'deflate' || $this->encoding === 'gzip')
+            if (!$this->_streamFilter
+                && ($this->_encoding === 'deflate' || $this->_encoding === 'gzip')
             ) {
-                $this->stream_filter = stream_filter_append(
-                    $this->stream, 'zlib.inflate', STREAM_FILTER_WRITE
+                $this->_streamFilter = stream_filter_append(
+                    $this->_stream, 'zlib.inflate', STREAM_FILTER_WRITE
                 );
             }
             $encoded = true;
             // fall-through is intentional
 
         case 'receivedBodyPart':
-            if ($this->redirect) {
+            if ($this->_redirect) {
                 break;
             }
 
-            if (!$encoded || !$this->flag_first_body_chunk) {
-                $bytes = fwrite($this->stream, $event['data']);
+            if (!$encoded || !$this->_processingHeader) {
+                $bytes = fwrite($this->_stream, $event['data']);
 
             } else {
                 $offset = 0;
-                $this->possibleHeader .= $event['data'];
-                if ('deflate' === $this->encoding) {
-                    if (2 > strlen($this->possibleHeader)) {
+                $this->_possibleHeader .= $event['data'];
+                if ('deflate' === $this->_encoding) {
+                    if (2 > strlen($this->_possibleHeader)) {
                         break;
                     }
-                    $header = unpack('n', substr($this->possibleHeader, 0, 2));
+                    $header = unpack('n', substr($this->_possibleHeader, 0, 2));
                     if (0 == $header[1] % 31) {
                         $offset = 2;
                     }
 
-                } elseif ('gzip' === $this->encoding) {
-                    if (10 > strlen($this->possibleHeader)) {
+                } elseif ('gzip' === $this->_encoding) {
+                    if (10 > strlen($this->_possibleHeader)) {
                         break;
                     }
                     try {
-                        $offset = HTTP_Request2_Response::parseGzipHeader($this->possibleHeader, false);
+                        $offset = HTTP_Request2_Response::parseGzipHeader($this->_possibleHeader, false);
 
                     } catch (HTTP_Request2_MessageException $e) {
                         // need more data?
@@ -205,28 +236,28 @@ class HTTP_Request2_Observer_BodyDecodeAndWrite implements SplObserver
                     }
                 }
 
-                $this->flag_first_body_chunk = false;
-                $bytes = fwrite($this->stream, substr($this->possibleHeader, $offset));
+                $this->_processingHeader = false;
+                $bytes = fwrite($this->_stream, substr($this->_possibleHeader, $offset));
             }
 
             if (false === $bytes) {
-                throw new Exception('fwrite failed.');
+                throw new HTTP_Request2_MessageException('fwrite failed.');
             }
 
-            if ($this->max_bytes
-                && ftell($this->stream) - $this->start_bytes > $this->max_bytes
+            if ($this->_maxDownloadSize
+                && ftell($this->_stream) - $this->_startPosition > $this->_maxDownloadSize
             ) {
                 throw new HTTP_Request2_MessageException(sprintf(
                     'Body length limit (%d bytes) reached',
-                    $this->max_bytes
+                    $this->_maxDownloadSize
                 ));
             }
             break;
 
         case 'receivedBody':
-            if ($this->stream_filter) {
-                stream_filter_remove($this->stream_filter);
-                $this->stream_filter = null;
+            if ($this->_streamFilter) {
+                stream_filter_remove($this->_streamFilter);
+                $this->_streamFilter = null;
             }
             break;
         }
