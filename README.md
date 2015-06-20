@@ -1,6 +1,8 @@
 
 # HTTP_Request2
 
+[![Build Status](https://travis-ci.org/pear/HTTP_Request2.svg?branch=trunk)](https://travis-ci.org/pear/HTTP_Request2)
+
 Provides an easy way to perform HTTP requests, uses pluggable adapters
 
 * Socket: pure PHP implementation of HTTP protocol (does *not* use http stream wrapper), based on older [PEAR HTTP_Request] package
