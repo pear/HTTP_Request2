@@ -352,12 +352,12 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->addPostParameter($data);
 
         $response = $this->request->send();
-        if (411 === $response->getStatus()) {
-            $this->markTestSkipped("The webserver does not seem to support chunked POST requests");
+//        if (411 === $response->getStatus()) {
+//            $this->markTestSkipped("The webserver does not seem to support chunked POST requests");
 
-        } else {
+//        } else {
             $this->assertEquals(serialize($data), $response->getBody());
-        }
+//        }
     }
 
     /**

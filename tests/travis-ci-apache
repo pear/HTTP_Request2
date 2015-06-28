@@ -19,4 +19,7 @@
         Alias /php5-fcgi /usr/lib/cgi-bin/php5-fcgi
         FastCgiExternalServer /usr/lib/cgi-bin/php5-fcgi -host 127.0.0.1:9000 -pass-header Authorization
     </IfModule>
+
+    ErrorLog "%TRAVIS_BUILD_DIR%/logs/hr2-error.log"
+    CustomLog "%TRAVIS_BUILD_DIR%/logs/hr2-access.log" combined
 </VirtualHost>
