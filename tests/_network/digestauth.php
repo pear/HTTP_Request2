@@ -78,6 +78,6 @@ if (!$validAuth || empty($_SERVER['PHP_AUTH_DIGEST'])) {
            '",qop="auth",nonce="' . uniqid() . '"', true, 401);
     echo "Login required";
 } else {
-    echo "Username={$user}";
+    echo "Username={$data['username']}";
 }
 ?>
