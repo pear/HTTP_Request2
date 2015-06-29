@@ -160,7 +160,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
      * Socket adapter should not throw an exception (invalid chunk length '')
      * if a buggy server doesn't send last zero-length chunk when using chunked encoding
      *
-     * @link http://pear.php.net/bugs/bug.php?id=19934
+     * @link http://pear.php.net/bugs/bug.php?id=20228
      */
     public function testBug20228()
     {
