@@ -117,6 +117,12 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     protected $eventReceivedHeaders = false;
 
     /**
+     * Whether 'sentBoody' event was sent to observers
+     * @var boolean
+     */
+    protected $eventSentBody = false;
+
+    /**
      * Position within request body
      * @var  integer
      * @see  callbackReadBody()
@@ -171,6 +177,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         $this->position             = 0;
         $this->eventSentHeaders     = false;
         $this->eventReceivedHeaders = false;
+        $this->eventSentBody        = false;
 
         try {
             if (false === curl_exec($ch = $this->createCurlHandle())) {
@@ -447,11 +454,6 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         if (in_array($this->request->getMethod(), self::$bodyDisallowed)
             || 0 == $this->contentLength || $this->position >= $this->contentLength
         ) {
-            if (0 != $this->contentLength && $this->position >= $this->contentLength) {
-                $this->request->setLastEvent(
-                    'sentBody', curl_getinfo($ch, CURLINFO_SIZE_UPLOAD)
-                );
-            }
             return '';
         }
         if (is_string($this->requestBody)) {
@@ -477,40 +479,36 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
      */
     protected function callbackWriteHeader($ch, $string)
     {
-        // we may receive a second set of headers if doing e.g. digest auth
-        if ($this->eventReceivedHeaders || !$this->eventSentHeaders) {
-            // don't bother with 100-Continue responses (bug #15785)
-            if (!$this->eventSentHeaders
-                || $this->response->getStatus() >= 200
-            ) {
-                $this->request->setLastEvent(
-                    'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
-                );
-            }
+        if (!$this->eventSentHeaders
+            // we may receive a second set of headers if doing e.g. digest auth
+            // but don't bother with 100-Continue responses (bug #15785)
+            || $this->eventReceivedHeaders && $this->response->getStatus() >= 200
+        ) {
+            $this->request->setLastEvent(
+                'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
+            );
+        }
+        if (!$this->eventSentBody) {
             $upload = curl_getinfo($ch, CURLINFO_SIZE_UPLOAD);
-            // if body wasn't read by a callback, send event with total body size
+            // if body wasn't read by the callback, send event with total body size
             if ($upload > $this->position) {
                 $this->request->setLastEvent(
                     'sentBodyPart', $upload - $this->position
                 );
-                $this->position = $upload;
             }
-            if ($upload && (!$this->eventSentHeaders
-                            || $this->response->getStatus() >= 200)
-            ) {
+            if ($upload > 0) {
                 $this->request->setLastEvent('sentBody', $upload);
             }
-            $this->eventSentHeaders = true;
-            // we'll need a new response object
-            if ($this->eventReceivedHeaders) {
-                $this->eventReceivedHeaders = false;
-                $this->response             = null;
-            }
         }
-        if (empty($this->response)) {
-            $this->response = new HTTP_Request2_Response(
+        $this->eventSentHeaders = true;
+        $this->eventSentBody    = true;
+
+        if ($this->eventReceivedHeaders || empty($this->response)) {
+            $this->eventReceivedHeaders = false;
+            $this->response             = new HTTP_Request2_Response(
                 $string, false, curl_getinfo($ch, CURLINFO_EFFECTIVE_URL)
             );
+
         } else {
             $this->response->parseHeaderLine($string);
             if ('' == trim($string)) {
@@ -540,6 +538,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                     }
                 }
                 $this->eventReceivedHeaders = true;
+                $this->eventSentBody        = false;
             }
         }
         return strlen($string);
