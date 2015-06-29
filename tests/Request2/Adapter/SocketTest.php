@@ -165,7 +165,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     public function testBug20228()
     {
         $events = array('receivedBodyPart', 'warning', 'receivedBody');
-        $this->request->setHeader('Accept-Encoding', '')
+        $this->request->setHeader('Accept-Encoding', 'identity')
             ->attach($observer = new EventSequenceObserver($events));
         $response = $this->request->send();
         $this->assertEquals('This is a test', $response->getBody());

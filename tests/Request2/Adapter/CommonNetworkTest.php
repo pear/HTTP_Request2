@@ -175,7 +175,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $observer = new EventSequenceObserver($events);
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
-                      ->setHeader('Accept-Encoding', '')
+                      ->setHeader('Accept-Encoding', 'identity')
                       ->addPostParameter($data)
                       ->attach($observer);
 
@@ -406,12 +406,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->addPostParameter($data);
 
         $response = $this->request->send();
-        if (411 === $response->getStatus()) {
-            $this->markTestSkipped("The webserver does not seem to support chunked POST requests");
-
-        } else {
-            $this->assertEquals(serialize($data), $response->getBody());
-        }
+        $this->assertEquals(serialize($data), $response->getBody());
     }
 
     /**
@@ -498,16 +493,11 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testIncompleteBody()
     {
         $events = array('receivedBodyPart', 'warning', 'receivedBody');
-        $this->request->setHeader('Accept-Encoding', '');
+        $this->request->setHeader('Accept-Encoding', 'identity');
 
         $plain = clone $this->request;
         $plain->attach($observer = new EventSequenceObserver($events));
-        $plain->attach($headers = new HeaderObserver());
         $response = $plain->send();
-        if (!in_array('warning', $observer->sequence)) {
-            var_dump($headers->headers);
-            var_dump($response->getHeader());
-        }
         $this->assertEquals('This is a test', $response->getBody());
         $this->assertEquals($events, $observer->sequence);
 
