@@ -155,5 +155,17 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
         $response = $this->request->send();
         $this->assertContains('upload bug_15305 application/octet-stream 16338', $response->getBody());
     }
+
+    /**
+     * Socket adapter should not throw an exception (invalid chunk length '')
+     * if a buggy server doesn't send last zero-length chunk when using chunked encoding
+     *
+     * @link http://pear.php.net/bugs/bug.php?id=19934
+     */
+    public function testBug20228()
+    {
+        $response = $this->request->send();
+        $this->assertEquals('This is a test', $response->getBody());
+    }
 }
 ?>

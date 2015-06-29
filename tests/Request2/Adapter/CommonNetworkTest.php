@@ -494,5 +494,23 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
         $this->request->send();
     }
+
+    public function testIncompleteBody()
+    {
+        $events = array('receivedBodyPart', 'receivedBody', 'warning');
+
+        $plain = clone $this->request;
+        $plain->attach($observer = new EventSequenceObserver($events));
+        $response = $plain->send();
+        $this->assertEquals('This is a test', $response->getBody());
+        $this->assertEquals($events, $observer->sequence);
+
+        $chunked = clone $this->request;
+        $chunked->getUrl()->setQueryVariable('chunked', 'yep');
+        $chunked->attach($observer = new EventSequenceObserver($events));
+        $response = $chunked->send();
+        $this->assertEquals('This is a test', $response->getBody());
+        $this->assertEquals($events, $observer->sequence);
+    }
 }
 ?>

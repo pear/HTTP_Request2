@@ -796,6 +796,11 @@ class HTTP_Request2 implements SplSubject
      *                                   encoded by Content-Encoding</li>
      *   <li>'receivedBody'            - after receiving the complete response
      *                                   body, data is HTTP_Request2_Response object</li>
+     *   <li>'warning'                 - a problem arose during the request
+     *                                   that is not severe enough to throw
+     *                                   an Exception, data is the warning
+     *                                   message (string). Currently dispatched if
+     *                                   response body was received incompletely.</li>
      * </ul>
      * Different adapters may not send all the event types. Mock adapter does
      * not send any events to the observers.
