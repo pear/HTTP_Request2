@@ -175,6 +175,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $observer = new EventSequenceObserver($events);
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
+                      ->setHeader('Accept-Encoding', '')
                       ->addPostParameter($data)
                       ->attach($observer);
 
