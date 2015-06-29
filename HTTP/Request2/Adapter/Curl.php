@@ -187,6 +187,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         }
         if (isset($ch)) {
             $this->lastInfo = curl_getinfo($ch);
+            if (CURLE_OK !== curl_errno($ch)) {
+                $this->request->setLastEvent('warning', curl_error($ch));
+            }
             curl_close($ch);
         }
 

@@ -18,6 +18,8 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
+header('Connection: close');
+
 if (array_key_exists('chunked', $_GET)) {
     header('Transfer-Encoding: chunked');
     echo "2A\r\n";
@@ -27,3 +29,4 @@ if (array_key_exists('chunked', $_GET)) {
 }
 
 echo "This is a test";
+flush();

@@ -1043,14 +1043,14 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         $chunked = 'chunked' == $response->getHeader('transfer-encoding');
         $length  = $response->getHeader('content-length');
         $hasBody = false;
-        if ($chunked || null === $length || 0 < intval($length)) {
-            // RFC 2616, section 4.4:
-            // 3. ... If a message is received with both a
-            // Transfer-Encoding header field and a Content-Length header field,
-            // the latter MUST be ignored.
-            $toRead = ($chunked || null === $length)? null: $length;
-            $this->chunkLength = 0;
+        // RFC 2616, section 4.4:
+        // 3. ... If a message is received with both a
+        // Transfer-Encoding header field and a Content-Length header field,
+        // the latter MUST be ignored.
+        $toRead  = ($chunked || null === $length)? null: $length;
+        $this->chunkLength = 0;
 
+        if ($chunked || null === $length || 0 < intval($length)) {
             while (!$this->socket->eof() && (is_null($toRead) || 0 < $toRead)) {
                 if ($chunked) {
                     $data = $this->readChunked($bufferSize);
@@ -1075,6 +1075,11 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 }
             }
         }
+        if (0 !== $this->chunkLength || null !== $toRead && $toRead > 0) {
+            $this->request->setLastEvent(
+                'warning', 'transfer closed with outstanding read data remaining'
+            );
+        }
 
         if ($hasBody) {
             $this->request->setLastEvent('receivedBody', $response);
@@ -1095,11 +1100,16 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         // at start of the next chunk?
         if (0 == $this->chunkLength) {
             $line = $this->socket->readLine($bufferSize);
-            if (!preg_match('/^([0-9a-f]+)/i', $line, $matches)) {
+            if ('' === $line && $this->socket->eof()) {
+                $this->chunkLength = -1; // indicate missing chunk
+                return '';
+
+            } elseif (!preg_match('/^([0-9a-f]+)/i', $line, $matches)) {
                 throw new HTTP_Request2_MessageException(
                     "Cannot decode chunked response, invalid chunk length '{$line}'",
                     HTTP_Request2_Exception::DECODE_ERROR
                 );
+
             } else {
                 $this->chunkLength = hexdec($matches[1]);
                 // Chunk with zero length indicates the end
