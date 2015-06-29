@@ -502,7 +502,12 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
         $plain = clone $this->request;
         $plain->attach($observer = new EventSequenceObserver($events));
+        $plain->attach($headers = new HeaderObserver());
         $response = $plain->send();
+        if (!in_array('warning', $observer->sequence)) {
+            var_dump($headers->headers);
+            var_dump($response->getHeader());
+        }
         $this->assertEquals('This is a test', $response->getBody());
         $this->assertEquals($events, $observer->sequence);
 
