@@ -54,6 +54,7 @@ class HeaderObserver implements SplObserver
 
     public function update(SplSubject $subject)
     {
+        /* @var $subject HTTP_Request2 */
         $event = $subject->getLastEvent();
 
         // force a timeout when writing request body
@@ -62,6 +63,33 @@ class HeaderObserver implements SplObserver
         }
     }
 }
+
+class EventSequenceObserver implements SplObserver
+{
+    private $_watched = array();
+
+    public $sequence = array();
+
+    public function __construct(array $watchedEvents = array())
+    {
+        if (!empty($watchedEvents)) {
+            $this->_watched = $watchedEvents;
+        }
+    }
+
+    public function update(SplSubject $subject)
+    {
+        /* @var $subject HTTP_Request2 */
+        $event = $subject->getLastEvent();
+
+        if ($event['name'] !== end($this->sequence)
+            && (empty($this->_watched) || in_array($event['name'], $this->_watched, true))
+        ) {
+            $this->sequence[] = $event['name'];
+        }
+    }
+}
+
 
 /**
  * Tests for HTTP_Request2 package that require a working webserver
@@ -141,12 +169,18 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
             'foo' => 'some value',
             'indexed' => array('first', 'second')
         );
+        $events = array(
+            'sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders', 'receivedBodyPart', 'receivedBody'
+        );
+        $observer = new EventSequenceObserver($events);
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
-                      ->addPostParameter($data);
+                      ->addPostParameter($data)
+                      ->attach($observer);
 
         $response = $this->request->send();
         $this->assertEquals(serialize($data), $response->getBody());
+        $this->assertEquals($events, $observer->sequence);
     }
 
     public function testUploads()
@@ -236,10 +270,16 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
             'pass' => 'qwerty'
         ));
         $wrong = clone $this->request;
+        $observer = new EventSequenceObserver(array('sentHeaders', 'receivedHeaders'));
 
-        $this->request->setAuth('luser', 'qwerty', HTTP_Request2::AUTH_DIGEST);
+        $this->request->setAuth('luser', 'qwerty', HTTP_Request2::AUTH_DIGEST)
+            ->attach($observer);
         $response = $this->request->send();
         $this->assertEquals(200, $response->getStatus());
+        $this->assertEquals(
+            array('sentHeaders', 'receivedHeaders', 'sentHeaders', 'receivedHeaders'),
+            $observer->sequence
+        );
 
         $wrong->setAuth('luser', 'password', HTTP_Request2::AUTH_DIGEST);
         $response = $wrong->send();
@@ -248,27 +288,40 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
     public function testRedirectsDefault()
     {
+        $observer = new EventSequenceObserver(array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'));
         $this->request->setUrl($this->baseUrl . 'redirects.php')
                       ->setConfig(array('follow_redirects' => true, 'strict_redirects' => false))
                       ->setMethod(HTTP_Request2::METHOD_POST)
-                      ->addPostParameter('foo', 'foo value');
+                      ->addPostParameter('foo', 'foo value')
+                      ->attach($observer);
 
         $response = $this->request->send();
         $this->assertContains('Method=GET', $response->getBody());
         $this->assertNotContains('foo', $response->getBody());
         $this->assertEquals($this->baseUrl . 'redirects.php?redirects=0', $response->getEffectiveUrl());
+        $this->assertEquals(
+            array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders', 'sentHeaders', 'receivedHeaders'),
+            $observer->sequence
+        );
     }
 
     public function testRedirectsStrict()
     {
+        $observer = new EventSequenceObserver(array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'));
         $this->request->setUrl($this->baseUrl . 'redirects.php')
                       ->setConfig(array('follow_redirects' => true, 'strict_redirects' => true))
                       ->setMethod(HTTP_Request2::METHOD_POST)
-                      ->addPostParameter('foo', 'foo value');
+                      ->addPostParameter('foo', 'foo value')
+                      ->attach($observer);
 
         $response = $this->request->send();
         $this->assertContains('Method=POST', $response->getBody());
         $this->assertContains('foo', $response->getBody());
+        $this->assertEquals(
+            array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders',
+                  'sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'),
+            $observer->sequence
+        );
     }
 
     public function testRedirectsLimit()
