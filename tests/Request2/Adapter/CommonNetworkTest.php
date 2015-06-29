@@ -498,6 +498,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testIncompleteBody()
     {
         $events = array('receivedBodyPart', 'warning', 'receivedBody');
+        $this->request->setHeader('Accept-Encoding', '');
 
         $plain = clone $this->request;
         $plain->attach($observer = new EventSequenceObserver($events));
