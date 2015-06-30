@@ -25,6 +25,9 @@ $special   = isset($_GET['special'])? $_GET['special']: null;
 if ('ftp' == $special) {
     header('Location: ftp://localhost/pub/exploit.exe', true, 301);
 
+} elseif ('youtube' == $special) {
+    header('Location: https://youtube.com/', true, 301);
+
 } elseif ('relative' == $special) {
     header('Location: ./getparameters.php?msg=did%20relative%20redirect', true, 302);
 

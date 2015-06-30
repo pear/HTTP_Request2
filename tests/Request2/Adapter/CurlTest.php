@@ -153,5 +153,28 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
         $redirects->send();
         $this->assertGreaterThanOrEqual(14, $observer->size);
     }
+
+    /**
+     * An URL performing a redirect was used for storing cookies in a jar rather than target URL
+     *
+     * @link http://pear.php.net/bugs/bug.php?id=20561
+     */
+    public function testBug20561()
+    {
+        if ($this->isRedirectSupportDisabled()) {
+            $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
+
+        } else {
+            $this->request->setUrl($this->baseUrl . 'redirects.php?special=youtube')
+                          ->setConfig(array(
+                                'follow_redirects' => true,
+                                'ssl_verify_peer'  => false
+                          ))
+                          ->setCookieJar(true);
+
+            $this->request->send();
+            $this->assertGreaterThan(0, count($this->request->getCookieJar()->getAll()));
+        }
+    }
 }
 ?>
