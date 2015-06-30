@@ -407,7 +407,9 @@ class HTTP_Request2_CookieJar implements Serializable
         $now  = $this->now();
         $this->serializeSessionCookies($data['serializeSession']);
         $this->usePublicSuffixList($data['useList']);
-        $this->ignoreInvalidCookies($data['ignoreInvalid']);
+        if (array_key_exists('ignoreInvalid', $data)) {
+            $this->ignoreInvalidCookies($data['ignoreInvalid']);
+        }
         foreach ($data['cookies'] as $cookie) {
             if (!empty($cookie['expires']) && $cookie['expires'] <= $now) {
                 continue;
