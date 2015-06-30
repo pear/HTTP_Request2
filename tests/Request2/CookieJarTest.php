@@ -50,6 +50,37 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
         $this->jar->store($cookie);
     }
 
+    /**
+     * Per feature requests, allow to ignore invalid cookies rather than throw exceptions
+     *
+     * @link http://pear.php.net/bugs/bug.php?id=19937
+     * @link http://pear.php.net/bugs/bug.php?id=20401
+     * @dataProvider invalidCookieProvider
+     */
+    public function testCanIgnoreInvalidCookies($cookie)
+    {
+        $this->jar->ignoreInvalidCookies(true);
+        $this->assertFalse($this->jar->store($cookie));
+    }
+
+    /**
+     * Ignore setting a cookie from "parallel" subdomain when relevant option is on
+     *
+     * @link http://pear.php.net/bugs/bug.php?id=20401
+     */
+    public function testRequest20401()
+    {
+        $this->jar->ignoreInvalidCookies(true);
+        $response = HTTP_Request2_Adapter_Mock::createResponseFromFile(
+            fopen(dirname(dirname(__FILE__)) . '/_files/response_cookies', 'rb')
+        );
+        $setter   = new Net_URL2('http://pecl.php.net/');
+
+        $this->assertFalse($this->jar->addCookiesFromResponse($response, $setter));
+        $this->assertCount(3, $this->jar->getAll());
+    }
+
+
    /**
     *
     * @dataProvider noPSLDomainsProvider

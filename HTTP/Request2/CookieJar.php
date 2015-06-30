@@ -62,6 +62,12 @@ class HTTP_Request2_CookieJar implements Serializable
     protected $useList = true;
 
     /**
+     * Whether an attempt to store an invalid cookie should be ignored, rather than cause an Exception
+     * @var bool
+     */
+    protected $ignoreInvalid = false;
+
+    /**
      * Array with Public Suffix List data
      * @var  array
      * @link http://publicsuffix.org/
@@ -75,12 +81,16 @@ class HTTP_Request2_CookieJar implements Serializable
      *                                      see {@link serializeSessionCookies()}
      * @param bool $usePublicSuffixList     Controls using Public Suffix List,
      *                                      see {@link usePublicSuffixList()}
+     * @param bool $ignoreInvalidCookies    Whether invalid cookies should be ignored,
+     *                                      see {@link ignoreInvalidCookies()}
      */
     public function __construct(
-        $serializeSessionCookies = false, $usePublicSuffixList = true
+        $serializeSessionCookies = false, $usePublicSuffixList = true,
+        $ignoreInvalidCookies = false
     ) {
         $this->serializeSessionCookies($serializeSessionCookies);
         $this->usePublicSuffixList($usePublicSuffixList);
+        $this->ignoreInvalidCookies($ignoreInvalidCookies);
     }
 
     /**
@@ -194,11 +204,20 @@ class HTTP_Request2_CookieJar implements Serializable
      *                         {@link HTTP_Request2_Response::getCookies()}
      * @param Net_URL2 $setter URL of the document that sent Set-Cookie header
      *
-     * @throws   HTTP_Request2_Exception
+     * @return bool whether the cookie was successfully stored
+     * @throws HTTP_Request2_Exception
      */
     public function store(array $cookie, Net_URL2 $setter = null)
     {
-        $cookie = $this->checkAndUpdateFields($cookie, $setter);
+        try {
+            $cookie = $this->checkAndUpdateFields($cookie, $setter);
+        } catch (HTTP_Request2_Exception $e) {
+            if ($this->ignoreInvalid) {
+                return false;
+            } else {
+                throw $e;
+            }
+        }
 
         if (strlen($cookie['value'])
             && (is_null($cookie['expires']) || $cookie['expires'] > $this->now())
@@ -214,6 +233,8 @@ class HTTP_Request2_CookieJar implements Serializable
         } elseif (isset($this->cookies[$cookie['domain']][$cookie['path']][$cookie['name']])) {
             unset($this->cookies[$cookie['domain']][$cookie['path']][$cookie['name']]);
         }
+
+        return true;
     }
 
     /**
@@ -222,12 +243,16 @@ class HTTP_Request2_CookieJar implements Serializable
      * @param HTTP_Request2_Response $response HTTP response message
      * @param Net_URL2               $setter   original request URL, needed for
      *                               setting default domain/path
+     *
+     * @return bool whether all cookies were successfully stored
      */
     public function addCookiesFromResponse(HTTP_Request2_Response $response, Net_URL2 $setter)
     {
+        $success = true;
         foreach ($response->getCookies() as $cookie) {
-            $this->store($cookie, $setter);
+            $success = $this->store($cookie, $setter) && $success;
         }
+        return $success;
     }
 
     /**
@@ -307,6 +332,18 @@ class HTTP_Request2_CookieJar implements Serializable
     }
 
     /**
+     * Sets whether invalid cookies should be silently ignored or cause an Exception
+     *
+     * @param boolean $ignore ignore?
+     * @link http://pear.php.net/bugs/bug.php?id=19937
+     * @link http://pear.php.net/bugs/bug.php?id=20401
+     */
+    public function ignoreInvalidCookies($ignore)
+    {
+        $this->ignoreInvalid = (bool)$ignore;
+    }
+
+    /**
      * Sets whether Public Suffix List should be used for restricting cookie-setting
      *
      * Without PSL {@link domainMatch()} will only prevent setting cookies for
@@ -352,7 +389,8 @@ class HTTP_Request2_CookieJar implements Serializable
         return serialize(array(
             'cookies'          => $cookies,
             'serializeSession' => $this->serializeSession,
-            'useList'          => $this->useList
+            'useList'          => $this->useList,
+            'ignoreInvalid'    => $this->ignoreInvalid
         ));
     }
 
@@ -369,6 +407,7 @@ class HTTP_Request2_CookieJar implements Serializable
         $now  = $this->now();
         $this->serializeSessionCookies($data['serializeSession']);
         $this->usePublicSuffixList($data['useList']);
+        $this->ignoreInvalidCookies($data['ignoreInvalid']);
         foreach ($data['cookies'] as $cookie) {
             if (!empty($cookie['expires']) && $cookie['expires'] <= $now) {
                 continue;
