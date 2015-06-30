@@ -22,6 +22,8 @@
 require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 /** Stores cookies and passes them between HTTP requests */
 require_once 'HTTP/Request2/CookieJar.php';
+/** Mock adapter intended for testing */
+require_once 'HTTP/Request2/Adapter/Mock.php';
 
 /**
  * Unit test for HTTP_Request2_CookieJar class
