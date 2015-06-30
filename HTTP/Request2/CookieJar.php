@@ -242,12 +242,24 @@ class HTTP_Request2_CookieJar implements Serializable
      *
      * @param HTTP_Request2_Response $response HTTP response message
      * @param Net_URL2               $setter   original request URL, needed for
-     *                               setting default domain/path
+     *                               setting default domain/path. If not given,
+     *                               effective URL from response will be used.
      *
      * @return bool whether all cookies were successfully stored
+     * @throws HTTP_Request2_LogicException
      */
-    public function addCookiesFromResponse(HTTP_Request2_Response $response, Net_URL2 $setter)
+    public function addCookiesFromResponse(HTTP_Request2_Response $response, Net_URL2 $setter = null)
     {
+        if (null === $setter) {
+            if (!($effectiveUrl = $response->getEffectiveUrl())) {
+                throw new HTTP_Request2_LogicException(
+                    'Response URL required for adding cookies from response',
+                    HTTP_Request2_Exception::MISSING_VALUE
+                );
+            }
+            $setter = new Net_URL2($effectiveUrl);
+        }
+
         $success = true;
         foreach ($response->getCookies() as $cookie) {
             $success = $this->store($cookie, $setter) && $success;

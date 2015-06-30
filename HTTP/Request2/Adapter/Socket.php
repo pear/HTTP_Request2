@@ -147,7 +147,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
 
             if ($jar = $request->getCookieJar()) {
-                $jar->addCookiesFromResponse($response, $request->getUrl());
+                $jar->addCookiesFromResponse($response);
             }
 
             if (!$this->canKeepAlive($keepAlive, $response)) {

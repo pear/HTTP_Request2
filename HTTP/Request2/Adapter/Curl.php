@@ -201,7 +201,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         }
 
         if ($jar = $request->getCookieJar()) {
-            $jar->addCookiesFromResponse($response, $request->getUrl());
+            $jar->addCookiesFromResponse($response);
         }
 
         if (0 < $this->lastInfo['size_download']) {
@@ -531,7 +531,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                     }
 
                     if ($jar = $this->request->getCookieJar()) {
-                        $jar->addCookiesFromResponse($this->response, $this->request->getUrl());
+                        $jar->addCookiesFromResponse($this->response);
                         if (!$redirectUrl->isAbsolute()) {
                             $redirectUrl = $this->request->getUrl()->resolve($redirectUrl);
                         }
