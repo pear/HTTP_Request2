@@ -17,8 +17,8 @@
     },
     "require"     : {
         "php"                 : ">=5.2.0",
-        "pear/net_url2"       : "~2.2.0",
-        "pear/pear_exception" : "*"
+        "pear/net_url2"       : "^2.2.0",
+        "pear/pear_exception" : "^1.0.0"
     },
     "suggest"     : {
         "ext-fileinfo" : "Adds support for looking up mime-types using finfo.",
