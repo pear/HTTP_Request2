@@ -26,14 +26,13 @@ if ('@' . 'package_version@' == '@package_version@') {
     foreach (explode(PATH_SEPARATOR, get_include_path()) as $component) {
         if (false !== ($real = realpath($component)) && $real !== $classPath) {
             $includePath[] = $real;
+        }
 
-        } elseif (false === $real && getenv('TRAVIS')) {
-            // Fix for https://github.com/travis-ci/travis-ci/issues/5589 when running on Travis
-            if (version_compare(getenv('TRAVIS_PHP_VERSION'), '5.5.0', '>=')
-                && preg_match('!^(.*)/share/pear$!', $component, $m)
-            ) {
-                $includePath[] = $m[1] . '/lib/php/pear';
-            }
+        // Fix for https://github.com/travis-ci/travis-ci/issues/5589 when running on Travis
+        if (getenv('TRAVIS') && version_compare(getenv('TRAVIS_PHP_VERSION'), '5.5.0', '>=')
+            && preg_match('!^(.*)/share/pear$!', $component, $m)
+        ) {
+            $includePath[] = $m[1] . '/lib/php/pear';
         }
     }
 
