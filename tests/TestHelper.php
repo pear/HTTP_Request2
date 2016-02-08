@@ -22,6 +22,15 @@
 if ('@' . 'package_version@' == '@package_version@') {
     $classPath   = realpath(dirname(dirname(__FILE__)));
     $includePath = array_map('realpath', explode(PATH_SEPARATOR, get_include_path()));
+    // Fix for https://github.com/travis-ci/travis-ci/issues/5589 when running on Travis
+    if (getenv('TRAVIS') && version_compare(getenv('TRAVIS_PHP_VERSION'), '5.5.0', '>=')) {
+        foreach ($includePath as $component) {
+            if (preg_match('!^(.*)/share/pear$!', $component, $m)) {
+                $includePath[] = $m[1] . '/lib/php/pear';
+                break;
+            }
+        }
+    }
     if (0 !== ($key = array_search($classPath, $includePath))) {
         if (false !== $key) {
             unset($includePath[$key]);
