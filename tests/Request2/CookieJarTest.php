@@ -312,7 +312,7 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
             array('anotherexample.com', 'example.com', false),
             array('whatever.msk.ru', '.msk.ru', true),
             array('whatever.co.uk', '.co.uk', true),
-            array('whatever.uk', '.whatever.uk', true),
+            array('whatever.bd', '.whatever.bd', true),
             array('whatever.tokyo.jp', '.whatever.tokyo.jp', true),
             array('metro.tokyo.jp', '.metro.tokyo.jp', true),
             array('foo.bar', '.foo.bar', true)
@@ -332,8 +332,8 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
             array('anotherexample.com', 'example.com', false),
             array('whatever.msk.ru', '.msk.ru', false),
             array('whatever.co.uk', '.co.uk', false),
-            array('whatever.uk', '.whatever.uk', false),
-            array('whatever.tr', '.whatever.tr', false),
+            array('whatever.bd', '.whatever.bd', false),
+            array('whatever.bn', '.whatever.bn', false),
             array('nic.tr', '.nic.tr', true),
             array('foo.bar', '.foo.bar', true)
         );
