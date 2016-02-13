@@ -171,5 +171,17 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
         $this->assertEquals('This is a test', $response->getBody());
         $this->assertEquals($events, $observer->sequence);
     }
+
+    public function testHowsMySSL()
+    {
+        $this->request->setUrl('https://www.howsmyssl.com/a/check')
+            ->setConfig('ssl_verify_peer', false);
+
+        if (null === ($responseData = json_decode($this->request->send()->getBody(), true))) {
+            $this->fail('Cannot decode JSON from howsmyssl.com response');
+        }
+
+        $this->assertEmpty($responseData['insecure_cipher_suites']);
+    }
 }
 ?>
