@@ -99,6 +99,13 @@ class HTTP_Request2_SocketWrapper
                              . 'AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:'
                              . '!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA'
             );
+            if (version_compare(phpversion(), '5.4.13', '>=')) {
+                $contextOptions['ssl']['disable_compression'] = true;
+                if (version_compare(phpversion(), '5.6', '>=')) {
+                    $contextOptions['ssl']['crypto_method'] = STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
+                                                              | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+                }
+            }
         }
         $context = stream_context_create();
         foreach ($contextOptions as $wrapper => $options) {
@@ -258,7 +265,14 @@ class HTTP_Request2_SocketWrapper
      */
     public function enableCrypto()
     {
-        if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+        if (version_compare(phpversion(), '5.6', '<')) {
+            $cryptoMethod = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+        } else {
+            $cryptoMethod = STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
+                            | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+        }
+
+        if (!stream_socket_enable_crypto($this->socket, true, $cryptoMethod)) {
             throw new HTTP_Request2_ConnectionException(
                 'Failed to enable secure connection when connecting through proxy'
             );

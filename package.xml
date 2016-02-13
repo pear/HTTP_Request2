@@ -48,6 +48,7 @@ New features:
  * Improved security of HTTPS requests in Socket adapter
    - Use 'tls://' instead of 'ssl://' in connection string to prevent fallback to
      known insecure versions, use only TLS when enabling crypto via proxy (see bug #20462)
+   - On PHP 5.6+ require using only TLS 1.1 and TLS 1.2
    - Do not use insecure ciphers
  * Improved test suite, network-backed tests now run on Travis CI
 
@@ -56,10 +57,12 @@ Changes and fixes:
  * Curl adapter supplied invalid cookie domain to CookieJar after redirect (bug #20561)
  * Curl adapter now properly dispatches events while sending the request
  * mime_content_type() returning false was handled incorrectly when guessing content-type
+ * Use 'peer_name' and 'verify_peer_name' SSL context options on PHP 5.6+
+   instead of deprecated 'CN_match'
  * Public Suffix List updated to current version, its download location changed
 
 Note to Composer users: next package version will probably get rid of 'include-path'
-setting in favour of using autoloader.
+setting in composer.json favour of using autoloader.
   </notes>
   <contents>
     <dir name="/">

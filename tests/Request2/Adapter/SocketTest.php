@@ -182,6 +182,10 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
         }
 
         $this->assertEmpty($responseData['insecure_cipher_suites']);
+
+        if (version_compare(phpversion(), '5.6', '>=')) {
+            $this->assertEquals('Probably Okay', $responseData['rating']);
+        }
     }
 }
 ?>

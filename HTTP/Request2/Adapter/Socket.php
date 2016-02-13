@@ -261,9 +261,16 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
             foreach ($this->request->getConfig() as $name => $value) {
                 if ('ssl_' == substr($name, 0, 4) && null !== $value) {
                     if ('ssl_verify_host' == $name) {
-                        if ($value) {
-                            $options['ssl']['CN_match'] = $reqHost;
+                        if (version_compare(phpversion(), '5.6', '<')) {
+                            if ($value) {
+                                $options['ssl']['CN_match'] = $reqHost;
+                            }
+
+                        } else {
+                            $options['ssl']['verify_peer_name'] = $value;
+                            $options['ssl']['peer_name']        = $reqHost;
                         }
+
                     } else {
                         $options['ssl'][substr($name, 4)] = $value;
                     }
