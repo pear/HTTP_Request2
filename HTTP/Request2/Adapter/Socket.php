@@ -281,7 +281,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         // Changing SSL context options after connection is established does *not*
         // work, we need a new connection if options change
-        $remote    = ((!$secure || $httpProxy || $socksProxy)? 'tcp://': 'ssl://')
+        $remote    = ((!$secure || $httpProxy || $socksProxy)? 'tcp://': 'tls://')
                      . $host . ':' . $port;
         $socketKey = $remote . (
                         ($secure && $httpProxy || $socksProxy)
@@ -312,12 +312,12 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                     $conninfo = "tcp://{$reqHost}:{$reqPort} via {$remote}";
                 } else {
                     $this->socket->enableCrypto();
-                    $conninfo = "ssl://{$reqHost}:{$reqPort} via {$remote}";
+                    $conninfo = "tls://{$reqHost}:{$reqPort} via {$remote}";
                 }
 
             } elseif ($secure && $httpProxy && !$tunnel) {
                 $this->establishTunnel();
-                $conninfo = "ssl://{$reqHost}:{$reqPort} via {$remote}";
+                $conninfo = "tls://{$reqHost}:{$reqPort} via {$remote}";
 
             } else {
                 $this->socket = new HTTP_Request2_SocketWrapper(
