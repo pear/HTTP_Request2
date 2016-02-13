@@ -81,6 +81,25 @@ class HTTP_Request2_SocketWrapper
             // Backwards compatibility with 2.1.0 and 2.1.1 releases
             $contextOptions = array('ssl' => $contextOptions);
         }
+        if (isset($contextOptions['ssl'])) {
+            $contextOptions['ssl'] += array(
+                // Using "Intermediate compatibility" cipher bundle from
+                // https://wiki.mozilla.org/Security/Server_Side_TLS
+                'ciphers' => 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:'
+                             . 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:'
+                             . 'DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:'
+                             . 'ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:'
+                             . 'ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:'
+                             . 'ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:'
+                             . 'ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:'
+                             . 'DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:'
+                             . 'DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:'
+                             . 'ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:'
+                             . 'AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:'
+                             . 'AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:'
+                             . '!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA'
+            );
+        }
         $context = stream_context_create();
         foreach ($contextOptions as $wrapper => $options) {
             foreach ($options as $name => $value) {
@@ -239,21 +258,11 @@ class HTTP_Request2_SocketWrapper
      */
     public function enableCrypto()
     {
-        $modes = array(
-            STREAM_CRYPTO_METHOD_TLS_CLIENT,
-            STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
-            STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
-            STREAM_CRYPTO_METHOD_SSLv2_CLIENT
-        );
-
-        foreach ($modes as $mode) {
-            if (stream_socket_enable_crypto($this->socket, true, $mode)) {
-                return;
-            }
+        if (!stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            throw new HTTP_Request2_ConnectionException(
+                'Failed to enable secure connection when connecting through proxy'
+            );
         }
-        throw new HTTP_Request2_ConnectionException(
-            'Failed to enable secure connection when connecting through proxy'
-        );
     }
 
     /**
