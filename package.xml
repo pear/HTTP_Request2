@@ -25,10 +25,10 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2014-01-16</date>
+  <date>2016-02-13</date>
   <version>
-    <release>2.2.1</release>
-    <api>2.2.0</api>
+    <release>2.3.0</release>
+    <api>2.3.0</api>
   </version>
   <stability>
     <release>stable</release>
@@ -36,12 +36,29 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
- * Fixed a bogus timeout Exception in Socket adapter after waiting for
-   &quot;100 Continue&quot; response: the same one-second timeout was used
-   for further socket operations if explicit 'timeout' parameter was not set.
-   Thanks to Andrea Brancatelli (abrancatelli at schema31 dot it) for the report.
- * Bundled a separate LICENSE file (request #20175). Updated phrasing and links
-   to mention 3-Clause BSD license the package actually uses.
+New features:
+ * New observer that can do on-the-fly decoding of compressed responses,
+   see HTTP_Request2_Observer_UncompressingDownload.
+   Thanks to Delian Krustev for initial implementation.
+ * CookieJar can now silently ignore invalid cookies with $jar-&gt;ignoreInvalidCookies(true);
+   instead of throwing an exception. See requests #19937 and #20401
+ * Adapters now dispatch a new 'warning' event, e.g. in case of incomplete response
+   body or broken 'chunked' encoding. Exception was thrown previously by Socket adapter
+   in the latter case, see bug #20228
+ * Improved security of HTTPS requests in Socket adapter
+   - Use 'tls://' instead of 'ssl://' in connection string to prevent fallback to
+     known insecure versions, use only TLS when enabling crypto via proxy (see bug #20462)
+   - Do not use insecure ciphers
+ * Improved test suite, network-backed tests now run on Travis CI
+
+Changes and fixes:
+ * Curl adapter failed to send PUT request body with 'follow_redirects' on (bug #20440)
+ * Curl adapter supplied invalid cookie domain to CookieJar after redirect (bug #20561)
+ * Curl adapter now properly dispatches events while sending the request
+ * mime_content_type() returning false was handled incorrectly when guessing content-type
+
+Note to Composer users: next package version will probably get rid of 'include-path'
+setting in favour of using autoloader.
   </notes>
   <contents>
     <dir name="/">
@@ -81,6 +98,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
             <file role="php" name="Log.php">
               <tasks:replace from="@package_version@" to="version" type="package-info" />
             </file>
+            <file role="php" name="UncompressingDownload.php">
+              <tasks:replace from="@package_version@" to="version" type="package-info" />
+            </file>
           </dir>
           <file role="php" name="Response.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
@@ -105,10 +125,12 @@ deflate encodings, redirects, monitoring the request progress with Observers...
         <dir name="_network">
          <file role="test" name="basicauth.php" />
          <file role="test" name="bug19934.php" />
+         <file role="test" name="bug20228.php" />
          <file role="test" name="cookies.php" />
          <file role="test" name="digestauth.php" />
          <file role="test" name="download.php" />
          <file role="test" name="getparameters.php" />
+         <file role="test" name="incompletebody.php" />
          <file role="test" name="postparameters.php" />
          <file role="test" name="rawpostdata.php" />
          <file role="test" name="redirects.php" />
@@ -207,10 +229,12 @@ deflate encodings, redirects, monitoring the request progress with Observers...
 
     <install as="_network/basicauth.php" name="tests/_network/basicauth.php" />
     <install as="_network/bug19934.php" name="tests/_network/bug19934.php" />
+    <install as="_network/bug20228.php" name="tests/_network/bug20228.php" />
     <install as="_network/cookies.php" name="tests/_network/cookies.php" />
-    <install as="_network/download.php" name="tests/_network/download.php" />
     <install as="_network/digestauth.php" name="tests/_network/digestauth.php" />
+    <install as="_network/download.php" name="tests/_network/download.php" />
     <install as="_network/getparameters.php" name="tests/_network/getparameters.php" />
+    <install as="_network/incompletebody.php" name="tests/_network/incompletebody.php" />
     <install as="_network/postparameters.php" name="tests/_network/postparameters.php" />
     <install as="_network/rawpostdata.php" name="tests/_network/rawpostdata.php" />
     <install as="_network/redirects.php" name="tests/_network/redirects.php" />
@@ -233,6 +257,26 @@ deflate encodings, redirects, monitoring the request progress with Observers...
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2014-01-16</date>
+      <version>
+       <release>2.2.1</release>
+       <api>2.2.0</api>
+      </version>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
+      <notes>
+ * Fixed a bogus timeout Exception in Socket adapter after waiting for
+   &quot;100 Continue&quot; response: the same one-second timeout was used
+   for further socket operations if explicit 'timeout' parameter was not set.
+   Thanks to Andrea Brancatelli (abrancatelli at schema31 dot it) for the report.
+ * Bundled a separate LICENSE file (request #20175). Updated phrasing and links
+   to mention 3-Clause BSD license the package actually uses.
+      </notes>
+     </release>
      <release>
       <date>2014-01-12</date>
       <version>
