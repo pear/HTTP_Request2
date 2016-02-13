@@ -56,6 +56,7 @@ Changes and fixes:
  * Curl adapter supplied invalid cookie domain to CookieJar after redirect (bug #20561)
  * Curl adapter now properly dispatches events while sending the request
  * mime_content_type() returning false was handled incorrectly when guessing content-type
+ * Public Suffix List updated to current version, its download location changed
 
 Note to Composer users: next package version will probably get rid of 'include-path'
 setting in favour of using autoloader.
