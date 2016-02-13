@@ -158,7 +158,9 @@ setting in favour of using autoloader.
         <file role="test" name="NetworkConfig.php.dist" />
         <file role="test" name="ObserverTest.php" />
         <file role="test" name="Request2Test.php" />
-        <file role="test" name="TestHelper.php" />
+        <file role="test" name="TestHelper.php">
+          <tasks:replace from="@package_version@" to="version" type="package-info" />
+        </file>
       </dir>
       <dir name="docs">
         <file role="doc" name="LICENSE" />
