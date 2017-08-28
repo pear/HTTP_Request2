@@ -1,9 +1,9 @@
 {
-    "name"        : "pear/http_request2",
+    "name"        : "findologic/http_request2",
     "description" : "Provides an easy way to perform HTTP requests.",
     "type"        : "library",
     "keywords"    : [ "http", "request", "pear", "curl" ],
-    "homepage"    : "http://pear.php.net/package/HTTP_Request2",
+    "homepage"    : "https://github.com/findologic/HTTP_Request2",
     "license"     : "BSD-3-Clause",
     "authors"     : [
         {
