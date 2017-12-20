@@ -18,17 +18,15 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
+namespace FINDOLOGIC\HTTP_Request2;
+
 /**
  * A class representing an URL as per RFC 3986.
  */
-if (!class_exists('Net_URL2', true)) {
-    require_once 'Net/URL2.php';
-}
-
-/**
- * Exception class for HTTP_Request2 package
- */
-require_once 'HTTP/Request2/Exception.php';
+use Exception;
+use Net_URL2;
+use SplObserver;
+use SplSubject;
 
 /**
  * Class representing a HTTP request message
@@ -623,7 +621,6 @@ class HTTP_Request2 implements SplSubject
                 return str_replace('%7E', '~', $body);
 
             } elseif (0 === strpos($this->headers['content-type'], 'multipart/form-data')) {
-                require_once 'HTTP/Request2/MultipartBody.php';
                 return new HTTP_Request2_MultipartBody(
                     $this->postParams, $this->uploads, $this->getConfig('use_brackets')
                 );
@@ -876,10 +873,6 @@ class HTTP_Request2 implements SplSubject
      */
     public function setCookieJar($jar = true)
     {
-        if (!class_exists('HTTP_Request2_CookieJar', false)) {
-            require_once 'HTTP/Request2/CookieJar.php';
-        }
-
         if ($jar instanceof HTTP_Request2_CookieJar) {
             $this->cookieJar = $jar;
         } elseif (true === $jar) {

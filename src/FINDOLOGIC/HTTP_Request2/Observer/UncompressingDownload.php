@@ -19,7 +19,11 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-require_once 'HTTP/Request2/Response.php';
+namespace FINDOLOGIC\HTTP_Request2\Observer;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2_MessageException;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2_Response;
+use SplObserver;
+use SplSubject;
 
 /**
  * An observer that saves response body to stream, possibly uncompressing it
@@ -50,9 +54,6 @@ require_once 'HTTP/Request2/Response.php';
  * Example usage follows:
  *
  * <code>
- * require_once 'HTTP/Request2.php';
- * require_once 'HTTP/Request2/Observer/UncompressingDownload.php';
- *
  * #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html';
  * #$inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html?deflate=on';
  * $inPath = 'http://carsten.codimi.de/gzip.yaws/daniels.html?deflate=on&zlib=on';

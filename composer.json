@@ -18,7 +18,7 @@
     "require"     : {
         "php"                 : ">=5.2.0",
         "pear/net_url2"       : "^2.2.0",
-        "pear/pear_exception" : "^1.0.0"
+        "pear/pear_exception" : "^1.0"
     },
     "suggest"     : {
         "ext-fileinfo" : "Adds support for looking up mime-types using finfo.",
@@ -27,8 +27,9 @@
         "lib-openssl"  : "Allows handling SSL requests when not using cURL."
     },
     "autoload": {
-        "psr-0": {
-            "HTTP_Request2" : ""
+        "psr-4": {
+            "FINDOLOGIC\\HTTP_Request2\\" : "src/FINDOLOGIC/HTTP_Request2/",
+            "FINDOLOGIC\\HTTP_Request2\\Tests\\" : "tests/"
         }
     },
     "include-path": [
@@ -38,5 +39,8 @@
         "branch-alias": {
             "dev-trunk": "2.2-dev"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "v4"
     }
 }

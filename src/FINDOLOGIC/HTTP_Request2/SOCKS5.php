@@ -18,8 +18,7 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/** Socket wrapper class used by Socket Adapter */
-require_once 'HTTP/Request2/SocketWrapper.php';
+namespace FINDOLOGIC\HTTP_Request2;
 
 /**
  * SOCKS5 proxy connection class (used by Socket Adapter)

@@ -18,8 +18,13 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/** Class representing a HTTP request message */
-require_once 'HTTP/Request2.php';
+namespace FINDOLOGIC\HTTP_Request2;
+
+use DateTime;
+use DateTimeZone;
+use Exception;
+use Net_URL2;
+use Serializable;
 
 /**
  * Stores cookies and passes them between HTTP requests

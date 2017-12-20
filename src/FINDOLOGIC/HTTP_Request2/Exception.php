@@ -18,10 +18,9 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * Base class for exceptions in PEAR
- */
-require_once 'PEAR/Exception.php';
+namespace FINDOLOGIC\HTTP_Request2;
+
+use PEAR_Exception;
 
 /**
  * Base exception class for HTTP_Request2 package

@@ -18,10 +18,12 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * Base class for HTTP_Request2 adapters
- */
-require_once 'HTTP/Request2/Adapter.php';
+namespace FINDOLOGIC\HTTP_Request2\Adapter;
+use Exception;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2_Adapter;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2_Exception;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2_Response;
 
 /**
  * Mock adapter intended for testing

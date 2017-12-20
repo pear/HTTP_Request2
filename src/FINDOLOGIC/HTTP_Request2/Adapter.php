@@ -18,10 +18,7 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * Class representing a HTTP response
- */
-require_once 'HTTP/Request2/Response.php';
+namespace FINDOLOGIC\HTTP_Request2;
 
 /**
  * Base class for HTTP_Request2 adapters

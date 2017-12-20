@@ -19,10 +19,11 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * Exception class for HTTP_Request2 package
- */
-require_once 'HTTP/Request2/Exception.php';
+namespace FINDOLOGIC\HTTP_Request2\Observer;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2;
+use FINDOLOGIC\HTTP_Request2\HTTP_Request2_Exception;
+use SplObserver;
+use SplSubject;
 
 /**
  * A debug observer useful for debugging / testing.
@@ -32,10 +33,7 @@ require_once 'HTTP/Request2/Exception.php';
  * to log to a file or via the PEAR Log package.
  *
  * A simple example:
- * <code>
- * require_once 'HTTP/Request2.php';
- * require_once 'HTTP/Request2/Observer/Log.php';
- *
+ * <code> *
  * $request  = new HTTP_Request2('http://www.example.com');
  * $observer = new HTTP_Request2_Observer_Log();
  * $request->attach($observer);
@@ -43,11 +41,7 @@ require_once 'HTTP/Request2/Exception.php';
  * </code>
  *
  * A more complex example with PEAR Log:
- * <code>
- * require_once 'HTTP/Request2.php';
- * require_once 'HTTP/Request2/Observer/Log.php';
- * require_once 'Log.php';
- *
+ * <code> *
  * $request  = new HTTP_Request2('http://www.example.com');
  * // we want to log with PEAR log
  * $observer = new HTTP_Request2_Observer_Log(Log::factory('console'));

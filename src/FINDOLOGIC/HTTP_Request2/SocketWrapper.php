@@ -18,8 +18,7 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/** Exception classes for HTTP_Request2 package */
-require_once 'HTTP/Request2/Exception.php';
+namespace FINDOLOGIC\HTTP_Request2;
 
 /**
  * Socket wrapper class used by Socket Adapter
