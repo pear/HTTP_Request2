@@ -111,8 +111,9 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
         }
 
         $fp   = fopen(dirname(dirname(dirname(__FILE__))) . '/_files/bug_15305', 'rb');
-        $body = $this->getMock(
-            'HTTP_Request2_MultipartBody', array('read'), array(
+        $body = $this->getMockBuilder('HTTP_Request2_MultipartBody')
+            ->setMethods(array('read'))
+            ->setConstructorArgs(array(
                 array(),
                 array(
                     'upload' => array(
@@ -122,8 +123,8 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
                         'size'     => 16338
                     )
                 )
-            )
-        );
+            ))
+            ->getMock();
         $body->expects($this->never())->method('read');
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
