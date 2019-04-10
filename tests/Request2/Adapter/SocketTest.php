@@ -175,6 +175,10 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
 
     public function testHowsMySSL()
     {
+        if (!in_array('ssl', stream_get_transports())) {
+            $this->markTestSkipped("This test requires SSL support");
+        }
+
         $this->request->setUrl('https://www.howsmyssl.com/a/check')
             ->setConfig('ssl_verify_peer', false);
 
