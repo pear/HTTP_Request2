@@ -18,28 +18,38 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-// If running from SVN checkout, update include_path
-if ('@' . 'package_version@' == '@package_version@') {
-    $classPath   = realpath(dirname(dirname(__FILE__)));
-    $includePath = array($classPath);
+if ('@' . 'package_version@' !== '@package_version@') {
+    // Installed with PEAR: we should be on the include path and require_once should be enabled
+    $installed = true;
 
-    foreach (explode(PATH_SEPARATOR, get_include_path()) as $component) {
-        if (false !== ($real = realpath($component)) && $real !== $classPath) {
-            $includePath[] = $real;
+} else {
+    foreach (array(dirname(__FILE__) . '/../../../autoload.php', dirname(__FILE__) . '/../vendor/autoload.php') as $file) {
+        if (file_exists($file)) {
+            // found composer autoloader, use it
+            require_once $file;
+            $installed = true;
+
+            break;
         }
     }
-
-    set_include_path(implode(PATH_SEPARATOR, $includePath));
 }
 
-if (strpos($_SERVER['argv'][0], 'phpunit') === false) {
-    /** Include PHPUnit dependencies based on version */
-    require_once 'PHPUnit/Runner/Version.php';
-    if (version_compare(PHPUnit_Runner_Version::id(), '3.5.0', '>=')) {
-        require_once 'PHPUnit/Autoload.php';
-    } else {
-        require_once 'PHPUnit/Framework.php';
-    }
+if (!$installed) {
+    fwrite(STDERR,
+        'As HTTP_Request2 has required dependencies, tests should be run either' . PHP_EOL . PHP_EOL .
+        ' - after installation of package with PEAR:' . PHP_EOL .
+        '    pear install package.xml' . PHP_EOL . PHP_EOL .
+        ' - or setting up its dependencies using Composer:' . PHP_EOL .
+        '    composer install' . PHP_EOL . PHP_EOL
+    );
+
+    die(1);
+}
+
+if (strpos($_SERVER['argv'][0], 'phpunit') === false
+    && !class_exists('PHPUnit_Framework_TestCase', true)
+) {
+    require_once 'PHPUnit/Autoload.php';
 }
 
 if (!defined('HTTP_REQUEST2_TESTS_BASE_URL')
