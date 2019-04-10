@@ -1,15 +1,47 @@
 language: php
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-install: pear install Net_URL2
+dist: trusty
+
+matrix:
+  include:
+    - php: "5.2"
+      dist: precise
+      env: PHP52SUCKS=true
+    - php: "5.3"
+      dist: precise
+    - php: "5.4"
+    - php: "5.5"
+    - php: "5.6"
+    - php: "7.0"
+    - php: "7.1"
+    - php: "7.2"
+    - php: "7.3"
+
+install:
+  - |
+    if [[ $PHP52SUCKS == true ]]; then
+      wget http://download.pear.php.net/package/Net_URL2-2.2.1.tgz
+      pear install --offline ./Net_URL2-2.2.1.tgz
+    else
+      pear channel-update pear.php.net
+      composer install --no-dev
+    fi
+  - |
+    # Export Composer's global bin dir to PATH, but not on PHP 5.2 (borrowed from Wordpress):
+    if [[ $PHP52SUCKS != true ]]; then
+      composer config --list --global
+      export PATH=`composer config --list --global | grep '\[home\]' | { read a; echo "${a#* }/vendor/bin:$PATH"; }`
+    fi
+  - |
+    # Global install of a supported PHPUnit version
+    if [[ $PHP52SUCKS != true ]]; then
+      composer global require "phpunit/phpunit=^3.7|^4.8|^5.7"
+    fi
+
 addons:
   hosts:
     - hr2.local
     - www.hr2.local
+
 before_script:
   # directory for apache logs
   - mkdir -p $TRAVIS_BUILD_DIR/logs
@@ -28,7 +60,16 @@ before_script:
   - sudo service apache2 restart
   # use travis config for network-backed tests
   - cp tests/NetworkConfig.php.travis tests/NetworkConfig.php
-script: phpunit tests
+
+script:
+  - which phpunit
+  - phpunit --version
+  # Do not test composer installation on PHP 5.2 due to lack of composer
+  - if [[ $PHP52SUCKS != true ]]; then phpunit ./tests; fi
+  - pear install package.xml
+  - cp tests/NetworkConfig.php.travis `pear config-get test_dir`/HTTP_Request2/NetworkConfig.php
+  - cd `pear config-get test_dir` && phpunit HTTP_Request2
+
 after_failure:
   - cat $TRAVIS_BUILD_DIR/logs/hr2-error.log
   - cat $TRAVIS_BUILD_DIR/logs/hr2-access.log
