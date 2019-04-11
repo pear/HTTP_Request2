@@ -54,9 +54,14 @@ before_script:
   #- sudo a2enmod rewrite actions fastcgi alias
   #- echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   #- ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
-  # configure apache virtual hosts
-  - sudo cp -f tests/travis-ci-apache /etc/apache2/sites-available/default
-  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
+  - # configure apache virtual hosts
+    if [[ $(phpenv version-name) == "5.2" || $(phpenv version-name) == "5.3" ]]; then
+      sudo cp -f tests/travis-ci-apache /etc/apache2/sites-available/default
+      sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
+    else
+      sudo cp -f tests/travis-ci-apache /etc/apache2/sites-available/000-default.conf
+      sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/000-default.conf
+    fi
   - sudo service apache2 restart
   # use travis config for network-backed tests
   - cp tests/NetworkConfig.php.travis tests/NetworkConfig.php
