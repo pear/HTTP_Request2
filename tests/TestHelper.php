@@ -23,6 +23,7 @@ if ('@' . 'package_version@' !== '@package_version@') {
     $installed = true;
 
 } else {
+    $installed = false;
     foreach (array(dirname(__FILE__) . '/../../../autoload.php', dirname(__FILE__) . '/../vendor/autoload.php') as $file) {
         if (file_exists($file)) {
             // found composer autoloader, use it
