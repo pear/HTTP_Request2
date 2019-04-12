@@ -73,7 +73,9 @@ script:
   - phpunit --version
   # Do not test composer installation on PHP 5.2 due to lack of composer
   - if [[ $PHP52SUCKS != true ]]; then phpunit ./tests; fi
-  - pear install package.xml
+  - pear package-validate ./package.xml
+  - php ./pear-package-helper.php
+  - pear install ./.pear-package/package.xml
   - cp tests/NetworkConfig.php.travis `pear config-get test_dir`/HTTP_Request2/NetworkConfig.php
   - cd `pear config-get test_dir` && phpunit HTTP_Request2
 
