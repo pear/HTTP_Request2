@@ -7,3 +7,6 @@
 /vendor
 /composer.phar
 /composer.lock
+
+# used when generating PEAR package
+/.pear-package/
