@@ -18,10 +18,10 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * Class representing a HTTP response
- */
-require_once 'HTTP/Request2/Response.php';
+// pear-package-only /**
+// pear-package-only  * Class representing a HTTP response
+// pear-package-only  */
+// pear-package-only require_once 'HTTP/Request2/Response.php';
 
 /**
  * Base class for HTTP_Request2 adapters

@@ -18,11 +18,11 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/** Base class for HTTP_Request2 adapters */
-require_once 'HTTP/Request2/Adapter.php';
+// pear-package-only /** Base class for HTTP_Request2 adapters */
+// pear-package-only require_once 'HTTP/Request2/Adapter.php';
 
-/** Socket wrapper class */
-require_once 'HTTP/Request2/SocketWrapper.php';
+// pear-package-only /** Socket wrapper class */
+// pear-package-only require_once 'HTTP/Request2/SocketWrapper.php';
 
 /**
  * Socket-based adapter for HTTP_Request2
@@ -305,7 +305,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         } else {
             if ($socksProxy) {
-                require_once 'HTTP/Request2/SOCKS5.php';
+                // pear-package-only require_once 'HTTP/Request2/SOCKS5.php';
 
                 $this->socket = new HTTP_Request2_SOCKS5(
                     $remote, $this->request->getConfig('connect_timeout'),

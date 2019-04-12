@@ -18,8 +18,8 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/** Socket wrapper class used by Socket Adapter */
-require_once 'HTTP/Request2/SocketWrapper.php';
+// pear-package-only /** Socket wrapper class used by Socket Adapter */
+// pear-package-only require_once 'HTTP/Request2/SocketWrapper.php';
 
 /**
  * SOCKS5 proxy connection class (used by Socket Adapter)

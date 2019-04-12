@@ -18,8 +18,8 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/** Class representing a HTTP request message */
-require_once 'HTTP/Request2.php';
+// pear-package-only /** Class representing a HTTP request message */
+// pear-package-only require_once 'HTTP/Request2.php';
 
 /**
  * Stores cookies and passes them between HTTP requests

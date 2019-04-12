@@ -18,17 +18,15 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * A class representing an URL as per RFC 3986.
- */
-if (!class_exists('Net_URL2', true)) {
-    require_once 'Net/URL2.php';
-}
+// pear-package-only /**
+// pear-package-only  * A class representing an URL as per RFC 3986.
+// pear-package-only  */
+// pear-package-only require_once 'Net/URL2.php';
 
-/**
- * Exception class for HTTP_Request2 package
- */
-require_once 'HTTP/Request2/Exception.php';
+// pear-package-only /**
+// pear-package-only  * Exception class for HTTP_Request2 package
+// pear-package-only  */
+// pear-package-only require_once 'HTTP/Request2/Exception.php';
 
 /**
  * Class representing a HTTP request message
@@ -623,7 +621,7 @@ class HTTP_Request2 implements SplSubject
                 return str_replace('%7E', '~', $body);
 
             } elseif (0 === strpos($this->headers['content-type'], 'multipart/form-data')) {
-                require_once 'HTTP/Request2/MultipartBody.php';
+                // pear-package-only require_once 'HTTP/Request2/MultipartBody.php';
                 return new HTTP_Request2_MultipartBody(
                     $this->postParams, $this->uploads, $this->getConfig('use_brackets')
                 );
@@ -836,7 +834,7 @@ class HTTP_Request2 implements SplSubject
                 if (false === strpos($adapter, '_')) {
                     $adapter = 'HTTP_Request2_Adapter_' . ucfirst($adapter);
                 }
-                if (!class_exists($adapter, false)
+                if (!class_exists($adapter, true)
                     && preg_match('/^HTTP_Request2_Adapter_([a-zA-Z0-9]+)$/', $adapter)
                 ) {
                     include_once str_replace('_', DIRECTORY_SEPARATOR, $adapter) . '.php';
@@ -876,9 +874,7 @@ class HTTP_Request2 implements SplSubject
      */
     public function setCookieJar($jar = true)
     {
-        if (!class_exists('HTTP_Request2_CookieJar', false)) {
-            require_once 'HTTP/Request2/CookieJar.php';
-        }
+        // pear-package-only require_once 'HTTP/Request2/CookieJar.php';
 
         if ($jar instanceof HTTP_Request2_CookieJar) {
             $this->cookieJar = $jar;

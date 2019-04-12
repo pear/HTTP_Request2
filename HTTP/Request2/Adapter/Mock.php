@@ -18,10 +18,10 @@
  * @link      http://pear.php.net/package/HTTP_Request2
  */
 
-/**
- * Base class for HTTP_Request2 adapters
- */
-require_once 'HTTP/Request2/Adapter.php';
+// pear-package-only /**
+// pear-package-only  * Base class for HTTP_Request2 adapters
+// pear-package-only  */
+// pear-package-only require_once 'HTTP/Request2/Adapter.php';
 
 /**
  * Mock adapter intended for testing

@@ -82,6 +82,9 @@ setting in composer.json favour of using autoloader.
           <file role="php" name="Adapter.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
           </file>
+          <file role="php" name="ConnectionException.php">
+           <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
           <file role="php" name="CookieJar.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
             <tasks:replace from="@data_dir@" to="data_dir" type="pear-config" />
@@ -89,8 +92,17 @@ setting in composer.json favour of using autoloader.
           <file role="php" name="Exception.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
           </file>
+          <file role="php" name="LogicException.php">
+           <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
+          <file role="php" name="MessageException.php">
+           <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
           <file role="php" name="MultipartBody.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
+          </file>
+          <file role="php" name="NotImplementedException.php">
+           <tasks:replace from="@package_version@" to="version" type="package-info" />
           </file>
           <file role="php" name="SocketWrapper.php">
             <tasks:replace from="@package_version@" to="version" type="package-info" />
