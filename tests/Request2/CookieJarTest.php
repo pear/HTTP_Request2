@@ -20,10 +20,6 @@
 
 /** Sets up includes */
 require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
-/** Stores cookies and passes them between HTTP requests */
-require_once 'HTTP/Request2/CookieJar.php';
-/** Mock adapter intended for testing */
-require_once 'HTTP/Request2/Adapter/Mock.php';
 
 /**
  * Unit test for HTTP_Request2_CookieJar class
@@ -351,7 +347,7 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
                     'expires' => null,
                     'secure'  => false
                 ),
-                new Net_Url2('http://example.com/directory/file.php'),
+                new Net_URL2('http://example.com/directory/file.php'),
                 array(
                     'domain'  => 'example.com',
                     'path'    => '/directory/'
@@ -366,7 +362,7 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
                     'expires' => null,
                     'secure'  => false
                 ),
-                new Net_Url2('http://example.com/path/to/file.php'),
+                new Net_URL2('http://example.com/path/to/file.php'),
                 array(
                     'path'    => '/path/to/'
                 )
@@ -380,7 +376,7 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
                     'expires' => null,
                     'secure'  => false
                 ),
-                new Net_Url2('http://example.com/another/file.php'),
+                new Net_URL2('http://example.com/another/file.php'),
                 array(
                     'domain'  => 'example.com'
                 )

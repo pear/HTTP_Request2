@@ -22,11 +22,6 @@
 require_once dirname(__FILE__) . '/TestHelper.php';
 
 /**
- * Class representing a HTTP request
- */
-require_once 'HTTP/Request2.php';
-
-/**
  * Unit test for HTTP_Request2 class
  */
 class HTTP_Request2Test extends PHPUnit_Framework_TestCase
@@ -301,7 +296,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
     public function testSetMultipartBody()
     {
-        require_once 'HTTP/Request2/MultipartBody.php';
+        // pear-package-only require_once 'HTTP/Request2/MultipartBody.php';
 
         $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_POST);
         $body = new HTTP_Request2_MultipartBody(array('foo' => 'bar'), array());

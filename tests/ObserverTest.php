@@ -22,11 +22,6 @@
 require_once dirname(__FILE__) . '/TestHelper.php';
 
 /**
- * Class representing a HTTP request
- */
-require_once 'HTTP/Request2.php';
-
-/**
  * Mock observer
  */
 class HTTP_Request2_MockObserver implements SplObserver

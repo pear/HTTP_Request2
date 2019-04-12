@@ -22,11 +22,6 @@
 require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 
 /**
- * Class representing a HTTP response
- */
-require_once 'HTTP/Request2/Response.php';
-
-/**
  * Unit test for HTTP_Request2_Response class
  */
 class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase

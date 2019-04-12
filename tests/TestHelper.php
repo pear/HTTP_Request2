@@ -19,7 +19,14 @@
  */
 
 if ('@' . 'package_version@' !== '@package_version@') {
-    // Installed with PEAR: we should be on the include path and require_once should be enabled
+    // Installed with PEAR: we should be on the include path, just require_once everything
+    require_once 'HTTP/Request2.php';
+    require_once 'HTTP/Request2/CookieJar.php';
+    require_once 'HTTP/Request2/MultipartBody.php';
+    require_once 'HTTP/Request2/Response.php';
+    require_once 'HTTP/Request2/Adapter/Mock.php';
+    require_once 'HTTP/Request2/Adapter/Socket.php';
+    require_once 'HTTP/Request2/Observer/UncompressingDownload.php';
     $installed = true;
 
 } else {

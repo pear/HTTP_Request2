@@ -21,9 +21,6 @@
 /** Tests for HTTP_Request2 package that require a working webserver */
 require_once dirname(__FILE__) . '/CommonNetworkTest.php';
 
-/** Socket-based adapter for HTTP_Request2 */
-require_once 'HTTP/Request2/Adapter/Socket.php';
-
 /**
  * Unit test for Socket Adapter of HTTP_Request2
  */

@@ -22,11 +22,6 @@
 require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
 
 /**
- * Class representing a HTTP request
- */
-require_once 'HTTP/Request2.php';
-
-/**
  * Unit test for HTTP_Request2_MultipartBody class
  */
 class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase

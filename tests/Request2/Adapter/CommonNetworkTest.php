@@ -21,13 +21,6 @@
 /** Sets up includes */
 require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
 
-/** Class representing a HTTP request */
-require_once 'HTTP/Request2.php';
-/** Class for building multipart/form-data request body */
-require_once 'HTTP/Request2/MultipartBody.php';
-/** An observer that saves response body to stream, possibly uncompressing it */
-require_once 'HTTP/Request2/Observer/UncompressingDownload.php';
-
 class SlowpokeBody extends HTTP_Request2_MultipartBody
 {
     protected $doSleep;
