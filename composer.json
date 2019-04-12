@@ -34,8 +34,5 @@
         "psr-0": {
             "HTTP_Request2" : ""
         }
-    },
-    "include-path": [
-        "./"
-    ]
+    }
 }
