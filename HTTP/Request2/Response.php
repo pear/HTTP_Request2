@@ -634,16 +634,31 @@ class HTTP_Request2_Response
 
         // don't pass $dataSize to gzinflate, see bugs #13135, #14370
         $unpacked = gzinflate(substr($data, $headerLength, -8));
+        if (false !== $unpacked) {
+            try {
+                // GZIP stores the size of the compressed data in bytes modulo
+                // 2^32. To accommodate large file transfers, apply this to the
+                // observed data size. This allows file downloads above 4 GiB.
+                // This may trigger a division by zero (modulo) exception depending on CPU architecture.
+                $over4GBlenOK = strlen($unpacked) % pow(2, 32);
+                $over4GB = true;
+            } catch(DivisionByZeroError $ex) {
+                $over4GB = false;
+            }
+        }
+
         if (false === $unpacked) {
             throw new HTTP_Request2_MessageException(
                 'gzinflate() call failed',
                 HTTP_Request2_Exception::DECODE_ERROR
             );
 
-            // GZIP stores the size of the compressed data in bytes modulo
-            // 2^32. To accommodate large file transfers, apply this to the
-            // observed data size. This allows file downloads above 4 GiB.
-        } elseif ($dataSize != strlen($unpacked) % pow(2, 32)) {
+        } elseif ($over4GB && $dataSize != $over4GBlenOK ) {
+            throw new HTTP_Request2_MessageException(
+                'Data size check failed',
+                HTTP_Request2_Exception::DECODE_ERROR
+            );
+        } elseif ($dataSize != strlen($unpacked)) {
             throw new HTTP_Request2_MessageException(
                 'Data size check failed',
                 HTTP_Request2_Exception::DECODE_ERROR
