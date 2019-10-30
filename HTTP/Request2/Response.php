@@ -639,7 +639,11 @@ class HTTP_Request2_Response
                 'gzinflate() call failed',
                 HTTP_Request2_Exception::DECODE_ERROR
             );
-        } elseif ($dataSize != strlen($unpacked)) {
+
+            // GZIP stores the size of the compressed data in bytes modulo
+            // 2^32. To accommodate large file transfers, apply this to the
+            // observed data size. This allows file downloads above 4 GiB.
+        } elseif ($dataSize != strlen($unpacked) % pow(2, 32)) {
             throw new HTTP_Request2_MessageException(
                 'Data size check failed',
                 HTTP_Request2_Exception::DECODE_ERROR
