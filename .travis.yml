@@ -15,7 +15,7 @@ matrix:
     - php: "7.1"
     - php: "7.2"
     - php: "7.3"
-    - pnp: "7.4snapshot"
+    - php: "7.4snapshot"
 
 install:
   - |
