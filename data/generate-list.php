@@ -41,7 +41,7 @@ function writeNode($fp, $valueTree, $key = null, $indent = 0)
     if (0 == ($count = count($valueTree))) {
         fwrite($fp, 'true');
     } else {
-        fwrite($fp, "array(\n");
+        fwrite($fp, "[\n");
         for ($keys = array_keys($valueTree), $i = 0; $i < $count; $i++) {
             writeNode($fp, $valueTree[$keys[$i]], $keys[$i], $indent + 1);
             if ($i + 1 != $count) {
@@ -50,7 +50,7 @@ function writeNode($fp, $valueTree, $key = null, $indent = 0)
                 fwrite($fp, "\n");
             }
         }
-        fwrite($fp, str_repeat(' ', $indent) . ")");
+        fwrite($fp, str_repeat(' ', $indent) . "]");
     }
 }
 
