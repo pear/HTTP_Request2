@@ -174,5 +174,13 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
             $this->assertGreaterThan(0, count($this->request->getCookieJar()->getAll()));
         }
     }
+
+    public function testIncompleteBody()
+    {
+        if (version_compare(phpversion(), '7.4', '>=')) {
+            $this::expectException('HTTP_Request2_Exception');
+        }
+        parent::testIncompleteBody();
+    }
 }
 ?>
