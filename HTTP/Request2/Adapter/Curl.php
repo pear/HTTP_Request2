@@ -181,23 +181,18 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
 
         try {
             if (false === curl_exec($ch = $this->createCurlHandle())) {
-                $e = self::wrapCurlError($ch);
+                throw self::wrapCurlError($ch);
             }
-        } catch (Exception $e) {
-        }
-        if (isset($ch)) {
-            $this->lastInfo = curl_getinfo($ch);
-            if (CURLE_OK !== curl_errno($ch)) {
-                $this->request->setLastEvent('warning', curl_error($ch));
+        } finally {
+            if (isset($ch)) {
+                $this->lastInfo = curl_getinfo($ch);
+                if (CURLE_OK !== curl_errno($ch)) {
+                    $this->request->setLastEvent('warning', curl_error($ch));
+                }
+                curl_close($ch);
             }
-            curl_close($ch);
-        }
-
-        $response = $this->response;
-        unset($this->request, $this->requestBody, $this->response);
-
-        if (!empty($e)) {
-            throw $e;
+            $response = $this->response;
+            unset($this->request, $this->requestBody, $this->response);
         }
 
         if ($jar = $request->getCookieJar()) {
