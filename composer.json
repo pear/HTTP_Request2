@@ -17,7 +17,7 @@
         "docs":   "https://pear.php.net/manual/en/package.http.http-request2.php"
     },
     "require"     : {
-        "php"                 : ">=5.2.0",
+        "php"                 : ">=5.6.0",
         "pear/net_url2"       : "^2.2.0",
         "pear/pear_exception" : "^1.0.0"
     },
