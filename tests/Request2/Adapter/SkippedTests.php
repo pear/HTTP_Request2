@@ -19,7 +19,7 @@
  */
 
 /** Sets up includes */
-require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
+require_once dirname(dirname(__DIR__)) . '/TestHelper.php';
 
 /**
  * Shows a skipped test if networked tests are not configured

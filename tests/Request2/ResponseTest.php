@@ -19,7 +19,7 @@
  */
 
 /** Sets up includes */
-require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
+require_once dirname(__DIR__) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_Response class
@@ -107,7 +107,7 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
 
     protected function readResponseFromFile($filename)
     {
-        $fp       = fopen(dirname(dirname(__FILE__)) . '/_files/' . $filename, 'rb');
+        $fp       = fopen(dirname(__DIR__) . '/_files/' . $filename, 'rb');
         $response = new HTTP_Request2_Response(fgets($fp));
         do {
             $headerLine = fgets($fp);

@@ -19,7 +19,7 @@
  */
 
 /** Tests for HTTP_Request2 package that require a working webserver */
-require_once dirname(__FILE__) . '/CommonNetworkTest.php';
+require_once __DIR__ . '/CommonNetworkTest.php';
 
 /**
  * Unit test for Socket Adapter of HTTP_Request2
@@ -107,7 +107,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
             $this->markTestSkipped('This test requires an URL protected by server digest auth');
         }
 
-        $fp   = fopen(dirname(dirname(dirname(__FILE__))) . '/_files/bug_15305', 'rb');
+        $fp   = fopen(dirname(dirname(__DIR__)) . '/_files/bug_15305', 'rb');
         $body = $this->getMockBuilder('HTTP_Request2_MultipartBody')
             ->setMethods(array('read'))
             ->setConstructorArgs(array(
@@ -133,7 +133,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
 
     public function test100ContinueTimeoutBug()
     {
-        $fp       = fopen(dirname(dirname(dirname(__FILE__))) . '/_files/bug_15305', 'rb');
+        $fp       = fopen(dirname(dirname(__DIR__)) . '/_files/bug_15305', 'rb');
         $body     = new HTTP_Request2_MultipartBody(
             array(),
             array(

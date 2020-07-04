@@ -490,7 +490,7 @@ class HTTP_Request2_CookieJar implements Serializable
             $path = '@data_dir@' . DIRECTORY_SEPARATOR . 'HTTP_Request2';
             if (0 === strpos($path, '@' . 'data_dir@')) {
                 $path = realpath(
-                    dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
+                    __DIR__ . DIRECTORY_SEPARATOR . '..'
                     . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data'
                 );
             }

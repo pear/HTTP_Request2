@@ -19,7 +19,7 @@
  */
 
 /** Sets up includes */
-require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
+require_once dirname(__DIR__) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_CookieJar class
@@ -70,7 +70,7 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
     {
         $this->jar->ignoreInvalidCookies(true);
         $response = HTTP_Request2_Adapter_Mock::createResponseFromFile(
-            fopen(dirname(dirname(__FILE__)) . '/_files/response_cookies', 'rb')
+            fopen(dirname(__DIR__) . '/_files/response_cookies', 'rb')
         );
         $setter   = new Net_URL2('http://pecl.php.net/');
 

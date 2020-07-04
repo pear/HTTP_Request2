@@ -26,10 +26,10 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
     }
 }
 
-require_once dirname(__FILE__) . '/CookieJarTest.php';
-require_once dirname(__FILE__) . '/MultipartBodyTest.php';
-require_once dirname(__FILE__) . '/ResponseTest.php';
-require_once dirname(__FILE__) . '/Adapter/AllTests.php';
+require_once __DIR__ . '/CookieJarTest.php';
+require_once __DIR__ . '/MultipartBodyTest.php';
+require_once __DIR__ . '/ResponseTest.php';
+require_once __DIR__ . '/Adapter/AllTests.php';
 
 class Request2_AllTests
 {

@@ -31,7 +31,7 @@ if ('@' . 'package_version@' !== '@package_version@') {
 
 } else {
     $installed = false;
-    foreach (array(dirname(__FILE__) . '/../../../autoload.php', dirname(__FILE__) . '/../vendor/autoload.php') as $file) {
+    foreach (array(__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php') as $file) {
         if (file_exists($file)) {
             // found composer autoloader, use it
             require_once $file;
@@ -61,8 +61,8 @@ if (strpos($_SERVER['argv'][0], 'phpunit') === false
 }
 
 if (!defined('HTTP_REQUEST2_TESTS_BASE_URL')
-    && is_readable(dirname(__FILE__) . '/NetworkConfig.php')
+    && is_readable(__DIR__ . '/NetworkConfig.php')
 ) {
-    require_once dirname(__FILE__) . '/NetworkConfig.php';
+    require_once __DIR__ . '/NetworkConfig.php';
 }
 ?>

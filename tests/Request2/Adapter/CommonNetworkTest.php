@@ -19,7 +19,7 @@
  */
 
 /** Sets up includes */
-require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
+require_once dirname(dirname(__DIR__)) . '/TestHelper.php';
 
 class SlowpokeBody extends HTTP_Request2_MultipartBody
 {
@@ -180,10 +180,10 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testUploads()
     {
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
-                      ->addUpload('foo', dirname(dirname(dirname(__FILE__))) . '/_files/empty.gif', 'picture.gif', 'image/gif')
+                      ->addUpload('foo', dirname(dirname(__DIR__)) . '/_files/empty.gif', 'picture.gif', 'image/gif')
                       ->addUpload('bar', array(
-                                    array(dirname(dirname(dirname(__FILE__))) . '/_files/empty.gif', null, 'image/gif'),
-                                    array(dirname(dirname(dirname(__FILE__))) . '/_files/plaintext.txt', 'secret.txt', 'text/x-whatever')
+                                    array(dirname(dirname(__DIR__)) . '/_files/empty.gif', null, 'image/gif'),
+                                    array(dirname(dirname(__DIR__)) . '/_files/plaintext.txt', 'secret.txt', 'text/x-whatever')
                                   ));
 
         $response = $this->request->send();
@@ -408,7 +408,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
      */
     public function testPreventExpectHeader()
     {
-        $fp       = fopen(dirname(dirname(dirname(__FILE__))) . '/_files/bug_15305', 'rb');
+        $fp       = fopen(dirname(dirname(__DIR__)) . '/_files/bug_15305', 'rb');
         $observer = new HeaderObserver();
         $body     = new HTTP_Request2_MultipartBody(
             array(),

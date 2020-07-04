@@ -19,7 +19,7 @@
  */
 
 /** Sets up includes */
-require_once dirname(dirname(__FILE__)) . '/TestHelper.php';
+require_once dirname(__DIR__) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_MultipartBody class
@@ -30,7 +30,7 @@ class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $body = $req->addPostParameter('foo', 'I am a parameter')
-                    ->addUpload('upload', dirname(dirname(__FILE__)) . '/_files/plaintext.txt')
+                    ->addUpload('upload', dirname(__DIR__) . '/_files/plaintext.txt')
                     ->getBody();
 
         $this->assertTrue($body instanceof HTTP_Request2_MultipartBody);
@@ -49,7 +49,7 @@ class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase
     public function testRequest16863()
     {
         $req  = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
-        $fp   = fopen(dirname(dirname(__FILE__)) . '/_files/plaintext.txt', 'rb');
+        $fp   = fopen(dirname(__DIR__) . '/_files/plaintext.txt', 'rb');
         $body = $req->addUpload('upload', $fp)
                     ->getBody();
 
@@ -64,7 +64,7 @@ class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $body = $req->addPostParameter('foo', 'I am a parameter')
-                    ->addUpload('upload', dirname(dirname(__FILE__)) . '/_files/plaintext.txt')
+                    ->addUpload('upload', dirname(__DIR__) . '/_files/plaintext.txt')
                     ->getBody();
         $asString = '';
         while ($part = $body->read(10)) {
@@ -79,12 +79,12 @@ class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $body = $req->addUpload('upload', array(
-                                    array(dirname(dirname(__FILE__)) . '/_files/plaintext.txt', 'bio.txt', 'text/plain'),
-                                    array(fopen(dirname(dirname(__FILE__)) . '/_files/empty.gif', 'rb'), 'photo.gif', 'image/gif')
+                                    array(dirname(__DIR__) . '/_files/plaintext.txt', 'bio.txt', 'text/plain'),
+                                    array(fopen(dirname(__DIR__) . '/_files/empty.gif', 'rb'), 'photo.gif', 'image/gif')
                                 ))
                     ->getBody();
         $asString = $body->__toString();
-        $this->assertContains(file_get_contents(dirname(dirname(__FILE__)) . '/_files/empty.gif'), $asString);
+        $this->assertContains(file_get_contents(dirname(__DIR__) . '/_files/empty.gif'), $asString);
         $this->assertContains('name="upload[0]"; filename="bio.txt"', $asString);
         $this->assertContains('name="upload[1]"; filename="photo.gif"', $asString);
 

@@ -26,9 +26,9 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
     }
 }
 
-require_once dirname(__FILE__) . '/Request2Test.php';
-require_once dirname(__FILE__) . '/ObserverTest.php';
-require_once dirname(__FILE__) . '/Request2/AllTests.php';
+require_once __DIR__ . '/Request2Test.php';
+require_once __DIR__ . '/ObserverTest.php';
+require_once __DIR__ . '/Request2/AllTests.php';
 
 class HTTP_Request2_AllTests
 {

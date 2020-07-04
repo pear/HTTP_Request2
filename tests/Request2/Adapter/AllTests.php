@@ -26,11 +26,11 @@ if (!defined('PHPUnit_MAIN_METHOD')) {
     }
 }
 
-require_once dirname(__FILE__) . '/MockTest.php';
-require_once dirname(__FILE__) . '/SkippedTests.php';
-require_once dirname(__FILE__) . '/SocketTest.php';
-require_once dirname(__FILE__) . '/SocketProxyTest.php';
-require_once dirname(__FILE__) . '/CurlTest.php';
+require_once __DIR__ . '/MockTest.php';
+require_once __DIR__ . '/SkippedTests.php';
+require_once __DIR__ . '/SocketTest.php';
+require_once __DIR__ . '/SocketProxyTest.php';
+require_once __DIR__ . '/CurlTest.php';
 
 class Request2_Adapter_AllTests
 {

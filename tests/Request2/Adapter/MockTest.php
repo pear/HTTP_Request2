@@ -19,7 +19,7 @@
  */
 
 /** Sets up includes */
-require_once dirname(dirname(dirname(__FILE__))) . '/TestHelper.php';
+require_once dirname(dirname(__DIR__)) . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2_Response class
@@ -57,7 +57,7 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
     public function testResponseFromFile()
     {
         $mock = new HTTP_Request2_Adapter_Mock();
-        $mock->addResponse(fopen(dirname(dirname(dirname(__FILE__))) .
+        $mock->addResponse(fopen(dirname(dirname(__DIR__)) .
                            '/_files/response_headers', 'rb'));
 
         $req = new HTTP_Request2('http://www.example.com/');

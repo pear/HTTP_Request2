@@ -19,7 +19,7 @@
  */
 
 /** Sets up includes */
-require_once dirname(__FILE__) . '/TestHelper.php';
+require_once __DIR__ . '/TestHelper.php';
 
 /**
  * Unit test for HTTP_Request2 class
@@ -195,7 +195,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->setBody('A string');
         $this->assertEquals('A string', $req->getBody());
 
-        $req->setBody(dirname(__FILE__) . '/_files/plaintext.txt', true);
+        $req->setBody(__DIR__ . '/_files/plaintext.txt', true);
         $headers = $req->getHeaders();
         $this->assertRegexp(
             '!^(text/plain|application/octet-stream)!',
@@ -213,7 +213,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     public function testRequest16863()
     {
         $req = new HTTP_Request2();
-        $req->setBody(fopen(dirname(__FILE__) . '/_files/plaintext.txt', 'rb'));
+        $req->setBody(fopen(__DIR__ . '/_files/plaintext.txt', 'rb'));
         $headers = $req->getHeaders();
         $this->assertEquals('application/octet-stream', $headers['content-type']);
 
@@ -253,7 +253,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     public function testUpload()
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
-        $req->addUpload('upload', dirname(__FILE__) . '/_files/plaintext.txt');
+        $req->addUpload('upload', __DIR__ . '/_files/plaintext.txt');
 
         $headers = $req->getHeaders();
         $this->assertEquals('multipart/form-data', $headers['content-type']);
