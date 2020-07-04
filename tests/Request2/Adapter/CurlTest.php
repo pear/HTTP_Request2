@@ -72,8 +72,6 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
     {
         if ($this->isRedirectSupportDisabled()) {
             $this->markTestSkipped('Redirect support in cURL is disabled by safe_mode or open_basedir setting');
-        } elseif (version_compare(phpversion(), '5.3.2', '<')) {
-            $this->markTestSkipped('CURLOPT_POSTREDIR required for strict redirects, available in PHP 5.3.2+');
         } else {
             parent::testRedirectsStrict();
         }

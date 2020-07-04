@@ -85,42 +85,38 @@ class HTTP_Request2_SocketWrapper
             $contextOptions['ssl'] += array(
                 // Using "Intermediate compatibility" cipher bundle from
                 // https://wiki.mozilla.org/Security/Server_Side_TLS
-                'ciphers' => 'ECDHE-ECDSA-CHACHA20-POLY1305:'
-                             . 'ECDHE-RSA-CHACHA20-POLY1305:'
-                             . 'ECDHE-ECDSA-AES128-GCM-SHA256:'
-                             . 'ECDHE-RSA-AES128-GCM-SHA256:'
-                             . 'ECDHE-ECDSA-AES256-GCM-SHA384:'
-                             . 'ECDHE-RSA-AES256-GCM-SHA384:'
-                             . 'DHE-RSA-AES128-GCM-SHA256:'
-                             . 'DHE-RSA-AES256-GCM-SHA384:'
-                             . 'ECDHE-ECDSA-AES128-SHA256:'
-                             . 'ECDHE-RSA-AES128-SHA256:'
-                             . 'ECDHE-ECDSA-AES128-SHA:'
-                             . 'ECDHE-RSA-AES256-SHA384:'
-                             . 'ECDHE-RSA-AES128-SHA:'
-                             . 'ECDHE-ECDSA-AES256-SHA384:'
-                             . 'ECDHE-ECDSA-AES256-SHA:'
-                             . 'ECDHE-RSA-AES256-SHA:'
-                             . 'DHE-RSA-AES128-SHA256:'
-                             . 'DHE-RSA-AES128-SHA:'
-                             . 'DHE-RSA-AES256-SHA256:'
-                             . 'DHE-RSA-AES256-SHA:'
-                             . 'AES128-GCM-SHA256:'
-                             . 'AES256-GCM-SHA384:'
-                             . 'AES128-SHA256:'
-                             . 'AES256-SHA256:'
-                             . 'AES128-SHA:'
-                             . 'AES256-SHA:'
-                             . 'DES-CBC3-SHA:'
-                             . '!DSS'
+                'ciphers' =>             'ECDHE-ECDSA-CHACHA20-POLY1305:'
+                                         . 'ECDHE-RSA-CHACHA20-POLY1305:'
+                                         . 'ECDHE-ECDSA-AES128-GCM-SHA256:'
+                                         . 'ECDHE-RSA-AES128-GCM-SHA256:'
+                                         . 'ECDHE-ECDSA-AES256-GCM-SHA384:'
+                                         . 'ECDHE-RSA-AES256-GCM-SHA384:'
+                                         . 'DHE-RSA-AES128-GCM-SHA256:'
+                                         . 'DHE-RSA-AES256-GCM-SHA384:'
+                                         . 'ECDHE-ECDSA-AES128-SHA256:'
+                                         . 'ECDHE-RSA-AES128-SHA256:'
+                                         . 'ECDHE-ECDSA-AES128-SHA:'
+                                         . 'ECDHE-RSA-AES256-SHA384:'
+                                         . 'ECDHE-RSA-AES128-SHA:'
+                                         . 'ECDHE-ECDSA-AES256-SHA384:'
+                                         . 'ECDHE-ECDSA-AES256-SHA:'
+                                         . 'ECDHE-RSA-AES256-SHA:'
+                                         . 'DHE-RSA-AES128-SHA256:'
+                                         . 'DHE-RSA-AES128-SHA:'
+                                         . 'DHE-RSA-AES256-SHA256:'
+                                         . 'DHE-RSA-AES256-SHA:'
+                                         . 'AES128-GCM-SHA256:'
+                                         . 'AES256-GCM-SHA384:'
+                                         . 'AES128-SHA256:'
+                                         . 'AES256-SHA256:'
+                                         . 'AES128-SHA:'
+                                         . 'AES256-SHA:'
+                                         . 'DES-CBC3-SHA:'
+                                         . '!DSS',
+                'disable_compression' => true,
+                'crypto_method'       => STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
+                                         | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
             );
-            if (version_compare(phpversion(), '5.4.13', '>=')) {
-                $contextOptions['ssl']['disable_compression'] = true;
-                if (version_compare(phpversion(), '5.6', '>=')) {
-                    $contextOptions['ssl']['crypto_method'] = STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
-                                                              | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-                }
-            }
         }
         $context = stream_context_create();
         foreach ($contextOptions as $wrapper => $options) {
@@ -280,12 +276,8 @@ class HTTP_Request2_SocketWrapper
      */
     public function enableCrypto()
     {
-        if (version_compare(phpversion(), '5.6', '<')) {
-            $cryptoMethod = STREAM_CRYPTO_METHOD_TLS_CLIENT;
-        } else {
-            $cryptoMethod = STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
-                            | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-        }
+        $cryptoMethod = STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
+                        | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
 
         if (!stream_socket_enable_crypto($this->socket, true, $cryptoMethod)) {
             throw new HTTP_Request2_ConnectionException(
