@@ -170,6 +170,8 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         } catch (Exception $e) {
             $this->disconnect();
             $this->redirectCountdown = null;
+            throw $e;
+
         } finally {
             unset($this->request, $this->requestBody);
         }
