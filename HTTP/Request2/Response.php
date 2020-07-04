@@ -638,12 +638,12 @@ class HTTP_Request2_Response
             // GZIP stores the size of the compressed data in bytes modulo
             // 2^32. To accommodate large file transfers, apply this to the
             // observed data size. This allows file downloads above 4 GiB.
-        } elseif ($dataSize != strlen($unpacked) % pow(2, 32)) {
+        } elseif ((0xffffffff & $dataSize) !== (0xffffffff & strlen($unpacked))) {
             throw new HTTP_Request2_MessageException(
                 'Data size check failed',
                 HTTP_Request2_Exception::DECODE_ERROR
             );
-        } elseif ((0xffffffff & $dataCrc) != (0xffffffff & crc32($unpacked))) {
+        } elseif ((0xffffffff & $dataCrc) !== (0xffffffff & crc32($unpacked))) {
             throw new HTTP_Request2_MessageException(
                 'Data CRC check failed',
                 HTTP_Request2_Exception::DECODE_ERROR
