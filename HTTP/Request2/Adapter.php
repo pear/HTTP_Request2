@@ -43,7 +43,7 @@ abstract class HTTP_Request2_Adapter
      * A list of methods that MUST NOT have a request body, per RFC 2616
      * @var  array
      */
-    protected static $bodyDisallowed = array('TRACE');
+    protected static $bodyDisallowed = ['TRACE'];
 
     /**
      * Methods having defined semantics for request body
@@ -55,7 +55,7 @@ abstract class HTTP_Request2_Adapter
      * @link http://pear.php.net/bugs/bug.php?id=12900
      * @link http://pear.php.net/bugs/bug.php?id=14740
      */
-    protected static $bodyRequired = array('POST', 'PUT');
+    protected static $bodyRequired = ['POST', 'PUT'];
 
     /**
      * Request being sent

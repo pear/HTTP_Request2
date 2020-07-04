@@ -8,9 +8,9 @@
 //
 
 
-$translations = array(
+$translations = [
     '// pear-package-only ' => ''
-);
+];
 
 function handleFile(SimpleXMLElement $file, $dirName)
 {

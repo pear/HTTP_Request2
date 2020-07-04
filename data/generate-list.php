@@ -21,7 +21,7 @@ function buildSubdomain(&$node, $tldParts)
     $part = trim(array_pop($tldParts));
 
     if (!array_key_exists($part, $node)) {
-        $node[$part] = array();
+        $node[$part] = [];
     }
 
     if (0 < count($tldParts)) {
@@ -56,11 +56,11 @@ function writeNode($fp, $valueTree, $key = null, $indent = 0)
 
 
 try {
-    $request  = new HTTP_Request2(LIST_URL, HTTP_Request2::METHOD_GET, array(
+    $request  = new HTTP_Request2(LIST_URL, HTTP_Request2::METHOD_GET, [
         // Provide path to your CA file and change 'ssl_verify_peer' to true to enable peer validation
         // 'ssl_cafile' => '... path to your Certificate Authority file ...',
         'ssl_verify_peer' => false
-    ));
+    ]);
     $response = $request->send();
     if (200 != $response->getStatus()) {
         throw new Exception("List download URL returned status: " .
@@ -78,7 +78,7 @@ try {
     die($e->getMessage());
 }
 
-$tldTree = array();
+$tldTree = [];
 $license = true;
 
 fwrite($fp, "<?php\n");

@@ -50,11 +50,11 @@ class HTTP_Request2_ObserverTest extends PHPUnit_Framework_TestCase
 
         $request->setLastEvent('foo', 'bar');
         $this->assertEquals(1, $observer->calls);
-        $this->assertEquals(array('name' => 'foo', 'data' => 'bar'), $observer->event);
+        $this->assertEquals(['name' => 'foo', 'data' => 'bar'], $observer->event);
 
         $request->setLastEvent('baz');
         $this->assertEquals(2, $observer->calls);
-        $this->assertEquals(array('name' => 'baz', 'data' => null), $observer->event);
+        $this->assertEquals(['name' => 'baz', 'data' => null], $observer->event);
     }
 
     public function testAttachOnlyOnce()
@@ -84,7 +84,7 @@ class HTTP_Request2_ObserverTest extends PHPUnit_Framework_TestCase
         $request->detach($observer);
         $request->setLastEvent('second');
         $this->assertEquals(1, $observer->calls);
-        $this->assertEquals(array('name' => 'first', 'data' => null), $observer->event);
+        $this->assertEquals(['name' => 'first', 'data' => null], $observer->event);
     }
 }
 ?>

@@ -40,7 +40,7 @@ try {
     if (!preg_match_all('/^(File[^=]+)=(.+)$/m', $response, $m, PREG_SET_ORDER)) {
         throw new Exception("Invalid response: {$response}");
     }
-    $rspAry = array();
+    $rspAry = [];
     foreach ($m as $item) {
         $rspAry[$item[1]] = $item[2];
     }

@@ -42,7 +42,7 @@ class HTTP_Request2_SocketWrapper
      * PHP warning messages raised during stream_socket_client() call
      * @var array
      */
-    protected $connectionWarnings = array();
+    protected $connectionWarnings = [];
 
     /**
      * Connected socket
@@ -73,16 +73,16 @@ class HTTP_Request2_SocketWrapper
      * @throws HTTP_Request2_LogicException
      * @throws HTTP_Request2_ConnectionException
      */
-    public function __construct($address, $timeout, array $contextOptions = array())
+    public function __construct($address, $timeout, array $contextOptions = [])
     {
         if (!empty($contextOptions)
             && !isset($contextOptions['socket']) && !isset($contextOptions['ssl'])
         ) {
             // Backwards compatibility with 2.1.0 and 2.1.1 releases
-            $contextOptions = array('ssl' => $contextOptions);
+            $contextOptions = ['ssl' => $contextOptions];
         }
         if (isset($contextOptions['ssl'])) {
-            $contextOptions['ssl'] += array(
+            $contextOptions['ssl'] += [
                 // Using "Intermediate compatibility" cipher bundle from
                 // https://wiki.mozilla.org/Security/Server_Side_TLS
                 'ciphers' =>             'ECDHE-ECDSA-CHACHA20-POLY1305:'
@@ -116,7 +116,7 @@ class HTTP_Request2_SocketWrapper
                 'disable_compression' => true,
                 'crypto_method'       => STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
                                          | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
-            );
+            ];
         }
         $context = stream_context_create();
         foreach ($contextOptions as $wrapper => $options) {
@@ -128,7 +128,7 @@ class HTTP_Request2_SocketWrapper
                 }
             }
         }
-        set_error_handler(array($this, 'connectionWarningsHandler'));
+        set_error_handler([$this, 'connectionWarningsHandler']);
         $this->socket = stream_socket_client(
             $address, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context
         );

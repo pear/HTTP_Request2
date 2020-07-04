@@ -31,7 +31,7 @@ if ('@' . 'package_version@' !== '@package_version@') {
 
 } else {
     $installed = false;
-    foreach (array(__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php') as $file) {
+    foreach ([__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php'] as $file) {
         if (file_exists($file)) {
             // found composer autoloader, use it
             require_once $file;

@@ -29,7 +29,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     public function testConstructorSetsDefaults()
     {
         $url = new Net_URL2('http://www.example.com/foo');
-        $req = new HTTP_Request2($url, HTTP_Request2::METHOD_POST, array('connect_timeout' => 666));
+        $req = new HTTP_Request2($url, HTTP_Request2::METHOD_POST, ['connect_timeout' => 666]);
 
         $this->assertSame($url, $req->getUrl());
         $this->assertEquals(HTTP_Request2::METHOD_POST, $req->getMethod());
@@ -55,7 +55,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals($urlString, $req2->getUrl()->getUrl());
 
         $req3 = new HTTP_Request2();
-        $req3->setUrl(array('This will cause an error'));
+        $req3->setUrl(['This will cause an error']);
     }
 
     public function testConvertUserinfoToAuth()
@@ -65,7 +65,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('', (string)$req->getUrl()->getUserinfo());
         $this->assertEquals(
-            array('user' => 'foo', 'password' => 'b@r', 'scheme' => HTTP_Request2::AUTH_BASIC),
+            ['user' => 'foo', 'password' => 'b@r', 'scheme' => HTTP_Request2::AUTH_BASIC],
             $req->getAuth()
         );
     }
@@ -88,10 +88,10 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req = new HTTP_Request2();
         $this->assertArrayHasKey('connect_timeout', $req->getConfig());
 
-        $req->setConfig(array('connect_timeout' => 123));
+        $req->setConfig(['connect_timeout' => 123]);
         $this->assertEquals(123, $req->getConfig('connect_timeout'));
         try {
-            $req->setConfig(array('foo' => 'unknown parameter'));
+            $req->setConfig(['foo' => 'unknown parameter']);
             $this->fail('Expected HTTP_Request2_LogicException was not thrown');
         } catch (HTTP_Request2_LogicException $e) {}
 
@@ -124,17 +124,17 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $req->setHeader('Foo', 'Bar');
         $req->setHeader('Foo-Bar: value');
-        $req->setHeader(array('Another-Header' => 'another value', 'Yet-Another: other_value'));
+        $req->setHeader(['Another-Header' => 'another value', 'Yet-Another: other_value']);
         $this->assertEquals(
-            array('foo-bar' => 'value', 'another-header' => 'another value',
-            'yet-another' => 'other_value', 'foo' => 'Bar') + $autoHeaders,
+            ['foo-bar' => 'value', 'another-header' => 'another value',
+            'yet-another' => 'other_value', 'foo' => 'Bar'] + $autoHeaders,
             $req->getHeaders()
         );
 
         $req->setHeader('FOO-BAR');
-        $req->setHeader(array('aNOTHER-hEADER'));
+        $req->setHeader(['aNOTHER-hEADER']);
         $this->assertEquals(
-            array('yet-another' => 'other_value', 'foo' => 'Bar') + $autoHeaders,
+            ['yet-another' => 'other_value', 'foo' => 'Bar'] + $autoHeaders,
             $req->getHeaders()
         );
 
@@ -149,7 +149,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->setHeader('Expect: ');
         $req->setHeader('Foo', '');
         $this->assertEquals(
-            array('expect' => '', 'foo' => '') + $autoHeaders,
+            ['expect' => '', 'foo' => ''] + $autoHeaders,
             $req->getHeaders()
         );
     }
@@ -159,10 +159,10 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req = new HTTP_Request2();
 
         $req->setHeader('accept-charset', 'iso-8859-1');
-        $req->setHeader('accept-charset', array('windows-1251', 'utf-8'), false);
+        $req->setHeader('accept-charset', ['windows-1251', 'utf-8'], false);
 
-        $req->setHeader(array('accept' => 'text/html'));
-        $req->setHeader(array('accept' => 'image/gif'), null, false);
+        $req->setHeader(['accept' => 'text/html']);
+        $req->setHeader(['accept' => 'image/gif'], null, false);
 
         $headers = $req->getHeaders();
 
@@ -224,14 +224,14 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $req->addPostParameter('foo', 'bar');
-        $req->addPostParameter(array('baz' => 'quux'));
-        $req->addPostParameter('foobar', array('one', 'two'));
+        $req->addPostParameter(['baz' => 'quux']);
+        $req->addPostParameter('foobar', ['one', 'two']);
         $this->assertEquals(
             'foo=bar&baz=quux&foobar%5B0%5D=one&foobar%5B1%5D=two',
             $req->getBody()
         );
 
-        $req->setConfig(array('use_brackets' => false));
+        $req->setConfig(['use_brackets' => false]);
         $this->assertEquals(
             'foo=bar&baz=quux&foobar=one&foobar=two',
             $req->getBody()
@@ -264,12 +264,12 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     public function testPropagateUseBracketsToNetURL2()
     {
         $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_GET,
-                                 array('use_brackets' => false));
-        $req->getUrl()->setQueryVariable('foo', array('bar', 'baz'));
+                                 ['use_brackets' => false]);
+        $req->getUrl()->setQueryVariable('foo', ['bar', 'baz']);
         $this->assertEquals('http://www.example.com/?foo=bar&foo=baz', $req->getUrl()->__toString());
 
         $req->setConfig('use_brackets', true)->setUrl('http://php.example.com/');
-        $req->getUrl()->setQueryVariable('foo', array('bar', 'baz'));
+        $req->getUrl()->setQueryVariable('foo', ['bar', 'baz']);
 
         $this->assertEquals('http://php.example.com/?foo[]=bar&foo[]=baz', $req->getUrl()->__toString());
     }
@@ -299,7 +299,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         // pear-package-only require_once 'HTTP/Request2/MultipartBody.php';
 
         $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_POST);
-        $body = new HTTP_Request2_MultipartBody(array('foo' => 'bar'), array());
+        $body = new HTTP_Request2_MultipartBody(['foo' => 'bar'], []);
         $req->setBody($body);
         $this->assertSame($body, $req->getBody());
     }
@@ -352,14 +352,14 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertArrayNotHasKey('cookie', $req->getHeaders());
         $cookies = $req->getCookieJar()->getAll();
         $this->assertEquals(
-            array(
+            [
                 'name'    => 'foo',
                 'value'   => 'bar',
                 'domain'  => 'example.com',
                 'path'    => '/path/',
                 'expires' => null,
                 'secure'  => false
-            ),
+            ],
             $cookies[0]
         );
     }

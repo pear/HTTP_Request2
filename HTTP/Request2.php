@@ -89,7 +89,7 @@ class HTTP_Request2 implements SplSubject
      * Observers attached to the request (instances of SplObserver)
      * @var  array
      */
-    protected $observers = array();
+    protected $observers = [];
 
     /**
      * Request URL
@@ -114,14 +114,14 @@ class HTTP_Request2 implements SplSubject
      * Request headers
      * @var  array
      */
-    protected $headers = array();
+    protected $headers = [];
 
     /**
      * Configuration parameters
      * @var  array
      * @see  setConfig()
      */
-    protected $config = array(
+    protected $config = [
         'adapter'           => 'HTTP_Request2_Adapter_Socket',
         'connect_timeout'   => 10,
         'timeout'           => 0,
@@ -150,17 +150,17 @@ class HTTP_Request2 implements SplSubject
         'follow_redirects'  => false,
         'max_redirects'     => 5,
         'strict_redirects'  => false
-    );
+    ];
 
     /**
      * Last event in request / response handling, intended for observers
      * @var  array
      * @see  getLastEvent()
      */
-    protected $lastEvent = array(
+    protected $lastEvent = [
         'name' => 'start',
         'data' => null
-    );
+    ];
 
     /**
      * Request body
@@ -173,13 +173,13 @@ class HTTP_Request2 implements SplSubject
      * Array of POST parameters
      * @var  array
      */
-    protected $postParams = array();
+    protected $postParams = [];
 
     /**
      * Array of file uploads (for multipart/form-data POST requests)
      * @var  array
      */
-    protected $uploads = array();
+    protected $uploads = [];
 
     /**
      * Adapter used to perform actual HTTP request
@@ -203,7 +203,7 @@ class HTTP_Request2 implements SplSubject
      * @param array           $config Configuration for this Request instance
      */
     public function __construct(
-        $url = null, $method = self::METHOD_GET, array $config = array()
+        $url = null, $method = self::METHOD_GET, array $config = []
     ) {
         $this->setConfig($config);
         if (!empty($url)) {
@@ -234,7 +234,7 @@ class HTTP_Request2 implements SplSubject
     {
         if (is_string($url)) {
             $url = new Net_URL2(
-                $url, array(Net_URL2::OPTION_USE_BRACKETS => $this->config['use_brackets'])
+                $url, [Net_URL2::OPTION_USE_BRACKETS => $this->config['use_brackets']]
             );
         }
         if (!$url instanceof Net_URL2) {
@@ -363,13 +363,13 @@ class HTTP_Request2 implements SplSubject
 
         } elseif ('proxy' == $nameOrConfig) {
             $url = new Net_URL2($value);
-            $this->setConfig(array(
+            $this->setConfig([
                 'proxy_type'     => $url->getScheme(),
                 'proxy_host'     => $url->getHost(),
                 'proxy_port'     => $url->getPort(),
                 'proxy_user'     => rawurldecode($url->getUser()),
                 'proxy_password' => rawurldecode($url->getPassword())
-            ));
+            ]);
 
         } else {
             if (!array_key_exists($nameOrConfig, $this->config)) {
@@ -420,11 +420,11 @@ class HTTP_Request2 implements SplSubject
         if (empty($user)) {
             $this->auth = null;
         } else {
-            $this->auth = array(
+            $this->auth = [
                 'user'     => (string)$user,
                 'password' => (string)$password,
                 'scheme'   => $scheme
-            );
+            ];
         }
 
         return $this;
@@ -549,7 +549,7 @@ class HTTP_Request2 implements SplSubject
     {
         if (!empty($this->cookieJar)) {
             $this->cookieJar->store(
-                array('name' => $name, 'value' => $value), $this->url
+                ['name' => $name, 'value' => $value], $this->url
             );
 
         } else {
@@ -597,7 +597,7 @@ class HTTP_Request2 implements SplSubject
                 $this->setHeader('content-type', $fileData['type']);
             }
         }
-        $this->postParams = $this->uploads = array();
+        $this->postParams = $this->uploads = [];
 
         return $this;
     }
@@ -656,18 +656,18 @@ class HTTP_Request2 implements SplSubject
     ) {
         if (!is_array($filename)) {
             $fileData = $this->fopenWrapper($filename, empty($contentType));
-            $this->uploads[$fieldName] = array(
+            $this->uploads[$fieldName] = [
                 'fp'        => $fileData['fp'],
                 'filename'  => !empty($sendFilename)? $sendFilename
                                 :(is_string($filename)? basename($filename): 'anonymous.blob') ,
                 'size'      => $fileData['size'],
                 'type'      => empty($contentType)? $fileData['type']: $contentType
-            );
+            ];
         } else {
-            $fps = $names = $sizes = $types = array();
+            $fps = $names = $sizes = $types = [];
             foreach ($filename as $f) {
                 if (!is_array($f)) {
-                    $f = array($f);
+                    $f = [$f];
                 }
                 $fileData = $this->fopenWrapper($f[0], empty($f[2]));
                 $fps[]   = $fileData['fp'];
@@ -676,9 +676,9 @@ class HTTP_Request2 implements SplSubject
                 $sizes[] = $fileData['size'];
                 $types[] = empty($f[2])? $fileData['type']: $f[2];
             }
-            $this->uploads[$fieldName] = array(
+            $this->uploads[$fieldName] = [
                 'fp' => $fps, 'filename' => $names, 'size' => $sizes, 'type' => $types
-            );
+            ];
         }
         if (empty($this->headers['content-type'])
             || 'application/x-www-form-urlencoded' == $this->headers['content-type']
@@ -764,10 +764,10 @@ class HTTP_Request2 implements SplSubject
      */
     public function setLastEvent($name, $data = null)
     {
-        $this->lastEvent = array(
+        $this->lastEvent = [
             'name' => $name,
             'data' => $data
-        );
+        ];
         $this->notify();
     }
 
@@ -913,7 +913,7 @@ class HTTP_Request2 implements SplSubject
         // Sanity check for URL
         if (!$this->url instanceof Net_URL2
             || !$this->url->isAbsolute()
-            || !in_array(strtolower($this->url->getScheme()), array('https', 'http'))
+            || !in_array(strtolower($this->url->getScheme()), ['https', 'http'])
         ) {
             throw new HTTP_Request2_LogicException(
                 'HTTP_Request2 needs an absolute HTTP(S) request URL, '
@@ -961,11 +961,11 @@ class HTTP_Request2 implements SplSubject
                 HTTP_Request2_Exception::INVALID_ARGUMENT
             );
         }
-        $fileData = array(
+        $fileData = [
             'fp'   => is_string($file)? null: $file,
             'type' => 'application/octet-stream',
             'size' => 0
-        );
+        ];
         if (is_string($file)) {
             if (!($fileData['fp'] = @fopen($file, 'rb'))) {
                 $error = error_get_last();

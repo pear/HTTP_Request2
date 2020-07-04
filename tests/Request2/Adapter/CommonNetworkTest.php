@@ -59,11 +59,11 @@ class HeaderObserver implements SplObserver
 
 class EventSequenceObserver implements SplObserver
 {
-    private $_watched = array();
+    private $_watched = [];
 
-    public $sequence = array();
+    public $sequence = [];
 
-    public function __construct(array $watchedEvents = array())
+    public function __construct(array $watchedEvents = [])
     {
         if (!empty($watchedEvents)) {
             $this->_watched = $watchedEvents;
@@ -110,7 +110,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     * Configuration for HTTP Request object
     * @var array
     */
-    protected $config = array();
+    protected $config = [];
 
     protected function setUp()
     {
@@ -135,13 +135,13 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     */
     public function testGetParameters()
     {
-        $data = array(
-            'bar' => array(
+        $data = [
+            'bar' => [
                 'key' => 'value'
-            ),
+            ],
             'foo' => 'some value',
-            'numbered' => array('first', 'second')
-        );
+            'numbered' => ['first', 'second']
+        ];
 
         $this->request->getUrl()->setQueryVariables($data);
         $response = $this->request->send();
@@ -150,21 +150,21 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
     public function testPostParameters()
     {
-        $data = array(
-            'bar' => array(
+        $data = [
+            'bar' => [
                 'key' => 'some other value'
-            ),
-            'baz' => array(
-                'key1' => array(
+            ],
+            'baz' => [
+                'key1' => [
                     'key2' => 'yet another value'
-                )
-            ),
+                ]
+            ],
             'foo' => 'some value',
-            'indexed' => array('first', 'second')
-        );
-        $events = array(
+            'indexed' => ['first', 'second']
+        ];
+        $events = [
             'sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders', 'receivedBodyPart', 'receivedBody'
-        );
+        ];
         $observer = new EventSequenceObserver($events);
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
@@ -181,10 +181,10 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     {
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
                       ->addUpload('foo', dirname(dirname(__DIR__)) . '/_files/empty.gif', 'picture.gif', 'image/gif')
-                      ->addUpload('bar', array(
-                                    array(dirname(dirname(__DIR__)) . '/_files/empty.gif', null, 'image/gif'),
-                                    array(dirname(dirname(__DIR__)) . '/_files/plaintext.txt', 'secret.txt', 'text/x-whatever')
-                                  ));
+                      ->addUpload('bar', [
+                                    [dirname(dirname(__DIR__)) . '/_files/empty.gif', null, 'image/gif'],
+                                    [dirname(dirname(__DIR__)) . '/_files/plaintext.txt', 'secret.txt', 'text/x-whatever']
+                      ]);
 
         $response = $this->request->send();
         $this->assertContains("foo picture.gif image/gif 43", $response->getBody());
@@ -204,10 +204,10 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
     public function testCookies()
     {
-        $cookies = array(
+        $cookies = [
             'CUSTOMER'    => 'WILE_E_COYOTE',
             'PART_NUMBER' => 'ROCKET_LAUNCHER_0001'
-        );
+        ];
 
         foreach ($cookies as $k => $v) {
             $this->request->addCookie($k, $v);
@@ -231,7 +231,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     {
         $this->request->setConfig('timeout', 2)
                       ->setUrl($this->baseUrl . 'postparameters.php')
-                      ->setBody(new SlowpokeBody(array('foo' => 'some value'), array()));
+                      ->setBody(new SlowpokeBody(['foo' => 'some value'], []));
         try {
             $this->request->send();
             $this->fail('Expected HTTP_Request2_MessageException was not thrown');
@@ -242,10 +242,10 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
     public function testBasicAuth()
     {
-        $this->request->getUrl()->setQueryVariables(array(
+        $this->request->getUrl()->setQueryVariables([
             'user' => 'luser',
             'pass' => 'qwerty'
-        ));
+        ]);
         $wrong = clone $this->request;
 
         $this->request->setAuth('luser', 'qwerty');
@@ -259,19 +259,19 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
     public function testDigestAuth()
     {
-        $this->request->getUrl()->setQueryVariables(array(
+        $this->request->getUrl()->setQueryVariables([
             'user' => 'luser',
             'pass' => 'qwerty'
-        ));
+        ]);
         $wrong = clone $this->request;
-        $observer = new EventSequenceObserver(array('sentHeaders', 'receivedHeaders'));
+        $observer = new EventSequenceObserver(['sentHeaders', 'receivedHeaders']);
 
         $this->request->setAuth('luser', 'qwerty', HTTP_Request2::AUTH_DIGEST)
             ->attach($observer);
         $response = $this->request->send();
         $this->assertEquals(200, $response->getStatus());
         $this->assertEquals(
-            array('sentHeaders', 'receivedHeaders', 'sentHeaders', 'receivedHeaders'),
+            ['sentHeaders', 'receivedHeaders', 'sentHeaders', 'receivedHeaders'],
             $observer->sequence
         );
 
@@ -282,9 +282,9 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
     public function testRedirectsDefault()
     {
-        $observer = new EventSequenceObserver(array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'));
+        $observer = new EventSequenceObserver(['sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders']);
         $this->request->setUrl($this->baseUrl . 'redirects.php')
-                      ->setConfig(array('follow_redirects' => true, 'strict_redirects' => false))
+                      ->setConfig(['follow_redirects' => true, 'strict_redirects' => false])
                       ->setMethod(HTTP_Request2::METHOD_POST)
                       ->addPostParameter('foo', 'foo value')
                       ->attach($observer);
@@ -294,16 +294,16 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $this->assertNotContains('foo', $response->getBody());
         $this->assertEquals($this->baseUrl . 'redirects.php?redirects=0', $response->getEffectiveUrl());
         $this->assertEquals(
-            array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders', 'sentHeaders', 'receivedHeaders'),
+            ['sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders', 'sentHeaders', 'receivedHeaders'],
             $observer->sequence
         );
     }
 
     public function testRedirectsStrict()
     {
-        $observer = new EventSequenceObserver(array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'));
+        $observer = new EventSequenceObserver(['sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders']);
         $this->request->setUrl($this->baseUrl . 'redirects.php')
-                      ->setConfig(array('follow_redirects' => true, 'strict_redirects' => true))
+                      ->setConfig(['follow_redirects' => true, 'strict_redirects' => true])
                       ->setMethod(HTTP_Request2::METHOD_POST)
                       ->addPostParameter('foo', 'foo value')
                       ->attach($observer);
@@ -312,8 +312,8 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $this->assertContains('Method=POST', $response->getBody());
         $this->assertContains('foo', $response->getBody());
         $this->assertEquals(
-            array('sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders',
-                  'sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'),
+            ['sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders',
+                  'sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'],
             $observer->sequence
         );
     }
@@ -321,7 +321,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testRedirectsLimit()
     {
         $this->request->setUrl($this->baseUrl . 'redirects.php?redirects=4')
-                      ->setConfig(array('follow_redirects' => true, 'max_redirects' => 2));
+                      ->setConfig(['follow_redirects' => true, 'max_redirects' => 2]);
 
         try {
             $this->request->send();
@@ -334,7 +334,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testRedirectsRelative()
     {
         $this->request->setUrl($this->baseUrl . 'redirects.php?special=relative')
-                      ->setConfig(array('follow_redirects' => true));
+                      ->setConfig(['follow_redirects' => true]);
 
         $response = $this->request->send();
         $this->assertContains('did relative', $response->getBody());
@@ -343,7 +343,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     public function testRedirectsNonHTTP()
     {
         $this->request->setUrl($this->baseUrl . 'redirects.php?special=ftp')
-                      ->setConfig(array('follow_redirects' => true));
+                      ->setConfig(['follow_redirects' => true]);
 
         try {
             $this->request->send();
@@ -361,13 +361,13 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $this->request->setCookieJar()->send();
         $jar = $this->request->getCookieJar();
         $jar->store(
-            array('name' => 'foo', 'value' => 'bar'),
+            ['name' => 'foo', 'value' => 'bar'],
             $this->request->getUrl()
         );
 
         $response = $req2->setUrl($this->baseUrl . 'cookies.php')->setCookieJar($jar)->send();
         $this->assertEquals(
-            serialize(array('cookie_name' => 'cookie_value', 'foo' => 'bar')),
+            serialize(['cookie_name' => 'cookie_value', 'foo' => 'bar']),
             $response->getBody()
         );
     }
@@ -379,7 +379,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->setCookieJar();
 
         $response = $this->request->send();
-        $this->assertEquals(serialize(array('cookie_on_redirect' => 'success')), $response->getBody());
+        $this->assertEquals(serialize(['cookie_on_redirect' => 'success']), $response->getBody());
     }
 
     /**
@@ -387,10 +387,10 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
      */
     public function testChunkedRequest()
     {
-        $data = array(
+        $data = [
             'long'      => str_repeat('a', 1000),
             'very_long' => str_repeat('b', 2000)
-        );
+        ];
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
                       ->setUrl($this->baseUrl . 'postparameters.php')
@@ -411,15 +411,15 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $fp       = fopen(dirname(dirname(__DIR__)) . '/_files/bug_15305', 'rb');
         $observer = new HeaderObserver();
         $body     = new HTTP_Request2_MultipartBody(
-            array(),
-            array(
-                'upload' => array(
+            [],
+            [
+                'upload' => [
                     'fp'       => $fp,
                     'filename' => 'bug_15305',
                     'type'     => 'application/octet-stream',
                     'size'     => 16338
-                )
-            )
+                ]
+            ]
         );
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
@@ -485,7 +485,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
 
     public function testIncompleteBody()
     {
-        $events = array('receivedBodyPart', 'warning', 'receivedBody');
+        $events = ['receivedBodyPart', 'warning', 'receivedBody'];
         $this->request->setHeader('Accept-Encoding', 'identity');
 
         $plain = clone $this->request;

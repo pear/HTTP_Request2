@@ -35,8 +35,8 @@ function http_digest_parse($txt)
     $quoted = '"(?:\\\\.|[^\\\\"])*"';
 
     // protect against missing data
-    $needed_parts = array_flip(array('nonce', 'nc', 'cnonce', 'qop', 'username', 'uri', 'response'));
-    $data         = array();
+    $needed_parts = array_flip(['nonce', 'nc', 'cnonce', 'qop', 'username', 'uri', 'response']);
+    $data         = [];
 
     preg_match_all("!({$token})\\s*=\\s*({$token}|{$quoted})!", $txt, $matches);
     for ($i = 0; $i < count($matches[0]); $i++) {

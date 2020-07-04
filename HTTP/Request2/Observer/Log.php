@@ -83,14 +83,14 @@ class HTTP_Request2_Observer_Log implements SplObserver
      *
      * @var array $events
      */
-    public $events = array(
+    public $events = [
         'connect',
         'sentHeaders',
         'sentBody',
         'receivedHeaders',
         'receivedBody',
         'disconnect',
-    );
+    ];
 
     // }}}
     // __construct() {{{
@@ -104,7 +104,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
      *
      * @return void
      */
-    public function __construct($target = 'php://output', array $events = array())
+    public function __construct($target = 'php://output', array $events = [])
     {
         if (!empty($events)) {
             $this->events = $events;

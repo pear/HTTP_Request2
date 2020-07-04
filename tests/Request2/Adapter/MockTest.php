@@ -29,7 +29,7 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
     public function testDefaultResponse()
     {
         $req = new HTTP_Request2('http://www.example.com/', HTTP_Request2::METHOD_GET,
-                                 array('adapter' => 'mock'));
+                                 ['adapter' => 'mock']);
         $response = $req->send();
         $this->assertEquals(400, $response->getStatus());
         $this->assertEquals(0, count($response->getHeader()));

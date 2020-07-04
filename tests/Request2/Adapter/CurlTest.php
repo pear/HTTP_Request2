@@ -46,9 +46,9 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
     * Configuration for HTTP Request object
     * @var array
     */
-    protected $config = array(
+    protected $config = [
         'adapter' => 'HTTP_Request2_Adapter_Curl'
-    );
+    ];
 
    /**
     * Checks whether redirect support in cURL is disabled by safe_mode or open_basedir
@@ -120,7 +120,7 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
         }
 
         $this->request->setUrl($this->baseUrl . 'redirects.php')
-                      ->setConfig(array('follow_redirects' => true));
+                      ->setConfig(['follow_redirects' => true]);
 
         try {
             $this->request->send();
@@ -164,10 +164,10 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
 
         } else {
             $this->request->setUrl($this->baseUrl . 'redirects.php?special=youtube')
-                          ->setConfig(array(
+                          ->setConfig([
                                 'follow_redirects' => true,
                                 'ssl_verify_peer'  => false
-                          ))
+                          ])
                           ->setCookieJar(true);
 
             $this->request->send();

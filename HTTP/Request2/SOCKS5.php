@@ -49,7 +49,7 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
      * @throws HTTP_Request2_MessageException
      */
     public function __construct(
-        $address, $timeout = 10, array $contextOptions = array(),
+        $address, $timeout = 10, array $contextOptions = [],
         $username = null, $password = null
     ) {
         parent::__construct($address, $timeout, $contextOptions);

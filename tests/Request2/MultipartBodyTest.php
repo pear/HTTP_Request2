@@ -78,17 +78,17 @@ class HTTP_Request2_MultipartBodyTest extends PHPUnit_Framework_TestCase
     public function testUploadArray()
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
-        $body = $req->addUpload('upload', array(
-                                    array(dirname(__DIR__) . '/_files/plaintext.txt', 'bio.txt', 'text/plain'),
-                                    array(fopen(dirname(__DIR__) . '/_files/empty.gif', 'rb'), 'photo.gif', 'image/gif')
-                                ))
+        $body = $req->addUpload('upload', [
+                                    [dirname(__DIR__) . '/_files/plaintext.txt', 'bio.txt', 'text/plain'],
+                                    [fopen(dirname(__DIR__) . '/_files/empty.gif', 'rb'), 'photo.gif', 'image/gif']
+        ])
                     ->getBody();
         $asString = $body->__toString();
         $this->assertContains(file_get_contents(dirname(__DIR__) . '/_files/empty.gif'), $asString);
         $this->assertContains('name="upload[0]"; filename="bio.txt"', $asString);
         $this->assertContains('name="upload[1]"; filename="photo.gif"', $asString);
 
-        $body2 = $req->setConfig(array('use_brackets' => false))->getBody();
+        $body2 = $req->setConfig(['use_brackets' => false])->getBody();
         $asString = $body2->__toString();
         $this->assertContains('name="upload"; filename="bio.txt"', $asString);
         $this->assertContains('name="upload"; filename="photo.gif"', $asString);

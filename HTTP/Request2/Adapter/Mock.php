@@ -53,7 +53,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
      * A queue of responses to be returned by sendRequest()
      * @var  array
      */
-    protected $responses = array();
+    protected $responses = [];
 
     /**
      * Returns the next response from the queue built by addResponse()
@@ -115,7 +115,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
         ) {
             throw new HTTP_Request2_Exception('Parameter is not a valid response');
         }
-        $this->responses[] = array($response, $url);
+        $this->responses[] = [$response, $url];
     }
 
     /**

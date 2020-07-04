@@ -30,9 +30,9 @@ class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_Common
     * Configuration for HTTP Request object
     * @var array
     */
-    protected $config = array(
+    protected $config = [
         'adapter' => 'HTTP_Request2_Adapter_Socket'
-    );
+    ];
 
     protected function setUp()
     {
@@ -40,14 +40,14 @@ class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_Common
             $this->markTestSkipped('Proxy is not configured');
 
         } else {
-            $this->config += array(
+            $this->config += [
                 'proxy_host'        => HTTP_REQUEST2_TESTS_PROXY_HOST,
                 'proxy_port'        => HTTP_REQUEST2_TESTS_PROXY_PORT,
                 'proxy_user'        => HTTP_REQUEST2_TESTS_PROXY_USER,
                 'proxy_password'    => HTTP_REQUEST2_TESTS_PROXY_PASSWORD,
                 'proxy_auth_scheme' => HTTP_REQUEST2_TESTS_PROXY_AUTH_SCHEME,
                 'proxy_type'        => HTTP_REQUEST2_TESTS_PROXY_TYPE
-            );
+            ];
             parent::setUp();
         }
     }

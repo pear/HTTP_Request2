@@ -30,21 +30,21 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     * Configuration for HTTP Request object
     * @var array
     */
-    protected $config = array(
+    protected $config = [
         'adapter' => 'HTTP_Request2_Adapter_Socket'
-    );
+    ];
 
     public function testBug17826()
     {
         $adapter = new HTTP_Request2_Adapter_Socket();
 
         $request1 = new HTTP_Request2($this->baseUrl . 'redirects.php?redirects=2');
-        $request1->setConfig(array('follow_redirects' => true, 'max_redirects' => 3))
+        $request1->setConfig(['follow_redirects' => true, 'max_redirects' => 3])
                  ->setAdapter($adapter)
                  ->send();
 
         $request2 = new HTTP_Request2($this->baseUrl . 'redirects.php?redirects=2');
-        $request2->setConfig(array('follow_redirects' => true, 'max_redirects' => 3))
+        $request2->setConfig(['follow_redirects' => true, 'max_redirects' => 3])
                  ->setAdapter($adapter)
                  ->send();
     }
@@ -67,21 +67,21 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
 
         $fp   = fopen($this->baseUrl . '/bug19934.php', 'rb');
         $body = new HTTP_Request2_MultipartBody(
-            array(),
-            array(
-                'upload' => array(
+            [],
+            [
+                'upload' => [
                     'fp'       => $fp,
                     'filename' => 'foo.txt',
                     'type'     => 'text/plain',
                     'size'     => 20000
-                )
-            )
+                ]
+            ]
         );
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
                       ->setUrl($this->baseUrl . 'uploads.php')
                       ->setBody($body);
 
-        set_error_handler(array($this, 'rewindWarningsHandler'));
+        set_error_handler([$this, 'rewindWarningsHandler']);
         $response = $this->request->send();
         restore_error_handler();
 
@@ -109,18 +109,18 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
 
         $fp   = fopen(dirname(dirname(__DIR__)) . '/_files/bug_15305', 'rb');
         $body = $this->getMockBuilder('HTTP_Request2_MultipartBody')
-            ->setMethods(array('read'))
-            ->setConstructorArgs(array(
-                array(),
-                array(
-                    'upload' => array(
+            ->setMethods(['read'])
+            ->setConstructorArgs([
+                [],
+                [
+                    'upload' => [
                         'fp'       => $fp,
                         'filename' => 'bug_15305',
                         'type'     => 'application/octet-stream',
                         'size'     => 16338
-                    )
-                )
-            ))
+                    ]
+                ]
+            ])
             ->getMock();
         $body->expects($this->never())->method('read');
 
@@ -135,15 +135,15 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     {
         $fp       = fopen(dirname(dirname(__DIR__)) . '/_files/bug_15305', 'rb');
         $body     = new HTTP_Request2_MultipartBody(
-            array(),
-            array(
-                'upload' => array(
+            [],
+            [
+                'upload' => [
                     'fp'       => $fp,
                     'filename' => 'bug_15305',
                     'type'     => 'application/octet-stream',
                     'size'     => 16338
-                )
-            )
+                ]
+            ]
         );
 
         $this->request->setMethod(HTTP_Request2::METHOD_POST)
@@ -162,7 +162,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
      */
     public function testBug20228()
     {
-        $events = array('receivedBodyPart', 'warning', 'receivedBody');
+        $events = ['receivedBodyPart', 'warning', 'receivedBody'];
         $this->request->setHeader('Accept-Encoding', 'identity')
             ->attach($observer = new EventSequenceObserver($events));
         $response = $this->request->send();

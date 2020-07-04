@@ -59,16 +59,16 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
         $response = $this->readResponseFromFile('response_cookies');
         $cookies  = $response->getCookies();
         $this->assertEquals(4, count($cookies));
-        $expected = array(
-            array('name' => 'foo', 'value' => 'bar', 'expires' => null,
-                  'domain' => null, 'path' => null, 'secure' => false),
-            array('name' => 'PHPSESSID', 'value' => '1234567890abcdef1234567890abcdef',
-                  'expires' => null, 'domain' => null, 'path' => '/', 'secure' => true),
-            array('name' => 'A', 'value' => 'B=C', 'expires' => null,
-                  'domain' => null, 'path' => null, 'secure' => false),
-            array('name' => 'baz', 'value' => '%20a%20value', 'expires' => 'Sun, 03 Jan 2010 03:04:05 GMT',
-                  'domain' => 'pear.php.net', 'path' => null, 'secure' => false),
-        );
+        $expected = [
+            ['name' => 'foo', 'value' => 'bar', 'expires' => null,
+                  'domain' => null, 'path' => null, 'secure' => false],
+            ['name' => 'PHPSESSID', 'value' => '1234567890abcdef1234567890abcdef',
+                  'expires' => null, 'domain' => null, 'path' => '/', 'secure' => true],
+            ['name' => 'A', 'value' => 'B=C', 'expires' => null,
+                  'domain' => null, 'path' => null, 'secure' => false],
+            ['name' => 'baz', 'value' => '%20a%20value', 'expires' => 'Sun, 03 Jan 2010 03:04:05 GMT',
+                  'domain' => 'pear.php.net', 'path' => null, 'secure' => false],
+        ];
         foreach ($cookies as $k => $cookie) {
             $this->assertEquals($expected[$k], $cookie);
         }
