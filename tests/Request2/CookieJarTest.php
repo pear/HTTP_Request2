@@ -329,7 +329,7 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
             ['whatever.msk.ru', '.msk.ru', false],
             ['whatever.co.uk', '.co.uk', false],
             ['whatever.bd', '.whatever.bd', false],
-            ['whatever.bn', '.whatever.bn', false],
+            ['com.bn', '.com.bn', false],
             ['nic.tr', '.nic.tr', true],
             ['foo.bar', '.foo.bar', true]
         ];
