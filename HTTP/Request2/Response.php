@@ -436,21 +436,16 @@ class HTTP_Request2_Response
             try {
                 switch (strtolower($this->getHeader('content-encoding'))) {
                 case 'gzip':
-                    $decoded = self::decodeGzip($this->body);
+                    return self::decodeGzip($this->body);
                     break;
                 case 'deflate':
-                    $decoded = self::decodeDeflate($this->body);
+                    return self::decodeDeflate($this->body);
                 }
-            } catch (Exception $e) {
+            } finally {
+                if (!empty($oldEncoding)) {
+                    mb_internal_encoding($oldEncoding);
+                }
             }
-
-            if (!empty($oldEncoding)) {
-                mb_internal_encoding($oldEncoding);
-            }
-            if (!empty($e)) {
-                throw $e;
-            }
-            return $decoded;
         }
     }
 
