@@ -129,6 +129,9 @@ class HTTP_Request2_SocketWrapper
                 "Unable to connect to {$address}. Error: {$error}", 0, $errno
             );
         }
+        // Run socket in non-blocking mode, to prevent possible problems with
+        // HTTPS requests not timing out properly (see bug #21229)
+        stream_set_blocking($this->socket, false);
     }
 
     /**
@@ -149,10 +152,16 @@ class HTTP_Request2_SocketWrapper
      */
     public function read($length)
     {
-        if ($this->deadline) {
-            stream_set_timeout($this->socket, max($this->deadline - time(), 1));
+        $data    = '';
+        $timeout = $this->deadline ? max($this->deadline - time(), 1) : null;
+
+        $r = [$this->socket];
+        $w = [];
+        $e = [];
+        if (stream_select($r, $w, $e, $timeout)) {
+            $data = fread($this->socket, $length);
         }
-        $data = fread($this->socket, $length);
+
         $this->checkTimeout();
         return $data;
     }
@@ -175,29 +184,27 @@ class HTTP_Request2_SocketWrapper
         $line = '';
         while (!feof($this->socket)) {
             if (null !== $localTimeout) {
-                stream_set_timeout($this->socket, $localTimeout);
+                $timeout = $localTimeout;
+                $started = microtime(true);
             } elseif ($this->deadline) {
-                stream_set_timeout($this->socket, max($this->deadline - time(), 1));
+                $timeout = max($this->deadline - time(), 1);
+            } else {
+                $timeout = null;
             }
 
-            $line .= @fgets($this->socket, $bufferSize);
+            $r = [$this->socket];
+            $w = [];
+            $e = [];
+            if (stream_select($r, $w, $e, $timeout)) {
+                $line .= @fgets($this->socket, $bufferSize);
+            }
 
             if (null === $localTimeout) {
                 $this->checkTimeout();
-
-            } else {
-                $info = stream_get_meta_data($this->socket);
-                // reset socket timeout if we don't have request timeout specified,
-                // prevents further calls failing with a bogus Exception
-                if (!$this->deadline) {
-                    $default = (int)@ini_get('default_socket_timeout');
-                    stream_set_timeout($this->socket, $default > 0 ? $default : PHP_INT_MAX);
-                }
-                if ($info['timed_out']) {
-                    throw new HTTP_Request2_MessageException(
-                        "readLine() call timed out", HTTP_Request2_Exception::TIMEOUT
-                    );
-                }
+            } elseif (microtime(true) - $started > $localTimeout) {
+                throw new HTTP_Request2_MessageException(
+                    "readLine() call timed out", HTTP_Request2_Exception::TIMEOUT
+                );
             }
             if (substr($line, -1) == "\n") {
                 return rtrim($line, "\r\n");
@@ -216,16 +223,29 @@ class HTTP_Request2_SocketWrapper
      */
     public function write($data)
     {
-        if ($this->deadline) {
-            stream_set_timeout($this->socket, max($this->deadline - time(), 1));
+        $totalWritten = 0;
+        while (strlen($data)) {
+            $written = 0;
+            $timeout = $this->deadline ? max($this->deadline - time(), 1) : null;
+
+            $r = [];
+            $w = [$this->socket];
+            $e = [];
+            if (stream_select($r, $w, $e, $timeout)) {
+                // Notice: fwrite(): send of #### bytes failed with errno=10035
+                // A non-blocking socket operation could not be completed immediately.
+                $written = @fwrite($this->socket, $data);
+            }
+            $this->checkTimeout();
+
+            // http://www.php.net/manual/en/function.fwrite.php#96951
+            if (0 === (int)$written) {
+                throw new HTTP_Request2_MessageException('Error writing request');
+            }
+            $data = substr($data, $written);
+            $totalWritten += $written;
         }
-        $written = fwrite($this->socket, $data);
-        $this->checkTimeout();
-        // http://www.php.net/manual/en/function.fwrite.php#96951
-        if ($written < strlen($data)) {
-            throw new HTTP_Request2_MessageException('Error writing request');
-        }
-        return $written;
+        return $totalWritten;
     }
 
     /**
