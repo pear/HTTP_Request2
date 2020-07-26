@@ -25,10 +25,10 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2016-02-13</date>
+  <date>2020-07-26</date>
   <version>
-    <release>2.3.0</release>
-    <api>2.3.0</api>
+    <release>2.4.0</release>
+    <api>2.4.0</api>
   </version>
   <stability>
     <release>stable</release>
@@ -36,33 +36,20 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
-New features:
- * New observer that can do on-the-fly decoding of compressed responses,
-   see HTTP_Request2_Observer_UncompressingDownload.
-   Thanks to Delian Krustev for initial implementation.
- * CookieJar can now silently ignore invalid cookies with $jar-&gt;ignoreInvalidCookies(true);
-   instead of throwing an exception. See requests #19937 and #20401
- * Adapters now dispatch a new 'warning' event, e.g. in case of incomplete response
-   body or broken 'chunked' encoding. Exception was thrown previously by Socket adapter
-   in the latter case, see bug #20228
- * Improved security of HTTPS requests in Socket adapter
-   - Use 'tls://' instead of 'ssl://' in connection string to prevent fallback to
-     known insecure versions, use only TLS when enabling crypto via proxy (see bug #20462)
-   - On PHP 5.6+ require using only TLS 1.1 and TLS 1.2
-   - Do not use insecure ciphers
- * Improved test suite, network-backed tests now run on Travis CI
+* Minimum required version is now PHP 5.6, as using older versions for HTTPS
+  requests may be insecure
+* Removed support for magic_quotes_runtime, as get_magic_quotes_runtime()
+  was deprecated in PHP 7.4 and the functionality itself was disabled 
+  since PHP 5.4 (bug #23839)
+* Socket adapter now uses socket in non-blocking mode, as some configurations
+  could have problems with timeouts in HTTPS requests (bug #21229)
+* Fixed bogus size check error with gzipped responses larger than 4 GiB
+  uncompressed (bug #21239)
+* Use current &quot;Intermediate compatibility&quot; cipher list
+* Updated Public Suffix List
 
-Changes and fixes:
- * Curl adapter failed to send PUT request body with 'follow_redirects' on (bug #20440)
- * Curl adapter supplied invalid cookie domain to CookieJar after redirect (bug #20561)
- * Curl adapter now properly dispatches events while sending the request
- * mime_content_type() returning false was handled incorrectly when guessing content-type
- * Use 'peer_name' and 'verify_peer_name' SSL context options on PHP 5.6+
-   instead of deprecated 'CN_match'
- * Public Suffix List updated to current version, its download location changed
-
-Note to Composer users: next package version will probably get rid of 'include-path'
-setting in composer.json favour of using autoloader.
+The package is now 100% autoload-compatible, when installed with composer it
+no longer uses include-path and does not contain require_once statements
   </notes>
   <contents>
     <dir name="/">
@@ -275,6 +262,47 @@ setting in composer.json favour of using autoloader.
    </filelist>
   </phprelease>
     <changelog>
+	 <release>
+      <date>2016-02-13</date>
+      <version>
+       <release>2.3.0</release>
+       <api>2.3.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
+      <notes>
+New features:
+ * New observer that can do on-the-fly decoding of compressed responses,
+   see HTTP_Request2_Observer_UncompressingDownload.
+   Thanks to Delian Krustev for initial implementation.
+ * CookieJar can now silently ignore invalid cookies with $jar-&gt;ignoreInvalidCookies(true);
+   instead of throwing an exception. See requests #19937 and #20401
+ * Adapters now dispatch a new 'warning' event, e.g. in case of incomplete response
+   body or broken 'chunked' encoding. Exception was thrown previously by Socket adapter
+   in the latter case, see bug #20228
+ * Improved security of HTTPS requests in Socket adapter
+   - Use 'tls://' instead of 'ssl://' in connection string to prevent fallback to
+     known insecure versions, use only TLS when enabling crypto via proxy (see bug #20462)
+   - On PHP 5.6+ require using only TLS 1.1 and TLS 1.2
+   - Do not use insecure ciphers
+ * Improved test suite, network-backed tests now run on Travis CI
+
+Changes and fixes:
+ * Curl adapter failed to send PUT request body with 'follow_redirects' on (bug #20440)
+ * Curl adapter supplied invalid cookie domain to CookieJar after redirect (bug #20561)
+ * Curl adapter now properly dispatches events while sending the request
+ * mime_content_type() returning false was handled incorrectly when guessing content-type
+ * Use 'peer_name' and 'verify_peer_name' SSL context options on PHP 5.6+
+   instead of deprecated 'CN_match'
+ * Public Suffix List updated to current version, its download location changed
+
+Note to Composer users: next package version will probably get rid of 'include-path'
+setting in composer.json favour of using autoloader.
+      </notes>
+	 </release>
      <release>
       <date>2014-01-16</date>
       <version>
