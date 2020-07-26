@@ -482,6 +482,7 @@ return [
   'am' => true,
   'anani' => true,
   'aparecida' => true,
+  'app' => true,
   'arq' => true,
   'art' => true,
   'ato' => true,
@@ -489,6 +490,7 @@ return [
   'barueri' => true,
   'belem' => true,
   'bhz' => true,
+  'bib' => true,
   'bio' => true,
   'blog' => true,
   'bmd' => true,
@@ -505,14 +507,19 @@ return [
   ],
   'contagem' => true,
   'coop' => true,
+  'coz' => true,
   'cri' => true,
   'cuiaba' => true,
   'curitiba' => true,
   'def' => true,
+  'des' => true,
+  'det' => true,
+  'dev' => true,
   'ecn' => true,
   'eco' => true,
   'edu' => true,
   'emp' => true,
+  'enf' => true,
   'eng' => true,
   'esp' => true,
   'etc' => true,
@@ -528,6 +535,7 @@ return [
   'foz' => true,
   'fst' => true,
   'g12' => true,
+  'geo' => true,
   'ggf' => true,
   'goiania' => true,
   'gov' => [
@@ -599,6 +607,7 @@ return [
    'to' => true
   ],
   'lel' => true,
+  'log' => true,
   'londrina' => true,
   'macapa' => true,
   'maceio' => true,
@@ -633,6 +642,7 @@ return [
   'radio' => true,
   'rec' => true,
   'recife' => true,
+  'rep' => true,
   'ribeirao' => true,
   'rio' => true,
   'riobranco' => true,
@@ -643,6 +653,7 @@ return [
   'santoandre' => true,
   'saobernardo' => true,
   'saogonca' => true,
+  'seg' => true,
   'sjc' => true,
   'slg' => true,
   'slz' => true,
@@ -650,6 +661,7 @@ return [
   'srv' => true,
   'taxi' => true,
   'tc' => true,
+  'tec' => true,
   'teo' => true,
   'the' => true,
   'tmp' => true,
@@ -734,6 +746,7 @@ return [
   'myphotos' => true,
   'scrapping' => true,
   'twmail' => true,
+  'csx' => true,
   'fantasyleague' => true
  ],
  'cd' => [
@@ -1280,7 +1293,11 @@ return [
   'herokussl' => true,
   'myravendb' => true,
   'pixolino' => true,
+  'dopaas' => true,
   'hidora' => true,
+  'ik-server' => [
+   'jcloud' => true
+  ],
   'jelastic' => [
    'demo' => true
   ],
@@ -1409,11 +1426,17 @@ return [
   'hk' => true,
   'wafflecell' => true,
   'remotewd' => true,
+  'wiardweb' => [
+   'pages' => true
+  ],
   'xnbay' => [
    'u2' => true,
    'u2-local' => true
   ],
-  'yolasite' => true
+  'yolasite' => true,
+  'wpenginepowered' => true,
+  'impertrixcdn' => true,
+  'impertrix' => true
  ],
  'coop' => true,
  'cr' => [
@@ -2071,6 +2094,7 @@ return [
   'moonscale' => [
    '*' => true
   ],
+  'jele' => true,
   'loginline' => true,
   'barsy' => true,
   'azurecontainer' => [
@@ -5586,8 +5610,12 @@ return [
   'in-vpn' => true,
   'ipifony' => true,
   'iobb' => true,
+  'cloudjiffy' => true,
   'elastx' => [
    'jls-sto1' => true
+  ],
+  'saveincloud' => [
+   'jelastic' => true
   ],
   'kinghost' => true,
   'uni5' => true,
@@ -7182,6 +7210,9 @@ return [
   'vladikavkaz' => true,
   'vladimir' => true,
   'blogspot' => true,
+  'regruhosting' => [
+   'jelastic' => true
+  ],
   'myjino' => [
    'hosting' => [
     '*' => true
@@ -7308,7 +7339,10 @@ return [
   'mil' => true,
   'hashbang' => true,
   'platform' => [
-   '*' => true
+   'bc' => true,
+   'ent' => true,
+   'eu' => true,
+   'us' => true
   ],
   'now' => true,
   'vxl' => true,
@@ -8151,7 +8185,8 @@ return [
   'org' => true,
   'blog' => true,
   'dev' => true,
-  'me' => true
+  'me' => true,
+  'cn' => true
  ],
  'wf' => true,
  'ws' => [
@@ -8541,6 +8576,7 @@ return [
   'statics' => [
    '*' => true
   ],
+  'jele' => true,
   'linkyard' => true,
   'magentosite' => [
    '*' => true
@@ -8559,6 +8595,7 @@ return [
  ],
  'club' => [
   'cloudns' => true,
+  'jele' => true,
   'barsy' => true,
   'pony' => true
  ],
@@ -8892,6 +8929,7 @@ return [
   'freesite' => true,
   'fastvps' => true,
   'myfast' => true,
+  'jele' => true,
   'mircloud' => true,
   'pcloud' => true,
   'half' => true
@@ -9406,9 +9444,11 @@ return [
   'cloudera' => true,
   'cyon' => true,
   'fastvps' => true,
+  'jele' => true,
   'lelux' => true,
   'loginline' => true,
   'barsy' => true,
+  'opensocial' => true,
   'platformsh' => [
    '*' => true
   ],
@@ -9473,7 +9513,6 @@ return [
  'swiftcover' => true,
  'swiss' => true,
  'sydney' => true,
- 'symantec' => true,
  'systems' => [
   'knightpoint' => true
  ],
@@ -9490,7 +9529,8 @@ return [
  'tci' => true,
  'tdk' => true,
  'team' => [
-  'discourse' => true
+  'discourse' => true,
+  'jelastic' => true
  ],
  'tech' => true,
  'technology' => [
