@@ -52,7 +52,7 @@ class HTTP_Request2_SocketWrapper
 
     /**
      * Sum of start time and global timeout, exception will be thrown if request continues past this time
-     * @var  integer
+     * @var float
      */
     protected $deadline;
 
@@ -152,13 +152,13 @@ class HTTP_Request2_SocketWrapper
      */
     public function read($length)
     {
-        $data    = '';
-        $timeout = $this->deadline ? max($this->deadline - time(), 1) : null;
+        $data     = '';
+        $timeouts = $this->_getTimeoutsForStreamSelect();
 
         $r = [$this->socket];
         $w = [];
         $e = [];
-        if (stream_select($r, $w, $e, $timeout)) {
+        if (stream_select($r, $w, $e, $timeouts[0], $timeouts[1])) {
             $data = fread($this->socket, $length);
         }
 
@@ -184,18 +184,16 @@ class HTTP_Request2_SocketWrapper
         $line = '';
         while (!feof($this->socket)) {
             if (null !== $localTimeout) {
-                $timeout = $localTimeout;
-                $started = microtime(true);
-            } elseif ($this->deadline) {
-                $timeout = max($this->deadline - time(), 1);
+                $timeouts = [$localTimeout, 0];
+                $started  = microtime(true);
             } else {
-                $timeout = null;
+                $timeouts = $this->_getTimeoutsForStreamSelect();
             }
 
             $r = [$this->socket];
             $w = [];
             $e = [];
-            if (stream_select($r, $w, $e, $timeout)) {
+            if (stream_select($r, $w, $e, $timeouts[0], $timeouts[1])) {
                 $line .= @fgets($this->socket, $bufferSize);
             }
 
@@ -225,13 +223,13 @@ class HTTP_Request2_SocketWrapper
     {
         $totalWritten = 0;
         while (strlen($data)) {
-            $written = 0;
-            $timeout = $this->deadline ? max($this->deadline - time(), 1) : null;
+            $written  = 0;
+            $timeouts = $this->_getTimeoutsForStreamSelect();
 
             $r = [];
             $w = [$this->socket];
             $e = [];
-            if (stream_select($r, $w, $e, $timeout)) {
+            if (stream_select($r, $w, $e, $timeouts[0], $timeouts[1])) {
                 // Notice: fwrite(): send of #### bytes failed with errno=10035
                 // A non-blocking socket operation could not be completed immediately.
                 $written = @fwrite($this->socket, $data);
@@ -261,13 +259,20 @@ class HTTP_Request2_SocketWrapper
     /**
      * Sets request deadline
      *
-     * @param int $deadline Exception will be thrown if request continues
-     *                      past this time
-     * @param int $timeout  Original request timeout value, to use in
-     *                      Exception message
+     * If null is passed for $deadline then deadline will be calculated based
+     * on default_socket_timeout PHP setting. This is done to keep BC with previous
+     * versions that used blocking sockets.
+     *
+     * @param float|null $deadline Exception will be thrown if request continues
+     *                             past this time
+     * @param int $timeout         Original request timeout value, to use in
+     *                             Exception message
      */
     public function setDeadline($deadline, $timeout)
     {
+        if (null === $deadline && 0 < ($defaultTimeout = (int)ini_get('default_socket_timeout'))) {
+            $deadline = microtime(true) + $defaultTimeout;
+        }
         $this->deadline = $deadline;
         $this->timeout  = $timeout;
     }
@@ -297,14 +302,35 @@ class HTTP_Request2_SocketWrapper
     protected function checkTimeout()
     {
         $info = stream_get_meta_data($this->socket);
-        if ($info['timed_out'] || $this->deadline && time() > $this->deadline) {
-            $reason = $this->deadline
+        if ($info['timed_out'] || $this->deadline && microtime(true) > $this->deadline) {
+            $reason = $this->timeout
                 ? "after {$this->timeout} second(s)"
                 : 'due to default_socket_timeout php.ini setting';
             throw new HTTP_Request2_MessageException(
                 "Request timed out {$reason}", HTTP_Request2_Exception::TIMEOUT
             );
         }
+    }
+
+    /**
+     * Returns timeouts based on deadline for use with stream_select()
+     *
+     * @return array First element is $tv_sec parameter for stream_select(),
+     *               second element is $tv_usec
+     */
+    private function _getTimeoutsForStreamSelect()
+    {
+        if (!$this->deadline) {
+            return [null, null];
+        }
+        $parts = array_map(
+            'intval',
+            explode('.', sprintf('%.6F', $this->deadline - microtime(true)))
+        );
+        if (0 > $parts[0] || 0 === $parts[0] && $parts[1] < 50000) {
+            return [0, 50000];
+        }
+        return $parts;
     }
 
     /**

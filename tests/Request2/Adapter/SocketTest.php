@@ -187,5 +187,20 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
 
         $this->assertEquals('Probably Okay', $responseData['rating']);
     }
+
+    public function testDefaultSocketTimeout()
+    {
+        ini_set('default_socket_timeout', 2);
+
+        $this::expectException('HTTP_Request2_MessageException');
+        $this::expectExceptionMessageRegExp('/default_socket_timeout/');
+        try {
+            $this->request->setConfig('timeout', 0)
+                ->setUrl($this->baseUrl . 'timeout.php')
+                ->send();
+        } finally {
+            ini_restore('default_socket_timeout');
+        }
+    }
 }
 ?>

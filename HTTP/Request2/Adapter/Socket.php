@@ -272,7 +272,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
         // Use global request timeout if given, see feature requests #5735, #8964
         if ($timeout = $this->request->getConfig('timeout')) {
-            $deadline = time() + $timeout;
+            $deadline = microtime(true) + $timeout;
         } else {
             $deadline = null;
         }
