@@ -287,10 +287,15 @@ class HTTP_Request2_SocketWrapper
         $cryptoMethod = STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
                         | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
 
-        if (!stream_socket_enable_crypto($this->socket, true, $cryptoMethod)) {
-            throw new HTTP_Request2_ConnectionException(
-                'Failed to enable secure connection when connecting through proxy'
-            );
+        try {
+            stream_set_blocking($this->socket, true);
+            if (!stream_socket_enable_crypto($this->socket, true, $cryptoMethod)) {
+                throw new HTTP_Request2_ConnectionException(
+                    'Failed to enable secure connection when connecting through proxy'
+                );
+            }
+        } finally {
+            stream_set_blocking($this->socket, false);
         }
     }
 
