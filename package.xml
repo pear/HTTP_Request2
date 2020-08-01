@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2020-07-26</date>
+  <date>2020-08-01</date>
   <version>
-    <release>2.4.0</release>
+    <release>2.4.1</release>
     <api>2.4.0</api>
   </version>
   <stability>
@@ -36,20 +36,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
-* Minimum required version is now PHP 5.6, as using older versions for HTTPS
-  requests may be insecure
-* Removed support for magic_quotes_runtime, as get_magic_quotes_runtime()
-  was deprecated in PHP 7.4 and the functionality itself was disabled 
-  since PHP 5.4 (bug #23839)
-* Socket adapter now uses socket in non-blocking mode, as some configurations
-  could have problems with timeouts in HTTPS requests (bug #21229)
-* Fixed bogus size check error with gzipped responses larger than 4 GiB
-  uncompressed (bug #21239)
-* Use current &quot;Intermediate compatibility&quot; cipher list
-* Updated Public Suffix List
-
-The package is now 100% autoload-compatible, when installed with composer it
-no longer uses include-path and does not contain require_once statements
+Switch socket to blocking mode when enabling crypto, this fixes HTTPS requests
+through proxy with Socket adapter 
+https://github.com/pear/HTTP_Request2/issues/20
   </notes>
   <contents>
     <dir name="/">
@@ -262,6 +251,34 @@ no longer uses include-path and does not contain require_once statements
    </filelist>
   </phprelease>
     <changelog>
+	 <release>
+      <date>2020-07-26</date>
+      <version>
+       <release>2.4.0</release>
+       <api>2.4.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
+      <notes>
+* Minimum required version is now PHP 5.6, as using older versions for HTTPS
+  requests may be insecure
+* Removed support for magic_quotes_runtime, as get_magic_quotes_runtime()
+  was deprecated in PHP 7.4 and the functionality itself was disabled 
+  since PHP 5.4 (bug #23839)
+* Socket adapter now uses socket in non-blocking mode, as some configurations
+  could have problems with timeouts in HTTPS requests (bug #21229)
+* Fixed bogus size check error with gzipped responses larger than 4 GiB
+  uncompressed (bug #21239)
+* Use current &quot;Intermediate compatibility&quot; cipher list
+* Updated Public Suffix List
+
+The package is now 100% autoload-compatible, when installed with composer it
+no longer uses include-path and does not contain require_once statements
+      </notes>
+	 </release>
 	 <release>
       <date>2016-02-13</date>
       <version>

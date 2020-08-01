@@ -213,7 +213,7 @@ class HTTP_Request2 implements SplSubject
             $this->setMethod($method);
         }
         $this->setHeader(
-            'user-agent', 'HTTP_Request2/2.4.0 ' .
+            'user-agent', 'HTTP_Request2/2.4.1 ' .
             '(http://pear.php.net/package/http_request2) PHP/' . phpversion()
         );
     }

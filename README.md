@@ -15,14 +15,14 @@ deflate encodings, redirects, monitoring the request progress with Observers...
 
 This package is [PEAR HTTP_Request2] and has been migrated from [PEAR SVN]
 
-Please report all issues via the [PEAR bug tracker].
+Please report all issues via the [GitHub issues].
 
 Pull requests are welcome.
 
 [PEAR HTTP_Request]: http://pear.php.net/package/HTTP_Request/
 [PEAR HTTP_Request2]: http://pear.php.net/package/HTTP_Request2/
 [PEAR SVN]: https://svn.php.net/repository/pear/packages/HTTP_Request2
-[PEAR bug tracker]: http://pear.php.net/bugs/search.php?cmd=display&package_name[]=HTTP_Request2
+[GitHub issues]: https://github.com/pear/HTTP_Request2/issues
 
 ## Basic usage
 

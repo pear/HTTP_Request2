@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.1
+* Switch socket to blocking mode when enabling crypto, this fixes HTTPS requests
+  through proxy with Socket adapter (issue #20)
+* Add `.gitattributes` file to omit installing tests (issue #19)
+
 ## 2.4.0
 
 * Minimum required version is now PHP 5.6, as using older versions for HTTPS
