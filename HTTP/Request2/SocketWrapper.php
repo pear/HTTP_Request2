@@ -147,22 +147,28 @@ class HTTP_Request2_SocketWrapper
      *
      * @param int $length Reads up to this number of bytes
      *
-     * @return   string Data read from socket
+     * @return   string|false Data read from socket by fread()
      * @throws   HTTP_Request2_MessageException     In case of timeout
      */
     public function read($length)
     {
-        $data     = '';
-        $timeouts = $this->_getTimeoutsForStreamSelect();
+        // Looks like stream_select() may return true, but then fread() will return an empty string...
+        // For some reason or other happens mostly with servers behind Cloudflare.
+        // Let's do the fread() call in a loop until either an error/eof or non-empty string:
+        do {
+            $data     = false;
+            $timeouts = $this->_getTimeoutsForStreamSelect();
 
-        $r = [$this->socket];
-        $w = [];
-        $e = [];
-        if (stream_select($r, $w, $e, $timeouts[0], $timeouts[1])) {
-            $data = fread($this->socket, $length);
-        }
+            $r = [$this->socket];
+            $w = [];
+            $e = [];
+            if (stream_select($r, $w, $e, $timeouts[0], $timeouts[1])) {
+                $data = fread($this->socket, $length);
+            }
 
-        $this->checkTimeout();
+            $this->checkTimeout();
+        } while ('' === $data && !$this->eof());
+
         return $data;
     }
 
