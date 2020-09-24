@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2020-08-01</date>
+  <date>2020-09-24</date>
   <version>
-    <release>2.4.1</release>
+    <release>2.4.2</release>
     <api>2.4.0</api>
   </version>
   <stability>
@@ -36,9 +36,8 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
-Switch socket to blocking mode when enabling crypto, this fixes HTTPS requests
-through proxy with Socket adapter 
-https://github.com/pear/HTTP_Request2/issues/20
+Socket adapter could prematurely end receiving the response body due to
+fread() call returning an empty string
   </notes>
   <contents>
     <dir name="/">
@@ -251,6 +250,23 @@ https://github.com/pear/HTTP_Request2/issues/20
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2020-08-01</date>
+      <version>
+       <release>2.4.1</release>
+       <api>2.4.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
+      <notes>
+Switch socket to blocking mode when enabling crypto, this fixes HTTPS requests
+through proxy with Socket adapter
+https://github.com/pear/HTTP_Request2/issues/20
+      </notes>
+     </release>
 	 <release>
       <date>2020-07-26</date>
       <version>

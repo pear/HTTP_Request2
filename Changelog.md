@@ -1,11 +1,16 @@
 # Changelog
 
-## 2.4.1
+## 2.4.2 - 2020-09-24
+### Fixed
+Socket adapter could prematurely end receiving the response body due to fread() call returning an empty string
+
+## 2.4.1 - 2020-08-01
+### Fixed
 * Switch socket to blocking mode when enabling crypto, this fixes HTTPS requests
   through proxy with Socket adapter (issue #20)
 * Add `.gitattributes` file to omit installing tests (issue #19)
 
-## 2.4.0
+## 2.4.0 - 2020-07-26
 
 * Minimum required version is now PHP 5.6, as using older versions for HTTPS
   requests may be insecure
