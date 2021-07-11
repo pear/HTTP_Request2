@@ -25,6 +25,8 @@ require_once dirname(dirname(__DIR__)) . '/TestHelper.php';
 // pear-package-only require_once __DIR__ . '/HeaderObserver.php';
 // pear-package-only require_once __DIR__ . '/EventSequenceObserver.php';
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Tests for HTTP_Request2 package that require a working webserver
  *
@@ -33,7 +35,7 @@ require_once dirname(dirname(__DIR__)) . '/TestHelper.php';
  *
  * You need to properly set up this test suite, refer to NetworkConfig.php.dist
  */
-abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework_TestCase
+abstract class HTTP_Request2_Adapter_CommonNetworkTest extends TestCase
 {
    /**
     * HTTP Request object
@@ -53,7 +55,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
     */
     protected $config = [];
 
-    protected function setUp()
+    protected function set_up()
     {
         if (!HTTP_REQUEST2_TESTS_BASE_URL) {
             $this->markTestSkipped('Base URL is not configured');
@@ -128,9 +130,9 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ]);
 
         $response = $this->request->send();
-        $this->assertContains("foo picture.gif image/gif 43", $response->getBody());
-        $this->assertContains("bar[0] empty.gif image/gif 43", $response->getBody());
-        $this->assertContains("bar[1] secret.txt text/x-whatever 15", $response->getBody());
+        $this->assertStringContainsString("foo picture.gif image/gif 43", $response->getBody());
+        $this->assertStringContainsString("bar[0] empty.gif image/gif 43", $response->getBody());
+        $this->assertStringContainsString("bar[1] secret.txt text/x-whatever 15", $response->getBody());
     }
 
     public function testRawPostData()
@@ -233,8 +235,8 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->attach($observer);
 
         $response = $this->request->send();
-        $this->assertContains('Method=GET', $response->getBody());
-        $this->assertNotContains('foo', $response->getBody());
+        $this->assertStringContainsString('Method=GET', $response->getBody());
+        $this->assertStringNotContainsString('foo', $response->getBody());
         $this->assertEquals($this->baseUrl . 'redirects.php?redirects=0', $response->getEffectiveUrl());
         $this->assertEquals(
             ['sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders', 'sentHeaders', 'receivedHeaders'],
@@ -254,8 +256,8 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->attach($observer);
 
         $response = $this->request->send();
-        $this->assertContains('Method=POST', $response->getBody());
-        $this->assertContains('foo', $response->getBody());
+        $this->assertStringContainsString('Method=POST', $response->getBody());
+        $this->assertStringContainsString('foo', $response->getBody());
         $this->assertEquals(
             ['sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders',
                   'sentHeaders', 'sentBodyPart', 'sentBody', 'receivedHeaders'],
@@ -282,7 +284,7 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->setConfig(['follow_redirects' => true]);
 
         $response = $this->request->send();
-        $this->assertContains('did relative', $response->getBody());
+        $this->assertStringContainsString('did relative', $response->getBody());
     }
 
     public function testRedirectsNonHTTP()
@@ -374,8 +376,8 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
                       ->attach($observer);
 
         $response = $this->request->send();
-        $this->assertNotContains('Expect:', $observer->headers);
-        $this->assertContains('upload bug_15305 application/octet-stream 16338', $response->getBody());
+        $this->assertStringNotContainsString('Expect:', $observer->headers);
+        $this->assertStringContainsString('upload bug_15305 application/octet-stream 16338', $response->getBody());
     }
 
     public function testDownloadObserverWithPlainBody()
@@ -412,12 +414,10 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends PHPUnit_Framework
         $this->assertEquals(str_repeat('0123456789abcdef', 256), fread($fp, 8192));
     }
 
-    /**
-     * @expectedException HTTP_Request2_MessageException
-     * @expectedExceptionMessage Body length limit
-     */
     public function testDownloadObserverEnforcesSizeLimit()
     {
+        $this->expectException(\HTTP_Request2_MessageException::class);
+        $this->expectExceptionMessage('Body length limit');
         $fp       = fopen('php://memory', 'r+');
         $observer = new HTTP_Request2_Observer_UncompressingDownload($fp, 1000);
 

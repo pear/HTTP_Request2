@@ -23,10 +23,12 @@ require_once __DIR__ . '/TestHelper.php';
 
 // pear-package-only require_once __DIR__ . '/MockObserver.php';
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Unit test for subject-observer pattern implementation in HTTP_Request2
  */
-class HTTP_Request2_ObserverTest extends PHPUnit_Framework_TestCase
+class HTTP_Request2_ObserverTest extends TestCase
 {
     public function testSetLastEvent()
     {

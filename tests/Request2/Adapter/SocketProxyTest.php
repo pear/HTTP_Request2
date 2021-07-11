@@ -31,12 +31,12 @@ class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_Common
     * @var array
     */
     protected $config = [
-        'adapter' => 'HTTP_Request2_Adapter_Socket'
+        'adapter' => \HTTP_Request2_Adapter_Socket::class
     ];
 
-    protected function setUp()
+    protected function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         if (!HTTP_REQUEST2_TESTS_PROXY_HOST) {
             $this->markTestSkipped('Proxy is not configured');

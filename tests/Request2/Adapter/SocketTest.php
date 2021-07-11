@@ -31,9 +31,12 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     * @var array
     */
     protected $config = [
-        'adapter' => 'HTTP_Request2_Adapter_Socket'
+        'adapter' => \HTTP_Request2_Adapter_Socket::class
     ];
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testBug17826()
     {
         $adapter = new HTTP_Request2_Adapter_Socket();
@@ -85,7 +88,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
         $response = $this->request->send();
         restore_error_handler();
 
-        $this->assertContains("upload foo.txt text/plain 20000", $response->getBody());
+        $this->assertStringContainsString("upload foo.txt text/plain 20000", $response->getBody());
     }
 
     public function rewindWarningsHandler($errno, $errstr)
@@ -108,7 +111,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
         }
 
         $fp   = fopen(dirname(dirname(__DIR__)) . '/_files/bug_15305', 'rb');
-        $body = $this->getMockBuilder('HTTP_Request2_MultipartBody')
+        $body = $this->getMockBuilder(\HTTP_Request2_MultipartBody::class)
             ->setMethods(['read'])
             ->setConstructorArgs([
                 [],
@@ -151,7 +154,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
                       ->setBody($body);
 
         $response = $this->request->send();
-        $this->assertContains('upload bug_15305 application/octet-stream 16338', $response->getBody());
+        $this->assertStringContainsString('upload bug_15305 application/octet-stream 16338', $response->getBody());
     }
 
     /**
@@ -192,8 +195,8 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     {
         ini_set('default_socket_timeout', 2);
 
-        $this::expectException('HTTP_Request2_MessageException');
-        $this::expectExceptionMessageRegExp('/default_socket_timeout/');
+        $this::expectException(\HTTP_Request2_MessageException::class);
+        $this::expectExceptionMessageMatches('/default_socket_timeout/');
         try {
             $this->request->setConfig('timeout', 0)
                 ->setUrl($this->baseUrl . 'timeout.php')

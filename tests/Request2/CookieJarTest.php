@@ -21,10 +21,12 @@
 /** Sets up includes */
 require_once dirname(__DIR__) . '/TestHelper.php';
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Unit test for HTTP_Request2_CookieJar class
  */
-class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
+class HTTP_Request2_CookieJarTest extends TestCase
 {
    /**
     * Cookie jar instance being tested
@@ -32,19 +34,19 @@ class HTTP_Request2_CookieJarTest extends PHPUnit_Framework_TestCase
     */
     protected $jar;
 
-    protected function setUp()
+    protected function set_up()
     {
         $this->jar = new HTTP_Request2_CookieJar();
     }
 
    /**
-    * Test that we can't store junk "cookies" in jar
-    *
-    * @dataProvider invalidCookieProvider
-    * @expectedException HTTP_Request2_LogicException
-    */
+     * Test that we can't store junk "cookies" in jar
+     *
+     * @dataProvider invalidCookieProvider
+     */
     public function testStoreInvalid($cookie)
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $this->jar->store($cookie);
     }
 

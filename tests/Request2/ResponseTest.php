@@ -21,17 +21,16 @@
 /** Sets up includes */
 require_once dirname(__DIR__) . '/TestHelper.php';
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Unit test for HTTP_Request2_Response class
  */
-class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
+class HTTP_Request2_ResponseTest extends TestCase
 {
-   /**
-    *
-    * @expectedException HTTP_Request2_MessageException
-    */
     public function testParseStatusLine()
     {
+        $this->expectException(\HTTP_Request2_MessageException::class);
         $response = new HTTP_Request2_Response('HTTP/1.1 200 OK');
         $this->assertEquals('1.1', $response->getVersion());
         $this->assertEquals(200, $response->getStatus());
@@ -42,7 +41,7 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(222, $response2->getStatus());
         $this->assertEquals('Nishtyak!', $response2->getReasonPhrase());
 
-        $response3 = new HTTP_Request2_Response('Invalid status line');
+        new HTTP_Request2_Response('Invalid status line');
     }
 
     public function testParseHeaders()
@@ -74,17 +73,14 @@ class HTTP_Request2_ResponseTest extends PHPUnit_Framework_TestCase
         }
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_MessageException
-    */
     public function testGzipEncoding()
     {
+        $this->expectException(\HTTP_Request2_MessageException::class);
         $response = $this->readResponseFromFile('response_gzip');
         $this->assertEquals('0e964e9273c606c46afbd311b5ad4d77', md5($response->getBody()));
 
         $response = $this->readResponseFromFile('response_gzip_broken');
-        $body = $response->getBody();
+        $response->getBody();
     }
 
     public function testDeflateEncoding()

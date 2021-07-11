@@ -21,10 +21,12 @@
 /** Sets up includes */
 require_once __DIR__ . '/TestHelper.php';
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Unit test for HTTP_Request2 class
  */
-class HTTP_Request2Test extends PHPUnit_Framework_TestCase
+class HTTP_Request2Test extends TestCase
 {
     public function testConstructorSetsDefaults()
     {
@@ -36,12 +38,9 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals(666, $req->getConfig('connect_timeout'));
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    */
     public function testSetUrl()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $urlString = 'http://www.example.com/foo/bar.php';
         $url       = new Net_URL2($urlString);
 
@@ -51,7 +50,7 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
 
         $req2 = new HTTP_Request2();
         $req2->setUrl($urlString);
-        $this->assertInstanceOf('Net_URL2', $req2->getUrl());
+        $this->assertInstanceOf(\Net_URL2::class, $req2->getUrl());
         $this->assertEquals($urlString, $req2->getUrl()->getUrl());
 
         $req3 = new HTTP_Request2();
@@ -70,12 +69,9 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         );
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    */
     public function testSetMethod()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $req = new HTTP_Request2();
         $req->setMethod(HTTP_Request2::METHOD_PUT);
         $this->assertEquals(HTTP_Request2::METHOD_PUT, $req->getMethod());
@@ -113,12 +109,9 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar%baz', $req->getConfig('proxy_password'));
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    */
     public function testHeaders()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $req = new HTTP_Request2();
         $autoHeaders = $req->getHeaders();
 
@@ -170,12 +163,9 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals('text/html, image/gif', $headers['accept']);
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    */
     public function testCookies()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $req = new HTTP_Request2();
         $req->addCookie('name', 'value');
         $req->addCookie('foo', 'bar');
@@ -185,19 +175,16 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->addCookie('invalid cookie', 'value');
     }
 
-    /**
-     *
-     * @expectedException HTTP_Request2_LogicException
-     */
     public function testPlainBody()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $req = new HTTP_Request2();
         $req->setBody('A string');
         $this->assertEquals('A string', $req->getBody());
 
         $req->setBody(__DIR__ . '/_files/plaintext.txt', true);
         $headers = $req->getHeaders();
-        $this->assertRegexp(
+        $this->assertMatchesRegularExpression(
             '!^(text/plain|application/octet-stream)!',
             $headers['content-type']
         );
@@ -206,12 +193,9 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $req->setBody('missing file', true);
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    */
     public function testRequest16863()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $req = new HTTP_Request2();
         $req->setBody(fopen(__DIR__ . '/_files/plaintext.txt', 'rb'));
         $headers = $req->getHeaders();
@@ -242,16 +226,13 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
     {
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $req->addPostParameter('foo', 'te~st');
-        $this->assertContains('~', $req->getBody());
+        $this->assertStringContainsString('~', $req->getBody());
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    * @expectedExceptionMessage missing file
-    */
     public function testUpload()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
+        $this->expectExceptionMessage('missing file');
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $req->addUpload('upload', __DIR__ . '/_files/plaintext.txt');
 
@@ -313,18 +294,15 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals('foo=bar', $req->getBody());
     }
 
-   /**
-    *
-    * @expectedException HTTP_Request2_LogicException
-    */
     public function testCookieJar()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
         $req = new HTTP_Request2();
         $this->assertNull($req->getCookieJar());
 
         $req->setCookieJar();
         $jar = $req->getCookieJar();
-        $this->assertInstanceOf('HTTP_Request2_CookieJar', $jar);
+        $this->assertInstanceOf(\HTTP_Request2_CookieJar::class, $jar);
 
         $req2 = new HTTP_Request2();
         $req2->setCookieJar($jar);
@@ -364,22 +342,18 @@ class HTTP_Request2Test extends PHPUnit_Framework_TestCase
         );
     }
 
-   /**
-    * @expectedException HTTP_Request2_LogicException
-    * @expectedExceptionMessage none
-    */
     public function testDisallowEmptyUrls()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
+        $this->expectExceptionMessage('none');
         $req = new HTTP_Request2();
         $req->send();
     }
 
-   /**
-    * @expectedException HTTP_Request2_LogicException
-    * @expectedExceptionMessage '/foo/bar.php'
-    */
     public function testDisallowRelativeUrls()
     {
+        $this->expectException(\HTTP_Request2_LogicException::class);
+        $this->expectExceptionMessage('\'/foo/bar.php\'');
         $req = new HTTP_Request2('/foo/bar.php');
         $req->send();
     }

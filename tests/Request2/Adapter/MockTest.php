@@ -21,10 +21,12 @@
 /** Sets up includes */
 require_once dirname(dirname(__DIR__)) . '/TestHelper.php';
 
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
 /**
  * Unit test for HTTP_Request2_Response class
  */
-class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
+class HTTP_Request2_Adapter_MockTest extends TestCase
 {
     public function testDefaultResponse()
     {
@@ -120,11 +122,11 @@ class HTTP_Request2_Adapter_MockTest extends PHPUnit_Framework_TestCase
 
         $req2 = new HTTP_Request2('http://example.com/');
         $req2->setAdapter($mock);
-        $this->assertContains('example.com', $req2->send()->getBody());
+        $this->assertStringContainsString('example.com', $req2->send()->getBody());
 
         $req3 = new HTTP_Request2('http://example.org');
         $req3->setAdapter($mock);
-        $this->assertContains('example.org', $req3->send()->getBody());
+        $this->assertStringContainsString('example.org', $req3->send()->getBody());
     }
 
     public function testResponseException()

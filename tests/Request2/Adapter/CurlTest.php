@@ -33,12 +33,12 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
     * @var array
     */
     protected $config = [
-        'adapter' => 'HTTP_Request2_Adapter_Curl'
+        'adapter' => \HTTP_Request2_Adapter_Curl::class
     ];
 
-    protected function setUp()
+    protected function set_up()
     {
-        parent::setUp();
+        parent::set_up();
         if (!extension_loaded('curl')) {
             $this->markTestSkipped("Curl extension should be enabled to run Curl tests");
         }
@@ -172,7 +172,7 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
     public function testIncompleteBody()
     {
         if (version_compare(phpversion(), '7.4', '>=')) {
-            $this::expectException('HTTP_Request2_Exception');
+            $this::expectException(\HTTP_Request2_Exception::class);
         }
         parent::testIncompleteBody();
     }
