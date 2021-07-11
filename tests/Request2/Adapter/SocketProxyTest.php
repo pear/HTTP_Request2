@@ -36,7 +36,9 @@ class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_Common
 
     protected function setUp()
     {
-        if (!defined('HTTP_REQUEST2_TESTS_PROXY_HOST') || !HTTP_REQUEST2_TESTS_PROXY_HOST) {
+        parent::setUp();
+
+        if (!HTTP_REQUEST2_TESTS_PROXY_HOST) {
             $this->markTestSkipped('Proxy is not configured');
 
         } else {
@@ -48,7 +50,6 @@ class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_Common
                 'proxy_auth_scheme' => HTTP_REQUEST2_TESTS_PROXY_AUTH_SCHEME,
                 'proxy_type'        => HTTP_REQUEST2_TESTS_PROXY_TYPE
             ];
-            parent::setUp();
         }
     }
 }

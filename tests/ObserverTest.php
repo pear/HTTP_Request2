@@ -21,21 +21,7 @@
 /** Sets up includes */
 require_once __DIR__ . '/TestHelper.php';
 
-/**
- * Mock observer
- */
-class HTTP_Request2_MockObserver implements SplObserver
-{
-    public $calls = 0;
-
-    public $event;
-
-    public function update (SplSubject $subject)
-    {
-        $this->calls++;
-        $this->event = $subject->getLastEvent();
-    }
-}
+// pear-package-only require_once __DIR__ . '/MockObserver.php';
 
 /**
  * Unit test for subject-observer pattern implementation in HTTP_Request2

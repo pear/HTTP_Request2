@@ -103,7 +103,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
      */
     public function test100ContinueHandling()
     {
-        if (!defined('HTTP_REQUEST2_TESTS_DIGEST_URL') || !HTTP_REQUEST2_TESTS_DIGEST_URL) {
+        if (!HTTP_REQUEST2_TESTS_DIGEST_URL) {
             $this->markTestSkipped('This test requires an URL protected by server digest auth');
         }
 
@@ -164,7 +164,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     {
         $events = ['receivedBodyPart', 'warning', 'receivedBody'];
         $this->request->setHeader('Accept-Encoding', 'identity')
-            ->attach($observer = new EventSequenceObserver($events));
+            ->attach($observer = new HTTP_Request2_Adapter_EventSequenceObserver($events));
         $response = $this->request->send();
         $this->assertEquals('This is a test', $response->getBody());
         $this->assertEquals($events, $observer->sequence);

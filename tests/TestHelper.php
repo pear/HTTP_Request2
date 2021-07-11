@@ -54,15 +54,11 @@ if (!$installed) {
     die(1);
 }
 
-if (strpos($_SERVER['argv'][0], 'phpunit') === false
-    && !class_exists('PHPUnit_Framework_TestCase', true)
-) {
-    require_once 'PHPUnit/Autoload.php';
-}
-
-if (!defined('HTTP_REQUEST2_TESTS_BASE_URL')
-    && is_readable(__DIR__ . '/NetworkConfig.php')
-) {
-    require_once __DIR__ . '/NetworkConfig.php';
+if (!defined('HTTP_REQUEST2_TESTS_BASE_URL')) {
+    if (is_readable(__DIR__ . '/NetworkConfig.php')) {
+        require_once __DIR__ . '/NetworkConfig.php';
+    } else {
+        require_once __DIR__ . '/NetworkConfig.php.dist';
+    }
 }
 ?>

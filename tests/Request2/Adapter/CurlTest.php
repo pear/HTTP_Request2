@@ -21,21 +21,7 @@
 /** Tests for HTTP_Request2 package that require a working webserver */
 require_once __DIR__ . '/CommonNetworkTest.php';
 
-class UploadSizeObserver implements SplObserver
-{
-    public $size;
-
-    public function update(SplSubject $subject)
-    {
-        /* @var $subject HTTP_Request2 */
-        $event = $subject->getLastEvent();
-
-        if ('sentBody' == $event['name']) {
-            $this->size = $event['data'];
-        }
-    }
-
-}
+// pear-package-only require_once __DIR__ . '/UploadSizeObserver.php';
 
 /**
  * Unit test for Curl Adapter of HTTP_Request2
@@ -50,7 +36,15 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
         'adapter' => 'HTTP_Request2_Adapter_Curl'
     ];
 
-   /**
+    protected function setUp()
+    {
+        parent::setUp();
+        if (!extension_loaded('curl')) {
+            $this->markTestSkipped("Curl extension should be enabled to run Curl tests");
+        }
+    }
+
+    /**
     * Checks whether redirect support in cURL is disabled by safe_mode or open_basedir
     * @return bool
     */
@@ -140,14 +134,14 @@ class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetwork
 
         $noredirects = clone $this->request;
         $noredirects->setConfig('follow_redirects', false)
-            ->attach($observer = new UploadSizeObserver());
+            ->attach($observer = new HTTP_Request2_Adapter_UploadSizeObserver());
         $noredirects->send();
         // Curl sends body with Transfer-encoding: chunked, so size can be larger
         $this->assertGreaterThanOrEqual(14, $observer->size);
 
         $redirects = clone $this->request;
         $redirects->setConfig('follow_redirects', true)
-            ->attach($observer = new UploadSizeObserver());
+            ->attach($observer = new HTTP_Request2_Adapter_UploadSizeObserver());
         $redirects->send();
         $this->assertGreaterThanOrEqual(14, $observer->size);
     }
