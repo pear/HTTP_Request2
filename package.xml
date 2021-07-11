@@ -131,20 +131,21 @@ fread() call returning an empty string
         </dir>
         <dir name="Request2">
           <dir name="Adapter">
-            <file role="test" name="AllTests.php" />
             <file role="test" name="CommonNetworkTest.php" />
             <file role="test" name="CurlTest.php" />
+            <file role="test" name="EventSequenceObserver.php" />
+            <file role="test" name="HeaderObserver.php" />
             <file role="test" name="MockTest.php" />
-            <file role="test" name="SkippedTests.php" />
+            <file role="test" name="SlowpokeBody.php" />
             <file role="test" name="SocketProxyTest.php" />
             <file role="test" name="SocketTest.php" />
+            <file role="test" name="UploadSizeObserver.php" />
           </dir>
-          <file role="test" name="AllTests.php" />
           <file role="test" name="CookieJarTest.php" />
           <file role="test" name="MultipartBodyTest.php" />
           <file role="test" name="ResponseTest.php" />
         </dir>
-        <file role="test" name="AllTests.php" />
+        <file role="test" name="MockObserver.php" />
         <file role="test" name="NetworkConfig.php.dist" />
         <file role="test" name="ObserverTest.php" />
         <file role="test" name="Request2Test.php" />
@@ -204,7 +205,7 @@ fread() call returning an empty string
     <install as="generate-list.php" name="data/generate-list.php" />
     <install as="public-suffix-list.php" name="data/public-suffix-list.php" />
 
-    <install as="AllTests.php" name="tests/AllTests.php" />
+    <install as="MockObserver.php" name="tests/MockObserver.php" />
     <install as="NetworkConfig.php.dist" name="tests/NetworkConfig.php.dist" />
     <install as="ObserverTest.php" name="tests/ObserverTest.php" />
     <install as="Request2Test.php" name="tests/Request2Test.php" />
@@ -235,18 +236,19 @@ fread() call returning an empty string
     <install as="_network/timeout.php" name="tests/_network/timeout.php" />
     <install as="_network/uploads.php" name="tests/_network/uploads.php" />
 
-    <install as="Request2/AllTests.php" name="tests/Request2/AllTests.php" />
     <install as="Request2/CookieJarTest.php" name="tests/Request2/CookieJarTest.php" />
     <install as="Request2/MultipartBodyTest.php" name="tests/Request2/MultipartBodyTest.php" />
     <install as="Request2/ResponseTest.php" name="tests/Request2/ResponseTest.php" />
 
-    <install as="Request2/Adapter/AllTests.php" name="tests/Request2/Adapter/AllTests.php" />
     <install as="Request2/Adapter/CommonNetworkTest.php" name="tests/Request2/Adapter/CommonNetworkTest.php" />
     <install as="Request2/Adapter/CurlTest.php" name="tests/Request2/Adapter/CurlTest.php" />
+    <install as="Request2/Adapter/EventSequenceObserver.php" name="tests/Request2/Adapter/EventSequenceObserver.php" />
+    <install as="Request2/Adapter/HeaderObserver.php" name="tests/Request2/Adapter/HeaderObserver.php" />
     <install as="Request2/Adapter/MockTest.php" name="tests/Request2/Adapter/MockTest.php" />
-    <install as="Request2/Adapter/SkippedTests.php" name="tests/Request2/Adapter/SkippedTests.php" />
+    <install as="Request2/Adapter/SlowpokeBody.php" name="tests/Request2/Adapter/SlowpokeBody.php" />
     <install as="Request2/Adapter/SocketProxyTest.php" name="tests/Request2/Adapter/SocketProxyTest.php" />
     <install as="Request2/Adapter/SocketTest.php" name="tests/Request2/Adapter/SocketTest.php" />
+    <install as="Request2/Adapter/UploadSizeObserver.php" name="tests/Request2/Adapter/UploadSizeObserver.php" />
    </filelist>
   </phprelease>
     <changelog>
