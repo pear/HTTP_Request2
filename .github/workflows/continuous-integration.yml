@@ -57,11 +57,11 @@ jobs:
 
       - name: Install package with PEAR
         run: |
-          - pear package-validate ./package.xml
-          - php ./pear-package-helper.php
-          - sudo pear install ./.pear-package/package.xml
+          pear package-validate ./package.xml
+          php ./pear-package-helper.php
+          sudo pear install ./.pear-package/package.xml
 
       - name: Run PHPUnit for PEAR install
         run: |
-          - cd `pear config-get test_dir`
-          - ${GITHUB_WORKSPACE}/vendor/bin/phpunit HTTP_Request2
+          cd `pear config-get test_dir`
+          ${GITHUB_WORKSPACE}/vendor/bin/phpunit HTTP_Request2
