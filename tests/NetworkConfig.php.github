@@ -1,3 +1,4 @@
+<?php
 /**
  * Unit tests for HTTP_Request2 package
  *
