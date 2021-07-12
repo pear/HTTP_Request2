@@ -82,6 +82,10 @@ class HTTP_Request2_SocketWrapper
             $contextOptions = ['ssl' => $contextOptions];
         }
         if (isset($contextOptions['ssl'])) {
+            $cryptoMethod = STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+            if (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT')) {
+                $cryptoMethod |= STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT;
+            }
             $contextOptions['ssl'] += [
                 // Using "Intermediate compatibility" cipher bundle from
                 // https://wiki.mozilla.org/Security/Server_Side_TLS
@@ -97,8 +101,7 @@ class HTTP_Request2_SocketWrapper
                                          . 'DHE-RSA-AES128-GCM-SHA256:'
                                          . 'DHE-RSA-AES256-GCM-SHA384',
                 'disable_compression' => true,
-                'crypto_method'       => STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
-                                         | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
+                'crypto_method'       => $cryptoMethod
             ];
         }
         $context = stream_context_create();
@@ -298,8 +301,10 @@ class HTTP_Request2_SocketWrapper
      */
     public function enableCrypto()
     {
-        $cryptoMethod = STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
-                        | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+        $cryptoMethod = STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+        if (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT')) {
+            $cryptoMethod |= STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT;
+        }
 
         try {
             stream_set_blocking($this->socket, true);
