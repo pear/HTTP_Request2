@@ -11,6 +11,7 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
 
     strategy:
+      fail-fast: false
       matrix:
         operating-system: ['ubuntu-latest']
         php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
@@ -64,4 +65,4 @@ jobs:
       - name: Run PHPUnit for PEAR install
         run: |
           cd `pear config-get test_dir`
-          ${GITHUB_WORKSPACE}/vendor/bin/phpunit HTTP_Request2
+          ${GITHUB_WORKSPACE}/vendor/bin/phpunit ./HTTP_Request2
