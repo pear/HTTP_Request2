@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2020-09-24</date>
+  <date>2021-07-12</date>
   <version>
-    <release>2.4.2</release>
+    <release>2.5.0</release>
     <api>2.4.0</api>
   </version>
   <stability>
@@ -36,8 +36,18 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
-Socket adapter could prematurely end receiving the response body due to
-fread() call returning an empty string
+Fixed
+ * Socket adapter will now retry writing to socket rather than throw an exception if `fwrite()` call
+   returns zero written bytes
+      https://github.com/pear/HTTP_Request2/issues/23
+
+Changed
+ * Socket adapter will use only TLS 1.2 and TLS 1.3
+   (the latter is available on PHP 7.4+)
+ * Upgraded tests for PHPUnit 9 compatibility, PHPUnit Polyfills package
+   is used to run them on PHP 5.6 to PHP 8
+ * Test suite now runs on Github Actions rather than on Travis
+ * Updated Public Suffix List
   </notes>
   <contents>
     <dir name="/">
@@ -252,6 +262,22 @@ fread() call returning an empty string
    </filelist>
   </phprelease>
     <changelog>
+     <release>
+      <date>2020-09-24</date>
+      <version>
+       <release>2.4.2</release>
+       <api>2.4.0</api>
+      </version>
+      <stability>
+       <release>stable</release>
+       <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
+      <notes>
+Socket adapter could prematurely end receiving the response body due to
+fread() call returning an empty string
+      </notes>
+     </release>
      <release>
       <date>2020-08-01</date>
       <version>
