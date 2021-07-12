@@ -1,7 +1,7 @@
 
 # HTTP_Request2
 
-[![Build Status](https://travis-ci.org/pear/HTTP_Request2.svg?branch=trunk)](https://travis-ci.org/pear/HTTP_Request2)
+[![Build Status](https://github.com/pear/HTTP_Request2/workflows/Continuous%20Integration/badge.svg?branch=trunk)](https://github.com/pear/HTTP_Request2/actions?query=branch%3Atrunk+workflow%3A%22Continuous+Integration%22)
 
 Provides an easy way to perform HTTP requests, uses pluggable adapters
 
