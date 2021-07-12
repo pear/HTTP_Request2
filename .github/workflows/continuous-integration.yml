@@ -48,8 +48,15 @@ jobs:
         run: |
           composer update --no-interaction --prefer-dist --no-progress ${{ matrix.composer-flags }}
 
+      - name: Start PHP's built-in web server for network tests
+        run: |
+          cd tests/_network
+          nohup php -S localhost:8000 > /dev/null 2>&1 &
+          cd ../..
+
       - name: Run PHPUnit for Composer install
         run: |
+          cp tests/NetworkConfig.php.github tests/NetworkConfig.php
           vendor/bin/phpunit tests
 
       - name: Install PEAR
@@ -64,5 +71,6 @@ jobs:
 
       - name: Run PHPUnit for PEAR install
         run: |
+          sudo cp tests/NetworkConfig.php.github `pear config-get test_dir`/HTTP_Request2/NetworkConfig.php
           cd `pear config-get test_dir`
           ${GITHUB_WORKSPACE}/vendor/bin/phpunit ./HTTP_Request2

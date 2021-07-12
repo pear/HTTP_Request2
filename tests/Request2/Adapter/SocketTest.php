@@ -169,6 +169,11 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
         $this->request->setHeader('Accept-Encoding', 'identity')
             ->attach($observer = new HTTP_Request2_Adapter_EventSequenceObserver($events));
         $response = $this->request->send();
+
+        if (false === strpos((string)$response->getHeader('Server'), 'Apache')) {
+            $this->markTestSkipped("This test will likely fail on non-Apache web server");
+        }
+
         $this->assertEquals('This is a test', $response->getBody());
         $this->assertEquals($events, $observer->sequence);
     }
