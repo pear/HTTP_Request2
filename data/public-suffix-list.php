@@ -156,6 +156,7 @@ return [
   'commune' => true,
   'net' => true,
   'org' => true,
+  'radio' => true,
   'blogspot' => true,
   'neko' => true,
   'nyaa' => true
@@ -238,7 +239,10 @@ return [
  ],
  'au' => [
   'com' => [
-   'blogspot' => true
+   'blogspot' => true,
+   'cloudlets' => [
+    'mel' => true
+   ]
   ],
   'net' => true,
   'org' => true,
@@ -331,6 +335,12 @@ return [
   'ac' => true,
   'webhosting' => true,
   'blogspot' => true,
+  'interhostsolutions' => [
+   'cloud' => true
+  ],
+  'kuleuven' => [
+   'ezproxy' => true
+  ],
   'transurl' => [
    '*' => true
   ]
@@ -394,6 +404,7 @@ return [
  ],
  'biz' => [
   'cloudns' => true,
+  'jozi' => true,
   'dyndns' => true,
   'for-better' => true,
   'for-more' => true,
@@ -401,7 +412,6 @@ return [
   'for-the' => true,
   'selfip' => true,
   'webhop' => true,
-  'bpl' => true,
   'orx' => true,
   'mmafan' => true,
   'myftp' => true,
@@ -503,7 +513,12 @@ return [
   'cng' => true,
   'cnt' => true,
   'com' => [
-   'blogspot' => true
+   'blogspot' => true,
+   'virtualcloud' => [
+    'scale' => [
+     'users' => true
+    ]
+   ]
   ],
   'contagem' => true,
   'coop' => true,
@@ -702,6 +717,8 @@ return [
    'blogspot' => true
   ],
   'of' => true,
+  'mycloud' => true,
+  'mediatech' => true,
   'nym' => true
  ],
  'bz' => [
@@ -711,6 +728,7 @@ return [
   'edu' => true,
   'gov' => true,
   'za' => true,
+  'gsj' => true,
   'nom' => true,
   'nym' => true
  ],
@@ -759,9 +777,21 @@ return [
  'ch' => [
   'square7' => true,
   'blogspot' => true,
+  'flow' => [
+   'ae' => [
+    'alp1' => true
+   ],
+   'appengine' => true
+  ],
   'linkyard-cloud' => true,
   'dnsking' => true,
   'gotdns' => true,
+  'firenet' => [
+   '*' => true,
+   'svc' => [
+    '*' => true
+   ]
+  ],
   '12hp' => true,
   '2ix' => true,
   '4lima' => true,
@@ -791,7 +821,6 @@ return [
   '!www' => true
  ],
  'cl' => [
-  'aprendemas' => true,
   'co' => true,
   'gob' => true,
   'gov' => true,
@@ -894,9 +923,14 @@ return [
   'mypi' => true,
   'n4t' => true,
   'nodum' => true,
-  'repl' => true
+  'repl' => [
+   'id' => true
+  ]
  ],
  'com' => [
+  'devcdnaccesso' => [
+   '*' => true
+  ],
   'adobeaemcloud' => [
    'dev' => [
     '*' => true
@@ -1038,33 +1072,37 @@ return [
    'us-west-1' => true,
    'us-west-2' => true
   ],
+  'awsglobalaccelerator' => true,
+  'appspacehosted' => true,
+  'appspaceusercontent' => true,
   'on-aptible' => true,
   'myasustor' => true,
   'balena-devices' => true,
   'betainabox' => true,
+  'boutir' => true,
   'bplaced' => true,
-  'ar' => true,
+  'cafjs' => true,
   'br' => true,
   'cn' => true,
   'de' => true,
   'eu' => true,
-  'gb' => true,
-  'hu' => true,
   'jpn' => true,
-  'kr' => true,
   'mex' => true,
-  'no' => true,
-  'qc' => true,
   'ru' => true,
   'sa' => true,
   'uk' => true,
   'us' => true,
-  'uy' => true,
   'za' => true,
+  'ar' => true,
+  'gb' => true,
+  'hu' => true,
+  'kr' => true,
+  'no' => true,
+  'qc' => true,
+  'uy' => true,
   'africa' => true,
   'gr' => true,
   'co' => true,
-  'xenapponazure' => true,
   'jdevcloud' => true,
   'wpdevcloud' => true,
   'cloudcontrolled' => true,
@@ -1087,6 +1125,7 @@ return [
   'dattoweb' => true,
   'mydatto' => true,
   'builtwithdark' => true,
+  'ddns5' => true,
   'drayddns' => true,
   'dreamhosters' => true,
   'mydrobo' => true,
@@ -1267,8 +1306,11 @@ return [
   'fastvps-server' => true,
   'mydobiss' => true,
   'firebaseapp' => true,
+  'forgeblocks' => true,
+  'framercanvas' => true,
   'freebox-os' => true,
   'freeboxos' => true,
+  'freemyip' => true,
   'gentapps' => true,
   'gentlentapis' => true,
   'githubusercontent' => true,
@@ -1280,7 +1322,6 @@ return [
     '*' => true
    ]
   ],
-  'blogspot' => true,
   'codespot' => true,
   'googleapis' => true,
   'googlecode' => true,
@@ -1288,18 +1329,43 @@ return [
   'publishproxy' => true,
   'withgoogle' => true,
   'withyoutube' => true,
+  'blogspot' => true,
   'awsmppl' => true,
   'herokuapp' => true,
   'herokussl' => true,
   'myravendb' => true,
+  'impertrixcdn' => true,
+  'impertrix' => true,
+  'smushcdn' => true,
+  'wphostedmail' => true,
+  'wpmucdn' => true,
   'pixolino' => true,
+  'amscompute' => true,
+  'clicketcloud' => true,
   'dopaas' => true,
   'hidora' => true,
+  'hosted-by-previder' => [
+   'paas' => true
+  ],
+  'hosteur' => [
+   'rag-cloud' => true,
+   'rag-cloud-ch' => true
+  ],
   'ik-server' => [
-   'jcloud' => true
+   'jcloud' => true,
+   'jcloud-ver-jpc' => true
   ],
   'jelastic' => [
    'demo' => true
+  ],
+  'kilatiron' => true,
+  'massivegrid' => [
+   'paas' => true
+  ],
+  'wafaicloud' => [
+   'jed' => true,
+   'lon' => true,
+   'ryd' => true
   ],
   'joyent' => [
    'cns' => [
@@ -1321,9 +1387,24 @@ return [
   ],
   'barsycenter' => true,
   'barsyonline' => true,
+  'mazeplay' => true,
   'miniserver' => true,
   'meteorapp' => [
    'eu' => true
+  ],
+  'hostedpi' => true,
+  'mythic-beasts' => [
+   'customer' => true,
+   'caracal' => true,
+   'fentiger' => true,
+   'lynx' => true,
+   'ocelot' => true,
+   'oncilla' => true,
+   'onza' => true,
+   'sphinx' => true,
+   'vs' => true,
+   'x' => true,
+   'yali' => true
   ],
   '4u' => true,
   'nfshost' => true,
@@ -1370,18 +1451,28 @@ return [
   'observableusercontent' => [
    'static' => true
   ],
+  'orsites' => true,
   'operaunite' => true,
+  'authgear-staging' => true,
+  'authgearapps' => true,
   'skygearapp' => true,
   'outsystemscloud' => true,
   'ownprovider' => true,
   'pgfog' => true,
   'pagefrontapp' => true,
   'pagexl' => true,
+  'paywhirl' => [
+   '*' => true
+  ],
   'gotpantheon' => true,
   'platter-app' => true,
   'pleskns' => true,
+  'postman-echo' => true,
   'prgmr' => [
    'xen' => true
+  ],
+  'pythonanywhere' => [
+   'eu' => true
   ],
   'qualifioapp' => true,
   'qbuser' => true,
@@ -1402,6 +1493,7 @@ return [
   'scrysec' => true,
   'firewall-gateway' => true,
   'myshopblocks' => true,
+  'myshopify' => true,
   'shopitsite' => true,
   '1kapp' => true,
   'appchizi' => true,
@@ -1412,6 +1504,7 @@ return [
    'alpha' => true,
    'beta' => true
   ],
+  'try-snowplow' => true,
   'stackhero-network' => true,
   'playstation-cloud' => true,
   'stdlib' => [
@@ -1425,18 +1518,24 @@ return [
   'townnews-staging' => true,
   'hk' => true,
   'wafflecell' => true,
+  'idnblogger' => true,
+  'indowapblog' => true,
+  'reserve-online' => true,
+  'hotelwithflight' => true,
   'remotewd' => true,
   'wiardweb' => [
    'pages' => true
   ],
+  'woltlab-demo' => true,
+  'wpenginepowered' => [
+   'js' => true
+  ],
+  'wixsite' => true,
   'xnbay' => [
    'u2' => true,
    'u2-local' => true
   ],
-  'yolasite' => true,
-  'wpenginepowered' => true,
-  'impertrixcdn' => true,
-  'impertrix' => true
+  'yolasite' => true
  ],
  'coop' => true,
  'cr' => [
@@ -1496,7 +1595,9 @@ return [
   'e4' => true,
   'blogspot' => true,
   'metacentrum' => [
-   'cloud' => true,
+   'cloud' => [
+    '*' => true
+   ],
    'custom' => true
   ],
   'muni' => [
@@ -1534,8 +1635,13 @@ return [
    'dyn' => true
   ],
   'myhome-server' => true,
+  'frusky' => [
+   '*' => true
+  ],
   'goip' => true,
   'blogspot' => true,
+  'günstigbestellen' => true,
+  'günstigliefern' => true,
   'dyn-berlin' => true,
   'in-berlin' => true,
   'in-brb' => true,
@@ -1611,14 +1717,16 @@ return [
   'web' => true
  ],
  'dz' => [
+  'art' => true,
+  'asso' => true,
   'com' => true,
+  'edu' => true,
+  'gov' => true,
   'org' => true,
   'net' => true,
-  'gov' => true,
-  'edu' => true,
-  'asso' => true,
   'pol' => true,
-  'art' => true
+  'soc' => true,
+  'tm' => true
  ],
  'ec' => [
   'com' => true,
@@ -1692,6 +1800,9 @@ return [
  'eu' => [
   'mycd' => true,
   'cloudns' => true,
+  'dogado' => [
+   'jelastic' => true
+  ],
   'barsy' => true,
   'wellbeingzone' => true,
   'spdns' => true,
@@ -1705,7 +1816,14 @@ return [
   'dy' => true,
   'blogspot' => true,
   'häkkinen' => true,
-  'iki' => true
+  'iki' => true,
+  'cloudplatform' => [
+   'fi' => true
+  ],
+  'datacenter' => [
+   'demo' => true,
+   'paas' => true
+  ]
  ],
  'fj' => [
   'ac' => true,
@@ -1722,7 +1840,13 @@ return [
  'fk' => [
   '*' => true
  ],
- 'fm' => true,
+ 'fm' => [
+  'com' => true,
+  'edu' => true,
+  'net' => true,
+  'org' => true,
+  'radio' => true
+ ],
  'fo' => true,
  'fr' => [
   'asso' => true,
@@ -1752,12 +1876,15 @@ return [
   'freebox-os' => true,
   'freeboxos' => true,
   'blogspot' => true,
+  'goupile' => true,
   'on-web' => true,
   'chirurgiens-dentistes-en-france' => true
  ],
  'ga' => true,
  'gb' => true,
  'gd' => [
+  'edu' => true,
+  'gov' => true,
   'nom' => true
  ],
  'ge' => [
@@ -1893,6 +2020,7 @@ return [
   '組織' => true,
   '組织' => true,
   'blogspot' => true,
+  'secaas' => true,
   'nym' => true,
   'ltd' => true,
   'inc' => true
@@ -1983,7 +2111,11 @@ return [
   'or' => true,
   'ponpes' => true,
   'sch' => true,
-  'web' => true
+  'web' => true,
+  'flap' => true,
+  'forte' => true,
+  'bloger' => true,
+  'wblog' => true
  ],
  'ie' => [
   'gov' => true,
@@ -1993,6 +2125,7 @@ return [
  'il' => [
   'ac' => true,
   'co' => [
+   'ravpage' => true,
    'blogspot' => true
   ],
   'gov' => true,
@@ -2029,6 +2162,7 @@ return [
   'res' => true,
   'gov' => true,
   'mil' => true,
+  'web' => true,
   'cloudns' => true,
   'blogspot' => true,
   'barsy' => true
@@ -2070,6 +2204,7 @@ return [
     '*' => true
    ]
   ],
+  'bluebite' => true,
   'boxfuse' => true,
   'browsersafetymark' => true,
   'bigv' => [
@@ -2085,7 +2220,12 @@ return [
   'enonic' => [
    'customer' => true
   ],
+  'fh-muenster' => true,
   'shw' => true,
+  'forgerock' => [
+   'id' => true
+  ],
+  'ghost' => true,
   'github' => true,
   'gitlab' => true,
   'lolipop' => true,
@@ -2094,7 +2234,17 @@ return [
   'moonscale' => [
    '*' => true
   ],
+  'beebyte' => [
+   'paas' => true
+  ],
+  'beebyteapp' => [
+   'sekd1' => true
+  ],
   'jele' => true,
+  'unispace' => [
+   'cloud-fr1' => true
+  ],
+  'webthings' => true,
   'loginline' => true,
   'barsy' => true,
   'azurecontainer' => [
@@ -2108,7 +2258,11 @@ return [
   'nid' => true,
   'pantheonsite' => true,
   'dyn53' => true,
+  'pstmn' => [
+   'mock' => true
+  ],
   'protonet' => true,
+  'qoto' => true,
   'qcx' => [
    'sys' => [
     '*' => true
@@ -2131,6 +2285,7 @@ return [
   ],
   'hzc' => true,
   'sandcats' => true,
+  'shiftcrypto' => true,
   'shiftedit' => true,
   'mo-siemens' => true,
   'lair' => [
@@ -2141,8 +2296,6 @@ return [
   ],
   'spacekit' => true,
   'utwente' => true,
-  'applicationcloud' => true,
-  'scapp' => true,
   's5y' => [
    '*' => true
   ],
@@ -2163,6 +2316,7 @@ return [
   ],
   '2038' => true,
   'wedeploy' => true,
+  'editorx' => true,
   'basicserver' => true,
   'virtualserver' => true
  ],
@@ -2603,6 +2757,16 @@ return [
   'vt' => true,
   'vv' => true,
   'blogspot' => true,
+  'neen' => [
+   'jc' => true
+  ],
+  'tim' => [
+   'open' => [
+    'jelastic' => [
+     'cloud' => true
+    ]
+   ]
+  ],
   '16-b' => true,
   '32-b' => true,
   '64-b' => true,
@@ -2611,7 +2775,8 @@ return [
  'je' => [
   'co' => true,
   'net' => true,
-  'org' => true
+  'org' => true,
+  'of' => true
  ],
  'jm' => [
   '*' => true
@@ -4615,6 +4780,10 @@ return [
   'gov' => true,
   'mil' => true,
   'com' => true,
+  'jcloud' => true,
+  'kazteleport' => [
+   'upaas' => true
+  ],
   'nym' => true
  ],
  'la' => [
@@ -4765,7 +4934,10 @@ return [
   'filegear-sg' => true,
   'glitch' => true,
   'ravendb' => true,
+  'lohmus' => true,
   'barsy' => true,
+  'mcpe' => true,
+  'mcdir' => true,
   'nctu' => true,
   'soundcast' => true,
   'tcp4' => true,
@@ -4782,6 +4954,8 @@ return [
   'i234' => true,
   'myds' => true,
   'synology' => true,
+  'tbits' => true,
+  'wbq' => true,
   'wedeploy' => true,
   'yombo' => true,
   'nohost' => true
@@ -4852,7 +5026,8 @@ return [
   'gov' => true,
   'net' => true,
   'org' => true,
-  'lab' => true
+  'lab' => true,
+  'minisite' => true
  ],
  'mt' => [
   'com' => [
@@ -5458,13 +5633,14 @@ return [
   'nym' => true
  ],
  'my' => [
+  'biz' => true,
   'com' => true,
-  'net' => true,
-  'org' => true,
-  'gov' => true,
   'edu' => true,
+  'gov' => true,
   'mil' => true,
   'name' => true,
+  'net' => true,
+  'org' => true,
   'blogspot' => true
  ],
  'mz' => [
@@ -5514,7 +5690,9 @@ return [
   'alwaysdata' => true,
   'cloudfront' => true,
   't3l3p0rt' => true,
+  'appudo' => true,
   'myfritz' => true,
+  'onavstack' => true,
   'blackbaudcdn' => true,
   'boomla' => true,
   'bplaced' => true,
@@ -5526,12 +5704,12 @@ return [
   'uk' => true,
   'in' => true,
   'clic2000' => true,
+  'clickrising' => true,
   'cloudaccess' => true,
   'cdn77-ssl' => true,
   'cdn77' => [
    'r' => true
   ],
-  'cloudeity' => true,
   'feste-ip' => true,
   'knx-server' => true,
   'static-access' => true,
@@ -5604,26 +5782,58 @@ return [
   ],
   'edgeapp' => true,
   'flynnhosting' => true,
+  'cdn-edges' => true,
   'cloudfunctions' => true,
   'moonscale' => true,
   'in-dsl' => true,
   'in-vpn' => true,
   'ipifony' => true,
   'iobb' => true,
-  'cloudjiffy' => true,
+  'cloudjiffy' => [
+   'fra1-de' => true,
+   'west1-us' => true
+  ],
   'elastx' => [
-   'jls-sto1' => true
+   'jls-sto1' => true,
+   'jls-sto2' => true,
+   'jls-sto3' => true
+  ],
+  'faststacks' => true,
+  'massivegrid' => [
+   'paas' => [
+    'fr-1' => true,
+    'lon-1' => true,
+    'lon-2' => true,
+    'ny-1' => true,
+    'ny-2' => true,
+    'sg-1' => true
+   ]
   ],
   'saveincloud' => [
+   'jelastic' => true,
+   'nordeste-idc' => true
+  ],
+  'scaleforce' => [
+   'j' => true
+  ],
+  'tsukaeru' => [
    'jelastic' => true
   ],
   'kinghost' => true,
   'uni5' => true,
+  'krellian' => true,
   'barsy' => true,
   'memset' => true,
   'azurewebsites' => true,
   'azure-mobile' => true,
   'cloudapp' => true,
+  'azurestaticapps' => [
+   'centralus' => true,
+   'eastasia' => true,
+   'eastus2' => true,
+   'westeurope' => true,
+   'westus2' => true
+  ],
   'dnsup' => true,
   'hicam' => true,
   'now-dns' => true,
@@ -5646,18 +5856,41 @@ return [
   'serveminecraft' => true,
   'sytes' => true,
   'cloudycluster' => true,
+  'ovh' => [
+   'webpaas' => [
+    '*' => true
+   ],
+   'hosting' => [
+    '*' => true
+   ]
+  ],
+  'bar0' => true,
+  'bar1' => true,
+  'bar2' => true,
   'rackmaze' => true,
   'schokokeks' => true,
   'firewall-gateway' => true,
   'seidat' => true,
   'senseering' => true,
   'siteleaf' => true,
+  'vps-host' => [
+   'jelastic' => [
+    'atl' => true,
+    'njs' => true,
+    'ric' => true
+   ]
+  ],
   'srcf' => [
    'soc' => true,
    'user' => true
   ],
   'dsmynas' => true,
   'familyds' => true,
+  'torproject' => [
+   'pages' => true
+  ],
+  'fastblog' => true,
+  'reserve-online' => true,
   'community-pro' => true,
   'meinforum' => true,
   'yandexcloud' => [
@@ -6738,7 +6971,6 @@ return [
   'in-dsl' => true,
   'in-vpn' => true,
   'js' => true,
-  'uklugs' => true,
   'barsy' => true,
   'mayfirst' => true,
   'mozilla-iot' => true,
@@ -6757,10 +6989,12 @@ return [
   'myftp' => true,
   'no-ip' => true,
   'zapto' => true,
+  'httpbin' => true,
   'pubtls' => true,
   'my-firewall' => true,
   'myfirewall' => true,
   'spdns' => true,
+  'small-web' => true,
   'dsmynas' => true,
   'familyds' => true,
   'edugit' => true,
@@ -7033,6 +7267,9 @@ return [
   'zgora' => true,
   'zgorzelec' => true,
   'beep' => true,
+  'shoparena' => true,
+  'sdscloud' => true,
+  'unicloud' => true,
   'krasnik' => true,
   'leczna' => true,
   'lubartow' => true,
@@ -7167,6 +7404,7 @@ return [
   'store' => true,
   'tm' => true,
   'www' => true,
+  'co' => true,
   'shop' => true,
   'blogspot' => true,
   'nym' => true
@@ -7178,6 +7416,9 @@ return [
   'gov' => true,
   'in' => true,
   'org' => true,
+  'brendly' => [
+   'shop' => true
+  ],
   'blogspot' => true,
   'ua' => true,
   'nom' => true,
@@ -7190,6 +7431,7 @@ return [
   'int' => true,
   'mil' => true,
   'test' => true,
+  'eurodir' => true,
   'adygeya' => true,
   'bashkiria' => true,
   'bir' => true,
@@ -7210,6 +7452,8 @@ return [
   'vladikavkaz' => true,
   'vladimir' => true,
   'blogspot' => true,
+  'na4u' => true,
+  'mircloud' => true,
   'regruhosting' => [
    'jelastic' => true
   ],
@@ -7230,9 +7474,14 @@ return [
   'cldmail' => [
    'hb' => true
   ],
+  'mcdir' => [
+   'vps' => true
+  ],
+  'mcpre' => true,
   'net' => true,
   'org' => true,
   'pp' => true,
+  'lk3' => true,
   'ras' => true
  ],
  'rw' => [
@@ -7320,7 +7569,8 @@ return [
   'z' => true,
   'com' => true,
   'blogspot' => true,
-  'conf' => true
+  'conf' => true,
+  'iopsys' => true
  ],
  'sg' => [
   'com' => true,
@@ -7329,7 +7579,8 @@ return [
   'gov' => true,
   'edu' => true,
   'per' => true,
-  'blogspot' => true
+  'blogspot' => true,
+  'enscaled' => true
  ],
  'sh' => [
   'com' => true,
@@ -7337,6 +7588,7 @@ return [
   'gov' => true,
   'org' => true,
   'mil' => true,
+  'bip' => true,
   'hashbang' => true,
   'platform' => [
    'bc' => true,
@@ -7349,6 +7601,7 @@ return [
   'wedeploy' => true
  ],
  'si' => [
+  'gitapp' => true,
   'gitpage' => true,
   'blogspot' => true,
   'nom' => true
@@ -7391,8 +7644,10 @@ return [
   'com' => true,
   'edu' => true,
   'gov' => true,
+  'me' => true,
   'net' => true,
-  'org' => true
+  'org' => true,
+  'sch' => true
  ],
  'st' => [
   'co' => true,
@@ -7400,7 +7655,6 @@ return [
   'consulado' => true,
   'edu' => true,
   'embaixada' => true,
-  'gov' => true,
   'mil' => true,
   'net' => true,
   'org' => true,
@@ -7563,7 +7817,8 @@ return [
   'mincom' => true,
   'agrinet' => true,
   'defense' => true,
-  'turen' => true
+  'turen' => true,
+  'orangecloud' => true
  ],
  'to' => [
   'com' => true,
@@ -7574,6 +7829,7 @@ return [
   'mil' => true,
   '611' => true,
   'oya' => true,
+  'rdv' => true,
   'vpnplus' => true,
   'quickconnect' => [
    'direct' => true
@@ -7746,6 +8002,7 @@ return [
   'cc' => true,
   'inf' => true,
   'ltd' => true,
+  'cx' => true,
   'biz' => true,
   'co' => true,
   'pp' => true,
@@ -7776,9 +8033,13 @@ return [
    ],
    'barsy' => true,
    'barsyonline' => true,
+   'retrosnub' => [
+    'cust' => true
+   ],
    'nh-serv' => true,
    'no-ip' => true,
    'wellbeingzone' => true,
+   'adimo' => true,
    'gwiddle' => true
   ],
   'gov' => [
@@ -7801,6 +8062,8 @@ return [
   ],
   'conn' => true,
   'copro' => true,
+  'hosp' => true,
+  'pymnt' => true,
   'barsy' => true
  ],
  'us' => [
@@ -8090,12 +8353,16 @@ return [
    'cc' => true,
    'lib' => true
   ],
+  'graphox' => true,
   'cloudns' => true,
   'drud' => true,
   'is-by' => true,
   'land-4-sale' => true,
   'stuff-4-sale' => true,
-  'graphox' => true,
+  'enscaled' => [
+   'phx' => true
+  ],
+  'mircloud' => true,
   'freeddns' => true,
   'golffan' => true,
   'noip' => true,
@@ -8183,10 +8450,10 @@ return [
   'edu' => true,
   'net' => true,
   'org' => true,
+  'cn' => true,
   'blog' => true,
   'dev' => true,
-  'me' => true,
-  'cn' => true
+  'me' => true
  ],
  'wf' => true,
  'ws' => [
@@ -8202,11 +8469,14 @@ return [
   'dyndns' => true,
   'mypets' => true
  ],
- 'yt' => true,
+ 'yt' => [
+  'org' => true
+ ],
  'امارات' => true,
  'հայ' => true,
  'বাংলা' => true,
  'бг' => true,
+ 'البحرين' => true,
  'бел' => true,
  '中国' => true,
  '中國' => true,
@@ -8246,6 +8516,7 @@ return [
  'الاردن' => true,
  '한국' => true,
  'қаз' => true,
+ 'ລາວ' => true,
  'ලංකා' => true,
  'இலங்கை' => true,
  'المغرب' => true,
@@ -8293,7 +8564,12 @@ return [
  'اليمن' => true,
  'xxx' => true,
  'ye' => [
-  '*' => true
+  'com' => true,
+  'edu' => true,
+  'gov' => true,
+  'net' => true,
+  'mil' => true,
+  'org' => true
  ],
  'za' => [
   'ac' => true,
@@ -8393,6 +8669,11 @@ return [
  'apartments' => true,
  'app' => [
   'wnext' => true,
+  'platform0' => true,
+  'ondigitalocean' => true,
+  'edgecompute' => true,
+  'fireweb' => true,
+  'framer' => true,
   'run' => [
    'a' => true
   ],
@@ -8400,8 +8681,16 @@ return [
   'hasura' => true,
   'loginline' => true,
   'netlify' => true,
+  'developer' => [
+   '*' => true
+  ],
+  'noop' => true,
+  'northflank' => [
+   '*' => true
+  ],
   'telebit' => true,
-  'vercel' => true
+  'vercel' => true,
+  'bookonline' => true
  ],
  'apple' => true,
  'aquarelle' => true,
@@ -8440,7 +8729,10 @@ return [
  'barefoot' => true,
  'bargains' => true,
  'baseball' => true,
- 'basketball' => true,
+ 'basketball' => [
+  'aus' => true,
+  'nz' => true
+ ],
  'bauhaus' => true,
  'bayern' => true,
  'bbc' => true,
@@ -8495,7 +8787,9 @@ return [
  'budapest' => true,
  'bugatti' => true,
  'build' => true,
- 'builders' => true,
+ 'builders' => [
+  'cloudsite' => true
+ ],
  'business' => [
   'co' => true
  ],
@@ -8528,7 +8822,6 @@ return [
   ]
  ],
  'case' => true,
- 'caseih' => true,
  'cash' => true,
  'casino' => true,
  'catering' => true,
@@ -8537,7 +8830,6 @@ return [
  'cbn' => true,
  'cbre' => true,
  'cbs' => true,
- 'ceb' => true,
  'center' => true,
  'ceo' => true,
  'cern' => true,
@@ -8559,9 +8851,7 @@ return [
  'citadel' => true,
  'citi' => true,
  'citic' => true,
- 'city' => [
-  'ng' => true
- ],
+ 'city' => true,
  'cityeats' => true,
  'claims' => true,
  'cleaning' => true,
@@ -8576,7 +8866,43 @@ return [
   'statics' => [
    '*' => true
   ],
+  'axarnet' => [
+   'es-1' => true
+  ],
+  'diadem' => true,
+  'jelastic' => [
+   'vip' => true
+  ],
   'jele' => true,
+  'jenv-aruba' => [
+   'aruba' => [
+    'eur' => [
+     'it1' => true
+    ]
+   ],
+   'it1' => true
+  ],
+  'keliweb' => [
+   'cs' => true
+  ],
+  'oxa' => [
+   'tn' => true,
+   'uk' => true
+  ],
+  'primetel' => [
+   'uk' => true
+  ],
+  'reclaim' => [
+   'ca' => true,
+   'uk' => true,
+   'us' => true
+  ],
+  'trendhosting' => [
+   'ch' => true,
+   'de' => true
+  ],
+  'jotelulu' => true,
+  'kuleuven' => true,
   'linkyard' => true,
   'magentosite' => [
    '*' => true
@@ -8676,15 +9002,30 @@ return [
   'lcl' => [
    '*' => true
   ],
+  'lclstage' => [
+   '*' => true
+  ],
   'stg' => [
    '*' => true
   ],
+  'stgstage' => [
+   '*' => true
+  ],
+  'pages' => true,
   'workers' => true,
   'curv' => true,
+  'deno' => true,
+  'deno-staging' => true,
   'fly' => true,
+  'githubpreview' => true,
+  'gateway' => [
+   '*' => true
+  ],
   'iserv' => true,
   'loginline' => true,
+  'mediatech' => true,
   'platter-app' => true,
+  'shiftcrypto' => true,
   'vercel' => true,
   'webhare' => [
    '*' => true
@@ -8779,8 +9120,7 @@ return [
  ],
  'farmers' => true,
  'fashion' => [
-  'of' => true,
-  'on' => true
+  'of' => true
  ],
  'fast' => true,
  'fedex' => true,
@@ -8801,9 +9141,7 @@ return [
  'firmdale' => true,
  'fish' => true,
  'fishing' => true,
- 'fit' => [
-  'ptplus' => true
- ],
+ 'fit' => true,
  'fitness' => true,
  'flickr' => true,
  'flights' => true,
@@ -8814,9 +9152,7 @@ return [
  'foo' => true,
  'food' => true,
  'foodnetwork' => true,
- 'football' => [
-  'of' => true
- ],
+ 'football' => true,
  'ford' => true,
  'forex' => true,
  'forsale' => true,
@@ -8831,7 +9167,6 @@ return [
  'frontier' => true,
  'ftr' => true,
  'fujitsu' => true,
- 'fujixerox' => true,
  'fun' => true,
  'fund' => true,
  'furniture' => true,
@@ -8875,7 +9210,8 @@ return [
  'goo' => true,
  'goodyear' => true,
  'goog' => [
-  'cloud' => true
+  'cloud' => true,
+  'translate' => true
  ],
  'google' => true,
  'gop' => true,
@@ -8902,7 +9238,9 @@ return [
  'hbo' => true,
  'hdfc' => true,
  'hdfcbank' => true,
- 'health' => true,
+ 'health' => [
+  'hra' => true
+ ],
  'healthcare' => true,
  'help' => true,
  'helsinki' => true,
@@ -8929,6 +9267,8 @@ return [
   'freesite' => true,
   'fastvps' => true,
   'myfast' => true,
+  'tempurl' => true,
+  'wpmudev' => true,
   'jele' => true,
   'mircloud' => true,
   'pcloud' => true,
@@ -8962,13 +9302,10 @@ return [
  'industries' => true,
  'infiniti' => true,
  'ing' => true,
- 'ink' => [
-  'ng' => true
- ],
+ 'ink' => true,
  'institute' => true,
  'insurance' => true,
  'insure' => true,
- 'intel' => true,
  'international' => true,
  'intuit' => true,
  'investments' => true,
@@ -8979,11 +9316,9 @@ return [
  'istanbul' => true,
  'itau' => true,
  'itv' => true,
- 'iveco' => true,
  'jaguar' => true,
  'java' => true,
  'jcb' => true,
- 'jcp' => true,
  'jeep' => true,
  'jetzt' => true,
  'jewelry' => true,
@@ -9078,7 +9413,9 @@ return [
  'locker' => true,
  'locus' => true,
  'loft' => true,
- 'lol' => true,
+ 'lol' => [
+  'omg' => true
+ ],
  'london' => [
   'in' => true,
   'of' => true
@@ -9091,7 +9428,6 @@ return [
  'ltd' => true,
  'ltda' => true,
  'lundbeck' => true,
- 'lupin' => true,
  'luxe' => true,
  'luxury' => true,
  'macys' => true,
@@ -9106,7 +9442,10 @@ return [
  'mango' => true,
  'map' => true,
  'market' => true,
- 'marketing' => true,
+ 'marketing' => [
+  'from' => true,
+  'with' => true
+ ],
  'markets' => true,
  'marriott' => true,
  'marshalls' => true,
@@ -9121,13 +9460,13 @@ return [
  'meme' => true,
  'memorial' => true,
  'men' => [
-  'for' => true
+  'for' => true,
+  'repair' => true
  ],
  'menu' => [
   'barsy' => true
  ],
  'merckmsd' => true,
- 'metlife' => true,
  'miami' => true,
  'microsoft' => true,
  'mini' => true,
@@ -9158,10 +9497,10 @@ return [
  'msd' => true,
  'mtn' => true,
  'mtr' => true,
+ 'music' => true,
  'mutual' => true,
  'nab' => true,
  'nagoya' => true,
- 'nationwide' => true,
  'natura' => true,
  'navy' => true,
  'nba' => true,
@@ -9174,12 +9513,14 @@ return [
   ],
   'co' => true,
   'arvo' => true,
-  'azimuth' => true
+  'azimuth' => true,
+  'tlon' => true
  ],
  'neustar' => true,
  'new' => true,
- 'newholland' => true,
- 'news' => true,
+ 'news' => [
+  'noticeable' => true
+ ],
  'next' => true,
  'nextdirect' => true,
  'nexus' => true,
@@ -9216,7 +9557,9 @@ return [
   'onred' => [
    'staging' => true
   ],
+  'service' => true,
   'for' => true,
+  'under' => true,
   'homelink' => true
  ],
  'ong' => true,
@@ -9224,7 +9567,6 @@ return [
  'online' => [
   'barsy' => true
  ],
- 'onyourside' => true,
  'ooo' => true,
  'open' => true,
  'oracle' => true,
@@ -9240,7 +9582,8 @@ return [
  'page' => [
   'pdns' => true,
   'plesk' => true,
-  'prvcy' => true
+  'prvcy' => true,
+  'magnet' => true
  ],
  'panasonic' => true,
  'paris' => true,
@@ -9342,7 +9685,6 @@ return [
  'rich' => true,
  'richardli' => true,
  'ricoh' => true,
- 'rightathome' => true,
  'ril' => true,
  'rio' => true,
  'rip' => [
@@ -9365,6 +9707,9 @@ return [
   'hs' => true,
   'development' => true,
   'ravendb' => true,
+  'code' => [
+   '*' => true
+  ],
   'repl' => true
  ],
  'rwe' => true,
@@ -9394,9 +9739,7 @@ return [
  'schaeffler' => true,
  'schmidt' => true,
  'scholarships' => true,
- 'school' => [
-  'ng' => true
- ],
+ 'school' => true,
  'schule' => true,
  'schwarz' => true,
  'science' => [
@@ -9404,7 +9747,10 @@ return [
  ],
  'scjohnson' => true,
  'scot' => [
-  'gov' => true
+  'edu' => true,
+  'gov' => [
+   'service' => true
+  ]
  ],
  'search' => true,
  'seat' => true,
@@ -9436,24 +9782,31 @@ return [
  'shouji' => true,
  'show' => true,
  'showtime' => true,
- 'shriram' => true,
  'silk' => true,
  'sina' => true,
  'singles' => true,
  'site' => [
   'cloudera' => true,
   'cyon' => true,
+  'fnwk' => true,
+  'folionetwork' => true,
   'fastvps' => true,
   'jele' => true,
   'lelux' => true,
   'loginline' => true,
   'barsy' => true,
+  'mintere' => true,
+  'omniwe' => true,
   'opensocial' => true,
   'platformsh' => [
    '*' => true
   ],
+  'tst' => [
+   '*' => true
+  ],
   'byen' => true,
-  'mintere' => true
+  'srht' => true,
+  'novecore' => true
  ],
  'ski' => true,
  'skin' => true,
@@ -9476,13 +9829,11 @@ return [
  'spa' => true,
  'space' => [
   'myfast' => true,
-  'linkitools' => true,
   'uber' => true,
   'xs4all' => true
  ],
  'sport' => true,
  'spot' => true,
- 'spreadbetting' => true,
  'srl' => true,
  'stada' => true,
  'staples' => true,
@@ -9494,7 +9845,8 @@ return [
  'stockholm' => true,
  'storage' => true,
  'store' => [
-  'shopware' => true
+  'shopware' => true,
+  'storebase' => true
  ],
  'stream' => true,
  'studio' => true,
@@ -9631,7 +9983,6 @@ return [
  'webcam' => true,
  'weber' => true,
  'website' => true,
- 'wed' => true,
  'wedding' => true,
  'weibo' => true,
  'weir' => true,
@@ -9639,7 +9990,9 @@ return [
  'wien' => true,
  'wiki' => true,
  'williamhill' => true,
- 'win' => true,
+ 'win' => [
+  'that' => true
+ ],
  'windows' => true,
  'wine' => true,
  'winners' => true,
@@ -9647,7 +10000,7 @@ return [
  'wolterskluwer' => true,
  'woodside' => true,
  'work' => [
-  'of' => true,
+  'from' => true,
   'to' => true
  ],
  'works' => true,
@@ -9734,7 +10087,18 @@ return [
  '组织机构' => true,
  '健康' => true,
  '招聘' => true,
- 'рус' => true,
+ 'рус' => [
+  'биз' => true,
+  'ком' => true,
+  'крым' => true,
+  'мир' => true,
+  'мск' => true,
+  'орг' => true,
+  'самара' => true,
+  'сочи' => true,
+  'спб' => true,
+  'я' => true
+ ],
  '大拿' => true,
  'みんな' => true,
  'グーグル' => true,
@@ -9755,7 +10119,7 @@ return [
  '政务' => true,
  'xyz' => [
   'blogsite' => true,
-  'fhapp' => true,
+  'localzone' => true,
   'crafting' => true,
   'zapto' => true,
   'telebit' => [
