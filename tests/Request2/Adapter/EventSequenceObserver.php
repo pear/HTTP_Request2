@@ -34,6 +34,7 @@ class HTTP_Request2_Adapter_EventSequenceObserver implements SplObserver
         }
     }
 
+    #[ReturnTypeWillChange]
     public function update(SplSubject $subject)
     {
         /* @var $subject HTTP_Request2 */

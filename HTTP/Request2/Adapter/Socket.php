@@ -370,20 +370,20 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected function canKeepAlive($requestKeepAlive, HTTP_Request2_Response $response)
     {
         // Do not close socket on successful CONNECT request
-        if (HTTP_Request2::METHOD_CONNECT == $this->request->getMethod()
+        if (HTTP_Request2::METHOD_CONNECT === $this->request->getMethod()
             && 200 <= $response->getStatus() && 300 > $response->getStatus()
         ) {
             return true;
         }
 
-        $lengthKnown = 'chunked' == strtolower($response->getHeader('transfer-encoding'))
+        $lengthKnown = 'chunked' === strtolower($response->getHeader('transfer-encoding') ?: '')
                        || null !== $response->getHeader('content-length')
                        // no body possible for such responses, see also request #17031
-                       || HTTP_Request2::METHOD_HEAD == $this->request->getMethod()
+                       || HTTP_Request2::METHOD_HEAD === $this->request->getMethod()
                        || in_array($response->getStatus(), [204, 304]);
-        $persistent  = 'keep-alive' == strtolower($response->getHeader('connection')) ||
+        $persistent  = 'keep-alive' === strtolower($response->getHeader('connection') ?: '') ||
                        (null === $response->getHeader('connection') &&
-                        '1.1' == $response->getVersion());
+                        '1.1' === $response->getVersion());
         return $requestKeepAlive && $lengthKnown && $persistent;
     }
 

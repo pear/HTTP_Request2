@@ -126,6 +126,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
      *
      * @return void
      */
+    #[ReturnTypeWillChange]
     public function update(SplSubject $subject)
     {
         $event = $subject->getLastEvent();

@@ -174,6 +174,7 @@ class HTTP_Request2_Observer_UncompressingDownload implements SplObserver
      * @return void
      * @throws HTTP_Request2_MessageException
      */
+    #[ReturnTypeWillChange]
     public function update(SplSubject $request)
     {
         /* @var $request HTTP_Request2 */
@@ -185,7 +186,7 @@ class HTTP_Request2_Observer_UncompressingDownload implements SplObserver
         case 'receivedHeaders':
             $this->_processingHeader = true;
             $this->_redirect = $event['data']->isRedirect();
-            $this->_encoding = strtolower($event['data']->getHeader('content-encoding'));
+            $this->_encoding = strtolower($event['data']->getHeader('content-encoding') ?: '');
             $this->_possibleHeader = '';
             break;
 

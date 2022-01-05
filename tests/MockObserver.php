@@ -27,6 +27,7 @@ class HTTP_Request2_MockObserver implements SplObserver
 
     public $event;
 
+    #[ReturnTypeWillChange]
     public function update (SplSubject $subject)
     {
         $this->calls++;

@@ -25,6 +25,7 @@ class HTTP_Request2_Adapter_HeaderObserver implements SplObserver
 {
     public $headers;
 
+    #[ReturnTypeWillChange]
     public function update(SplSubject $subject)
     {
         /* @var $subject HTTP_Request2 */

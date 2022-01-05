@@ -390,6 +390,16 @@ class HTTP_Request2_CookieJar implements Serializable
      */
     public function serialize()
     {
+        return serialize($this->__serialize());
+    }
+
+    /**
+     * Returns an associative array of key/value pairs that represent the serialized form of the object
+     *
+     * @return array
+     */
+    public function __serialize()
+    {
         $cookies = $this->getAll();
         if (!$this->serializeSession) {
             for ($i = count($cookies) - 1; $i >= 0; $i--) {
@@ -398,12 +408,12 @@ class HTTP_Request2_CookieJar implements Serializable
                 }
             }
         }
-        return serialize([
+        return [
             'cookies'          => $cookies,
             'serializeSession' => $this->serializeSession,
             'useList'          => $this->useList,
             'ignoreInvalid'    => $this->ignoreInvalid
-        ]);
+        ];
     }
 
     /**
@@ -415,8 +425,18 @@ class HTTP_Request2_CookieJar implements Serializable
      */
     public function unserialize($serialized)
     {
-        $data = unserialize($serialized);
-        $now  = $this->now();
+        $this->__unserialize(unserialize($serialized));
+    }
+
+    /**
+     * Constructs the object from array serialized form
+     *
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data)
+    {
+        $now = $this->now();
         $this->serializeSessionCookies($data['serializeSession']);
         $this->usePublicSuffixList($data['useList']);
         if (array_key_exists('ignoreInvalid', $data)) {
@@ -523,8 +543,7 @@ class HTTP_Request2_CookieJar implements Serializable
      */
     protected static function checkDomainsList(array $domainParts, $listNode)
     {
-        $sub    = array_pop($domainParts);
-        $result = null;
+        $sub = array_pop($domainParts);
 
         if (!is_array($listNode) || is_null($sub)
             || array_key_exists('!' . $sub, $listNode)
@@ -541,7 +560,7 @@ class HTTP_Request2_CookieJar implements Serializable
             return $sub;
         }
 
-        return (strlen($result) > 0) ? ($result . '.' . $sub) : null;
+        return (strlen($result ?: '') > 0) ? ($result . '.' . $sub) : null;
     }
 }
 ?>

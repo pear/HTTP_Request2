@@ -25,6 +25,7 @@ class HTTP_Request2_Adapter_UploadSizeObserver implements SplObserver
 {
     public $size;
 
+    #[ReturnTypeWillChange]
     public function update(SplSubject $subject)
     {
         /* @var $subject HTTP_Request2 */
