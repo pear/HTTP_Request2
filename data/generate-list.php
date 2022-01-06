@@ -70,7 +70,7 @@ try {
     if (false === strpos($list, '// ===BEGIN ICANN DOMAINS===')) {
         throw new Exception("List download URL does not contain expected phrase");
     }
-    if (!($fp = @fopen(OUTPUT_FILE, 'wt'))) {
+    if (!($fp = @fopen(OUTPUT_FILE, 'wb'))) {
         throw new Exception("Unable to open " . OUTPUT_FILE);
     }
 

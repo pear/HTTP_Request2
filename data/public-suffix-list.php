@@ -13,7 +13,8 @@ return [
   'gov' => true,
   'net' => true,
   'mil' => true,
-  'org' => true
+  'org' => true,
+  'drr' => true
  ],
  'ad' => [
   'nom' => true
@@ -26,8 +27,7 @@ return [
   'ac' => true,
   'gov' => true,
   'mil' => true,
-  'blogspot' => true,
-  'nom' => true
+  'blogspot' => true
  ],
  'aero' => [
   'accident-investigation' => true,
@@ -122,8 +122,7 @@ return [
   'com' => true,
   'org' => true,
   'net' => true,
-  'edu' => true,
-  'nom' => true
+  'edu' => true
  ],
  'ag' => [
   'com' => true,
@@ -137,8 +136,7 @@ return [
   'com' => true,
   'net' => true,
   'org' => true,
-  'uwu' => true,
-  'nom' => true
+  'uwu' => true
  ],
  'al' => [
   'com' => true,
@@ -147,8 +145,7 @@ return [
   'mil' => true,
   'net' => true,
   'org' => true,
-  'blogspot' => true,
-  'nom' => true
+  'blogspot' => true
  ],
  'am' => [
   'co' => true,
@@ -171,17 +168,21 @@ return [
  ],
  'aq' => true,
  'ar' => [
+  'bet' => true,
   'com' => [
    'blogspot' => true
   ],
+  'coop' => true,
   'edu' => true,
   'gob' => true,
   'gov' => true,
   'int' => true,
   'mil' => true,
   'musica' => true,
+  'mutual' => true,
   'net' => true,
   'org' => true,
+  'senasa' => true,
   'tur' => true
  ],
  'arpa' => [
@@ -232,6 +233,7 @@ return [
   'biz' => true,
   'info' => true,
   'priv' => true,
+  'myspreadshop' => true,
   '12hp' => true,
   '2ix' => true,
   '4lima' => true,
@@ -242,7 +244,8 @@ return [
    'blogspot' => true,
    'cloudlets' => [
     'mel' => true
-   ]
+   ],
+   'myspreadshop' => true
   ],
   'net' => true,
   'org' => true,
@@ -314,6 +317,7 @@ return [
   'mil' => true,
   'net' => true,
   'org' => true,
+  'rs' => true,
   'blogspot' => true
  ],
  'bb' => [
@@ -341,6 +345,7 @@ return [
   'kuleuven' => [
    'ezproxy' => true
   ],
+  'myspreadshop' => true,
   'transurl' => [
    '*' => true
   ]
@@ -718,8 +723,7 @@ return [
   ],
   'of' => true,
   'mycloud' => true,
-  'mediatech' => true,
-  'nym' => true
+  'mediatech' => true
  ],
  'bz' => [
   'com' => true,
@@ -728,9 +732,7 @@ return [
   'edu' => true,
   'gov' => true,
   'za' => true,
-  'gsj' => true,
-  'nom' => true,
-  'nym' => true
+  'gsj' => true
  ],
  'ca' => [
   'ab' => true,
@@ -754,7 +756,8 @@ return [
   ],
   'co' => true,
   'blogspot' => true,
-  'no-ip' => true
+  'no-ip' => true,
+  'myspreadshop' => true
  ],
  'cat' => true,
  'cc' => [
@@ -765,7 +768,10 @@ return [
   'scrapping' => true,
   'twmail' => true,
   'csx' => true,
-  'fantasyleague' => true
+  'fantasyleague' => true,
+  'spawn' => [
+   'instances' => true
+  ]
  ],
  'cd' => [
   'gov' => true
@@ -786,6 +792,7 @@ return [
   'linkyard-cloud' => true,
   'dnsking' => true,
   'gotdns' => true,
+  'myspreadshop' => true,
   'firenet' => [
    '*' => true,
    'svc' => [
@@ -825,8 +832,7 @@ return [
   'gob' => true,
   'gov' => true,
   'mil' => true,
-  'blogspot' => true,
-  'nom' => true
+  'blogspot' => true
  ],
  'cm' => [
   'co' => true,
@@ -922,10 +928,10 @@ return [
   'lpages' => true,
   'mypi' => true,
   'n4t' => true,
-  'nodum' => true,
   'repl' => [
    'id' => true
-  ]
+  ],
+  'supabase' => true
  ],
  'com' => [
   'devcdnaccesso' => [
@@ -1073,6 +1079,7 @@ return [
    'us-west-2' => true
   ],
   'awsglobalaccelerator' => true,
+  'siiites' => true,
   'appspacehosted' => true,
   'appspaceusercontent' => true,
   'on-aptible' => true,
@@ -1094,7 +1101,6 @@ return [
   'us' => true,
   'za' => true,
   'ar' => true,
-  'gb' => true,
   'hu' => true,
   'kr' => true,
   'no' => true,
@@ -1125,6 +1131,10 @@ return [
   'dattoweb' => true,
   'mydatto' => true,
   'builtwithdark' => true,
+  'datadetect' => [
+   'demo' => true,
+   'instance' => true
+  ],
   'ddns5' => true,
   'drayddns' => true,
   'dreamhosters' => true,
@@ -1279,6 +1289,9 @@ return [
   'space-to-rent' => true,
   'teaches-yoga' => true,
   'writesthisblog' => true,
+  'digitaloceanspaces' => [
+   '*' => true
+  ],
   'ddnsfree' => true,
   'ddnsgeek' => true,
   'giize' => true,
@@ -1288,6 +1301,7 @@ return [
   'ooguy' => true,
   'theworkpc' => true,
   'mytuleap' => true,
+  'tuleap-partners' => true,
   'evennode' => [
    'eu-1' => true,
    'eu-2' => true,
@@ -1306,6 +1320,7 @@ return [
   'fastvps-server' => true,
   'mydobiss' => true,
   'firebaseapp' => true,
+  'fldrv' => true,
   'forgeblocks' => true,
   'framercanvas' => true,
   'freebox-os' => true,
@@ -1385,6 +1400,9 @@ return [
   'linodeobjects' => [
    '*' => true
   ],
+  'linodeusercontent' => [
+   'ip' => true
+  ],
   'barsycenter' => true,
   'barsyonline' => true,
   'mazeplay' => true,
@@ -1405,6 +1423,9 @@ return [
    'vs' => true,
    'x' => true,
    'yali' => true
+  ],
+  'nospamproxy' => [
+   'cloud' => true
   ],
   '4u' => true,
   'nfshost' => true,
@@ -1507,15 +1528,20 @@ return [
   'try-snowplow' => true,
   'stackhero-network' => true,
   'playstation-cloud' => true,
+  'myspreadshop' => true,
   'stdlib' => [
    'api' => true
   ],
   'temp-dns' => true,
   'dsmynas' => true,
   'familyds' => true,
+  'reservd' => true,
   'thingdustdata' => true,
   'bloxcms' => true,
   'townnews-staging' => true,
+  'typeform' => [
+   'pro' => true
+  ],
   'hk' => true,
   'wafflecell' => true,
   'idnblogger' => true,
@@ -1556,6 +1582,11 @@ return [
   'inf' => true
  ],
  'cv' => [
+  'com' => true,
+  'edu' => true,
+  'int' => true,
+  'nome' => true,
+  'org' => true,
   'blogspot' => true
  ],
  'cw' => [
@@ -1642,6 +1673,11 @@ return [
   'blogspot' => true,
   'günstigbestellen' => true,
   'günstigliefern' => true,
+  'hs-heilbronn' => [
+   'it' => [
+    'pages' => true
+   ]
+  ],
   'dyn-berlin' => true,
   'in-berlin' => true,
   'in-brb' => true,
@@ -1664,6 +1700,7 @@ return [
   'speedpartner' => [
    'customer' => true
   ],
+  'myspreadshop' => true,
   'taifun-dns' => true,
   '12hp' => true,
   '2ix' => true,
@@ -1695,7 +1732,8 @@ return [
   'firm' => true,
   'reg' => true,
   'store' => true,
-  'blogspot' => true
+  'blogspot' => true,
+  'myspreadshop' => true
  ],
  'dm' => [
   'com' => true,
@@ -1741,7 +1779,8 @@ return [
   'gov' => true,
   'gob' => true,
   'mil' => true,
-  'nym' => true
+  'base' => true,
+  'official' => true
  ],
  'edu' => [
   'rit' => [
@@ -1785,7 +1824,8 @@ return [
   'nom' => true,
   'org' => true,
   'gob' => true,
-  'edu' => true
+  'edu' => true,
+  'myspreadshop' => true
  ],
  'et' => [
   'com' => true,
@@ -1823,7 +1863,8 @@ return [
   'datacenter' => [
    'demo' => true,
    'paas' => true
-  ]
+  ],
+  'myspreadshop' => true
  ],
  'fj' => [
   'ac' => true,
@@ -1878,14 +1919,15 @@ return [
   'blogspot' => true,
   'goupile' => true,
   'on-web' => true,
-  'chirurgiens-dentistes-en-france' => true
+  'chirurgiens-dentistes-en-france' => true,
+  'myspreadshop' => true,
+  'ynh' => true
  ],
  'ga' => true,
  'gb' => true,
  'gd' => [
   'edu' => true,
-  'gov' => true,
-  'nom' => true
+  'gov' => true
  ],
  'ge' => [
   'com' => true,
@@ -1894,8 +1936,7 @@ return [
   'org' => true,
   'mil' => true,
   'net' => true,
-  'pvt' => true,
-  'nom' => true
+  'pvt' => true
  ],
  'gf' => true,
  'gg' => [
@@ -1930,7 +1971,6 @@ return [
   'net' => true,
   'org' => true,
   'biz' => true,
-  'nom' => true,
   'xx' => true
  ],
  'gm' => true,
@@ -1959,8 +1999,7 @@ return [
   'net' => true,
   'org' => true,
   'gov' => true,
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'gs' => true,
  'gt' => [
@@ -1971,7 +2010,6 @@ return [
   'mil' => true,
   'net' => true,
   'org' => true,
-  'nom' => true,
   'blog' => true,
   'de' => true,
   'to' => true
@@ -1994,7 +2032,6 @@ return [
   'gov' => true,
   'net' => true,
   'org' => true,
-  'nym' => true,
   'be' => true
  ],
  'hk' => [
@@ -2021,7 +2058,6 @@ return [
   '組织' => true,
   'blogspot' => true,
   'secaas' => true,
-  'nym' => true,
   'ltd' => true,
   'inc' => true
  ],
@@ -2033,7 +2069,6 @@ return [
   'net' => true,
   'mil' => true,
   'gob' => true,
-  'nom' => true,
   'cc' => true
  ],
  'hr' => [
@@ -2106,7 +2141,11 @@ return [
   'desa' => true,
   'go' => true,
   'mil' => true,
-  'my' => true,
+  'my' => [
+   'rss' => [
+    '*' => true
+   ]
+  ],
   'net' => true,
   'or' => true,
   'ponpes' => true,
@@ -2120,13 +2159,14 @@ return [
  'ie' => [
   'gov' => true,
   'blogspot' => true,
-  'nym' => true
+  'myspreadshop' => true
  ],
  'il' => [
   'ac' => true,
   'co' => [
    'ravpage' => true,
-   'blogspot' => true
+   'blogspot' => true,
+   'tabitorder' => true
   ],
   'gov' => true,
   'idf' => true,
@@ -2146,8 +2186,7 @@ return [
   'org' => true,
   'tt' => true,
   'tv' => true,
-  'ro' => true,
-  'nom' => true
+  'ro' => true
  ],
  'in' => [
   'co' => true,
@@ -2165,7 +2204,8 @@ return [
   'web' => true,
   'cloudns' => true,
   'blogspot' => true,
-  'barsy' => true
+  'barsy' => true,
+  'supabase' => true
  ],
  'info' => [
   'cloudns' => true,
@@ -2204,6 +2244,7 @@ return [
     '*' => true
    ]
   ],
+  'bitbucket' => true,
   'bluebite' => true,
   'boxfuse' => true,
   'browsersafetymark' => true,
@@ -2217,9 +2258,6 @@ return [
   'dedyn' => true,
   'drud' => true,
   'definima' => true,
-  'enonic' => [
-   'customer' => true
-  ],
   'fh-muenster' => true,
   'shw' => true,
   'forgerock' => [
@@ -2254,7 +2292,6 @@ return [
   'nodeart' => [
    'stage' => true
   ],
-  'nodum' => true,
   'nid' => true,
   'pantheonsite' => true,
   'dyn53' => true,
@@ -2299,21 +2336,27 @@ return [
   's5y' => [
    '*' => true
   ],
+  'edugit' => true,
   'telebit' => true,
   'thingdust' => [
    'dev' => [
-    'cust' => true
+    'cust' => true,
+    'reservd' => true
    ],
    'disrec' => [
-    'cust' => true
+    'cust' => true,
+    'reservd' => true
    ],
    'prod' => [
     'cust' => true
    ],
    'testing' => [
-    'cust' => true
+    'cust' => true,
+    'reservd' => true
    ]
   ],
+  'tickets' => true,
+  'upli' => true,
   '2038' => true,
   'wedeploy' => true,
   'editorx' => true,
@@ -2770,6 +2813,7 @@ return [
   '16-b' => true,
   '32-b' => true,
   '64-b' => true,
+  'myspreadshop' => true,
   'syncloud' => true
  ],
  'je' => [
@@ -4649,6 +4693,12 @@ return [
    '*' => true,
    '!city' => true
   ],
+  'buyshop' => true,
+  'fashionstore' => true,
+  'handcrafted' => true,
+  'kawaiishop' => true,
+  'supersale' => true,
+  'theshop' => true,
   'usercontent' => true,
   'blogspot' => true
  ],
@@ -4663,8 +4713,7 @@ return [
   'mobi' => true,
   'ne' => true,
   'or' => true,
-  'sc' => true,
-  'nom' => true
+  'sc' => true
  ],
  'kg' => [
   'org' => true,
@@ -4783,8 +4832,7 @@ return [
   'jcloud' => true,
   'kazteleport' => [
    'upaas' => true
-  ],
-  'nym' => true
+  ]
  ],
  'la' => [
   'int' => true,
@@ -4796,8 +4844,7 @@ return [
   'com' => true,
   'org' => true,
   'bnr' => true,
-  'c' => true,
-  'nym' => true
+  'c' => true
  ],
  'lb' => [
   'com' => true,
@@ -4813,14 +4860,11 @@ return [
   'org' => true,
   'edu' => true,
   'gov' => true,
-  'nym' => true,
   'oy' => true
  ],
  'li' => [
   'blogspot' => true,
-  'caa' => true,
-  'nom' => true,
-  'nym' => true
+  'caa' => true
  ],
  'lk' => [
   'gov' => true,
@@ -4860,12 +4904,10 @@ return [
  ],
  'lt' => [
   'gov' => true,
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'lu' => [
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'lv' => [
   'com' => true,
@@ -4876,8 +4918,7 @@ return [
   'id' => true,
   'net' => true,
   'asn' => true,
-  'conf' => true,
-  'nom' => true
+  'conf' => true
  ],
  'ly' => [
   'com' => true,
@@ -4938,7 +4979,6 @@ return [
   'barsy' => true,
   'mcpe' => true,
   'mcdir' => true,
-  'nctu' => true,
   'soundcast' => true,
   'tcp4' => true,
   'brasilia' => true,
@@ -4948,7 +4988,7 @@ return [
   'loginto' => true,
   'noip' => true,
   'webhop' => true,
-  'nym' => true,
+  'vp4' => true,
   'diskstation' => true,
   'dscloud' => true,
   'i234' => true,
@@ -4981,8 +5021,7 @@ return [
   'gov' => true,
   'inf' => true,
   'name' => true,
-  'blogspot' => true,
-  'nom' => true
+  'blogspot' => true
  ],
  'ml' => [
   'com' => true,
@@ -5000,8 +5039,7 @@ return [
   'gov' => true,
   'edu' => true,
   'org' => true,
-  'nyc' => true,
-  'nym' => true
+  'nyc' => true
  ],
  'mo' => [
   'com' => true,
@@ -5014,7 +5052,9 @@ return [
   'barsy' => true,
   'dscloud' => true
  ],
- 'mp' => true,
+ 'mp' => [
+  'ju' => true
+ ],
  'mq' => true,
  'mr' => [
   'gov' => true,
@@ -5629,8 +5669,7 @@ return [
   'gob' => true,
   'edu' => true,
   'net' => true,
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'my' => [
   'biz' => true,
@@ -5691,8 +5730,14 @@ return [
   'cloudfront' => true,
   't3l3p0rt' => true,
   'appudo' => true,
+  'atlassian-dev' => [
+   'prod' => [
+    'cdn' => true
+   ]
+  ],
   'myfritz' => true,
   'onavstack' => true,
+  'shopselect' => true,
   'blackbaudcdn' => true,
   'boomla' => true,
   'bplaced' => true,
@@ -5703,7 +5748,6 @@ return [
   'se' => true,
   'uk' => true,
   'in' => true,
-  'clic2000' => true,
   'clickrising' => true,
   'cloudaccess' => true,
   'cdn77-ssl' => true,
@@ -5880,12 +5924,18 @@ return [
     'ric' => true
    ]
   ],
+  'myspreadshop' => true,
   'srcf' => [
    'soc' => true,
    'user' => true
   ],
+  'supabase' => true,
   'dsmynas' => true,
   'familyds' => true,
+  'tailscale' => [
+   'beta' => true
+  ],
+  'ts' => true,
   'torproject' => [
    'pages' => true
   ],
@@ -5947,12 +5997,11 @@ return [
   'web' => true
  ],
  'nl' => [
-  'amsw' => true,
-  'virtueeldomein' => true,
   'co' => true,
   'hosting-cluster' => true,
   'blogspot' => true,
   'khplay' => true,
+  'myspreadshop' => true,
   'transurl' => [
    '*' => true
   ],
@@ -6757,7 +6806,8 @@ return [
    'våler' => true
   ],
   'co' => true,
-  'blogspot' => true
+  'blogspot' => true,
+  'myspreadshop' => true
  ],
  'np' => [
   '*' => true
@@ -6775,8 +6825,6 @@ return [
   'merseine' => true,
   'mine' => true,
   'shacknet' => true,
-  'nom' => true,
-  'uwu' => true,
   'enterprisecloud' => true
  ],
  'nz' => [
@@ -6797,8 +6845,7 @@ return [
   'net' => true,
   'org' => true,
   'parliament' => true,
-  'school' => true,
-  'nym' => true
+  'school' => true
  ],
  'om' => [
   'co' => true,
@@ -6997,7 +7044,9 @@ return [
   'small-web' => true,
   'dsmynas' => true,
   'familyds' => true,
-  'edugit' => true,
+  'teckids' => [
+   's3' => true
+  ],
   'tuxfamily' => true,
   'diskstation' => true,
   'hk' => true,
@@ -7027,8 +7076,7 @@ return [
   'org' => true,
   'com' => true,
   'net' => true,
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'pf' => [
   'com' => true,
@@ -7267,7 +7315,9 @@ return [
   'zgora' => true,
   'zgorzelec' => true,
   'beep' => true,
+  'ecommerce-shop' => true,
   'shoparena' => true,
+  'homesklep' => true,
   'sdscloud' => true,
   'unicloud' => true,
   'krasnik' => true,
@@ -7283,6 +7333,7 @@ return [
   'poznan' => true,
   'wroc' => true,
   'zakopane' => true,
+  'myspreadshop' => true,
   'gda' => true,
   'gdansk' => true,
   'gdynia' => true,
@@ -7351,8 +7402,7 @@ return [
   'publ' => true,
   'com' => true,
   'nome' => true,
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'pw' => [
   'co' => true,
@@ -7362,8 +7412,7 @@ return [
   'go' => true,
   'belau' => true,
   'cloudns' => true,
-  'x443' => true,
-  'nom' => true
+  'x443' => true
  ],
  'py' => [
   'com' => true,
@@ -7383,8 +7432,7 @@ return [
   'net' => true,
   'org' => true,
   'sch' => true,
-  'blogspot' => true,
-  'nom' => true
+  'blogspot' => true
  ],
  're' => [
   'asso' => true,
@@ -7407,7 +7455,7 @@ return [
   'co' => true,
   'shop' => true,
   'blogspot' => true,
-  'nym' => true
+  'barsy' => true
  ],
  'rs' => [
   'ac' => true,
@@ -7421,7 +7469,6 @@ return [
   ],
   'blogspot' => true,
   'ua' => true,
-  'nom' => true,
   'ox' => true
  ],
  'ru' => [
@@ -7570,7 +7617,12 @@ return [
   'com' => true,
   'blogspot' => true,
   'conf' => true,
-  'iopsys' => true
+  'iopsys' => true,
+  'itcouldbewor' => true,
+  'myspreadshop' => true,
+  'paba' => [
+   'su' => true
+  ]
  ],
  'sg' => [
   'com' => true,
@@ -7603,13 +7655,11 @@ return [
  'si' => [
   'gitapp' => true,
   'gitpage' => true,
-  'blogspot' => true,
-  'nom' => true
+  'blogspot' => true
  ],
  'sj' => true,
  'sk' => [
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'sl' => [
   'com' => true,
@@ -7661,7 +7711,6 @@ return [
   'principe' => true,
   'saotome' => true,
   'store' => true,
-  'nom' => true,
   'noho' => true
  ],
  'su' => [
@@ -7716,8 +7765,7 @@ return [
   'tuva' => true,
   'vladikavkaz' => true,
   'vladimir' => true,
-  'vologda' => true,
-  'nym' => true
+  'vologda' => true
  ],
  'sv' => [
   'com' => true,
@@ -7727,8 +7775,7 @@ return [
   'red' => true
  ],
  'sx' => [
-  'gov' => true,
-  'nym' => true
+  'gov' => true
  ],
  'sy' => [
   'edu' => true,
@@ -7780,8 +7827,7 @@ return [
   'nic' => true,
   'org' => true,
   'test' => true,
-  'web' => true,
-  'nom' => true
+  'web' => true
  ],
  'tk' => true,
  'tl' => [
@@ -7803,21 +7849,14 @@ return [
   'fin' => true,
   'gov' => true,
   'ind' => true,
+  'info' => true,
   'intl' => true,
+  'mincom' => true,
   'nat' => true,
   'net' => true,
   'org' => true,
-  'info' => true,
   'perso' => true,
   'tourism' => true,
-  'edunet' => true,
-  'rnrt' => true,
-  'rns' => true,
-  'rnu' => true,
-  'mincom' => true,
-  'agrinet' => true,
-  'defense' => true,
-  'turen' => true,
   'orangecloud' => true
  ],
  'to' => [
@@ -7906,8 +7945,7 @@ return [
   '組織' => true,
   '商業' => true,
   'url' => true,
-  'blogspot' => true,
-  'nym' => true
+  'blogspot' => true
  ],
  'tz' => [
   'ac' => true,
@@ -8017,8 +8055,7 @@ return [
   'ne' => true,
   'com' => true,
   'org' => true,
-  'blogspot' => true,
-  'nom' => true
+  'blogspot' => true
  ],
  'uk' => [
   'ac' => true,
@@ -8040,6 +8077,7 @@ return [
    'no-ip' => true,
    'wellbeingzone' => true,
    'adimo' => true,
+   'myspreadshop' => true,
    'gwiddle' => true
   ],
   'gov' => [
@@ -8053,7 +8091,10 @@ return [
   'org' => [
    'glug' => true,
    'lug' => true,
-   'lugs' => true
+   'lugs' => true,
+   'affinitylottery' => true,
+   'raffleentry' => true,
+   'weeklylottery' => true
   ],
   'plc' => true,
   'police' => true,
@@ -8377,8 +8418,7 @@ return [
   'gub' => true,
   'mil' => true,
   'net' => true,
-  'org' => true,
-  'nom' => true
+  'org' => true
  ],
  'uz' => [
   'co' => true,
@@ -8397,11 +8437,11 @@ return [
   'gv' => [
    'd' => true
   ],
-  '0e' => true,
-  'nom' => true
+  '0e' => true
  ],
  've' => [
   'arts' => true,
+  'bib' => true,
   'co' => true,
   'com' => true,
   'e12' => true,
@@ -8413,14 +8453,15 @@ return [
   'int' => true,
   'mil' => true,
   'net' => true,
+  'nom' => true,
   'org' => true,
+  'rar' => true,
   'rec' => true,
   'store' => true,
   'tec' => true,
   'web' => true
  ],
  'vg' => [
-  'nom' => true,
   'at' => true
  ],
  'vi' => [
@@ -8636,7 +8677,6 @@ return [
  'adult' => true,
  'aeg' => true,
  'aetna' => true,
- 'afamilycompany' => true,
  'afl' => true,
  'africa' => true,
  'agakhan' => true,
@@ -8668,11 +8708,14 @@ return [
  'aol' => true,
  'apartments' => true,
  'app' => [
+  'clerk' => true,
+  'clerkstage' => true,
   'wnext' => true,
   'platform0' => true,
   'ondigitalocean' => true,
   'edgecompute' => true,
   'fireweb' => true,
+  'onflashdrive' => true,
   'framer' => true,
   'run' => [
    'a' => true
@@ -8863,9 +8906,14 @@ return [
   'banzai' => [
    '*' => true
   ],
+  'elementor' => true,
+  'encoway' => [
+   'eu' => true
+  ],
   'statics' => [
    '*' => true
   ],
+  'ravendb' => true,
   'axarnet' => [
    'es-1' => true
   ],
@@ -8938,6 +8986,7 @@ return [
  'comcast' => true,
  'commbank' => true,
  'community' => [
+  'nog' => true,
   'ravendb' => true,
   'myforum' => true
  ],
@@ -8953,6 +9002,7 @@ return [
  'cooking' => true,
  'cookingchannel' => true,
  'cool' => [
+  'elementor' => true,
   'de' => true
  ],
  'corsica' => true,
@@ -9055,7 +9105,6 @@ return [
  'drive' => true,
  'dtv' => true,
  'dubai' => true,
- 'duck' => true,
  'dunlop' => true,
  'dupont' => true,
  'durban' => true,
@@ -9099,6 +9148,7 @@ return [
   ]
  ],
  'events' => [
+  'koobin' => true,
   'co' => true
  ],
  'exchange' => true,
@@ -9194,7 +9244,6 @@ return [
  'gifts' => true,
  'gives' => true,
  'giving' => true,
- 'glade' => true,
  'glass' => true,
  'gle' => true,
  'global' => true,
@@ -9211,7 +9260,10 @@ return [
  'goodyear' => true,
  'goog' => [
   'cloud' => true,
-  'translate' => true
+  'translate' => true,
+  'usercontent' => [
+   '*' => true
+  ]
  ],
  'google' => true,
  'gop' => true,
@@ -9340,6 +9392,7 @@ return [
  'kerryproperties' => true,
  'kfh' => true,
  'kia' => true,
+ 'kids' => true,
  'kim' => true,
  'kinder' => true,
  'kindle' => true,
@@ -9403,9 +9456,10 @@ return [
   ]
  ],
  'lipsy' => true,
- 'live' => true,
+ 'live' => [
+  'hlx' => true
+ ],
  'living' => true,
- 'lixil' => true,
  'llc' => true,
  'llp' => true,
  'loan' => true,
@@ -9545,7 +9599,6 @@ return [
  'nyc' => true,
  'obi' => true,
  'observer' => true,
- 'off' => true,
  'office' => true,
  'okinawa' => true,
  'olayan' => true,
@@ -9557,14 +9610,16 @@ return [
   'onred' => [
    'staging' => true
   ],
-  'service' => true,
   'for' => true,
   'under' => true,
+  'service' => true,
   'homelink' => true
  ],
  'ong' => true,
  'onl' => true,
  'online' => [
+  'eero' => true,
+  'eero-stage' => true,
   'barsy' => true
  ],
  'ooo' => true,
@@ -9580,6 +9635,8 @@ return [
   'nerdpol' => true
  ],
  'page' => [
+  'hlx' => true,
+  'hlx3' => true,
   'pdns' => true,
   'plesk' => true,
   'prvcy' => true,
@@ -9652,10 +9709,8 @@ return [
  'qpon' => true,
  'quebec' => true,
  'quest' => true,
- 'qvc' => true,
  'racing' => true,
  'radio' => true,
- 'raid' => true,
  'read' => true,
  'realestate' => true,
  'realtor' => true,
@@ -9690,7 +9745,6 @@ return [
  'rip' => [
   'clan' => true
  ],
- 'rmit' => true,
  'rocher' => true,
  'rocks' => [
   'myddns' => true,
@@ -9707,6 +9761,7 @@ return [
   'hs' => true,
   'development' => true,
   'ravendb' => true,
+  'servers' => true,
   'code' => [
    '*' => true
   ],
@@ -9745,7 +9800,6 @@ return [
  'science' => [
   'ybo' => true
  ],
- 'scjohnson' => true,
  'scot' => [
   'edu' => true,
   'gov' => [
@@ -9776,6 +9830,8 @@ return [
  'shiksha' => true,
  'shoes' => true,
  'shop' => [
+  'base' => true,
+  'hoplix' => true,
   'barsy' => true
  ],
  'shopping' => true,
@@ -9786,7 +9842,9 @@ return [
  'sina' => true,
  'singles' => true,
  'site' => [
-  'cloudera' => true,
+  'cloudera' => [
+   '*' => true
+  ],
   'cyon' => true,
   'fnwk' => true,
   'folionetwork' => true,
@@ -9822,7 +9880,11 @@ return [
  'software' => true,
  'sohu' => true,
  'solar' => true,
- 'solutions' => true,
+ 'solutions' => [
+  'diher' => [
+   '*' => true
+  ]
+ ],
  'song' => true,
  'sony' => true,
  'soy' => true,
@@ -9845,6 +9907,7 @@ return [
  'stockholm' => true,
  'storage' => true,
  'store' => [
+  'sellfy' => true,
   'shopware' => true,
   'storebase' => true
  ],
@@ -9862,7 +9925,6 @@ return [
  'surgery' => true,
  'suzuki' => true,
  'swatch' => true,
- 'swiftcover' => true,
  'swiss' => true,
  'sydney' => true,
  'systems' => [
@@ -9905,7 +9967,9 @@ return [
  'tjx' => true,
  'tkmaxx' => true,
  'tmall' => true,
- 'today' => true,
+ 'today' => [
+  'prequalifyme' => true
+ ],
  'tokyo' => true,
  'tools' => true,
  'top' => [
@@ -10019,7 +10083,6 @@ return [
  '慈善' => true,
  '集团' => true,
  '在线' => true,
- '大众汽车' => true,
  '点看' => true,
  'คอม' => true,
  '八卦' => true,
