@@ -51,7 +51,8 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
 {
     /**
      * A queue of responses to be returned by sendRequest()
-     * @var  array
+     *
+     * @var array
      */
     protected $responses = [];
 
@@ -65,8 +66,8 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
      *
      * @param HTTP_Request2 $request HTTP request message
      *
-     * @return   HTTP_Request2_Response
-     * @throws   Exception
+     * @return HTTP_Request2_Response
+     * @throws Exception
      */
     public function sendRequest(HTTP_Request2 $request)
     {
@@ -102,7 +103,8 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
      * @param string $url      A request URL this response should be valid for
      *                         (see {@link http://pear.php.net/bugs/bug.php?id=19276})
      *
-     * @throws   HTTP_Request2_Exception
+     * @return void
+     * @throws HTTP_Request2_Exception
      */
     public function addResponse($response, $url = null)
     {
@@ -110,8 +112,8 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
             $response = self::createResponseFromString($response);
         } elseif (is_resource($response)) {
             $response = self::createResponseFromFile($response);
-        } elseif (!$response instanceof HTTP_Request2_Response &&
-                  !$response instanceof Exception
+        } elseif (!$response instanceof HTTP_Request2_Response 
+            && !$response instanceof Exception
         ) {
             throw new HTTP_Request2_Exception('Parameter is not a valid response');
         }
@@ -123,8 +125,8 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
      *
      * @param string $str string containing HTTP response message
      *
-     * @return   HTTP_Request2_Response
-     * @throws   HTTP_Request2_Exception
+     * @return HTTP_Request2_Response
+     * @throws HTTP_Request2_Exception
      */
     public static function createResponseFromString($str)
     {
@@ -146,8 +148,8 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
      *
      * @param resource $fp file pointer returned by fopen()
      *
-     * @return   HTTP_Request2_Response
-     * @throws   HTTP_Request2_Exception
+     * @return HTTP_Request2_Response
+     * @throws HTTP_Request2_Exception
      */
     public static function createResponseFromFile($fp)
     {

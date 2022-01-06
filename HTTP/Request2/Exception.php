@@ -36,28 +36,47 @@
  */
 class HTTP_Request2_Exception extends PEAR_Exception
 {
-    /** An invalid argument was passed to a method */
+    /**
+     * An invalid argument was passed to a method
+     */
     const INVALID_ARGUMENT   = 1;
-    /** Some required value was not available */
+    /**
+     * Some required value was not available
+     */
     const MISSING_VALUE      = 2;
-    /** Request cannot be processed due to errors in PHP configuration */
+    /**
+     * Request cannot be processed due to errors in PHP configuration
+     */
     const MISCONFIGURATION   = 3;
-    /** Error reading the local file */
+    /**
+     * Error reading the local file
+     */
     const READ_ERROR         = 4;
 
-    /** Server returned a response that does not conform to HTTP protocol */
+    /**
+     * Server returned a response that does not conform to HTTP protocol
+     */
     const MALFORMED_RESPONSE = 10;
-    /** Failure decoding Content-Encoding or Transfer-Encoding of response */
+    /**
+     * Failure decoding Content-Encoding or Transfer-Encoding of response
+     */
     const DECODE_ERROR       = 20;
-    /** Operation timed out */
+    /**
+     * Operation timed out
+     */
     const TIMEOUT            = 30;
-    /** Number of redirects exceeded 'max_redirects' configuration parameter */
+    /**
+     * Number of redirects exceeded 'max_redirects' configuration parameter
+     */
     const TOO_MANY_REDIRECTS = 40;
-    /** Redirect to a protocol other than http(s):// */
+    /**
+     * Redirect to a protocol other than http(s)://
+     */
     const NON_HTTP_REDIRECT  = 50;
 
     /**
      * Native error code
+     *
      * @var int
      */
     private $_nativeCode;

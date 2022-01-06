@@ -40,24 +40,28 @@ class HTTP_Request2_SocketWrapper
 {
     /**
      * PHP warning messages raised during stream_socket_client() call
+     *
      * @var array
      */
     protected $connectionWarnings = [];
 
     /**
      * Connected socket
+     *
      * @var resource
      */
     protected $socket;
 
     /**
      * Sum of start time and global timeout, exception will be thrown if request continues past this time
+     *
      * @var float
      */
     protected $deadline;
 
     /**
      * Global timeout value, mostly for exception messages
+     *
      * @var integer
      */
     protected $timeout;
@@ -150,8 +154,8 @@ class HTTP_Request2_SocketWrapper
      *
      * @param int $length Reads up to this number of bytes
      *
-     * @return   string|false Data read from socket by fread()
-     * @throws   HTTP_Request2_MessageException     In case of timeout
+     * @return string|false Data read from socket by fread()
+     * @throws HTTP_Request2_MessageException     In case of timeout
      */
     public function read($length)
     {
@@ -185,8 +189,8 @@ class HTTP_Request2_SocketWrapper
      * @param int $localTimeout timeout value to use just for this call
      *                          (used when waiting for "100 Continue" response)
      *
-     * @return   string Available data up to the newline (not including newline)
-     * @throws   HTTP_Request2_MessageException     In case of timeout
+     * @return string Available data up to the newline (not including newline)
+     * @throws HTTP_Request2_MessageException     In case of timeout
      */
     public function readLine($bufferSize, $localTimeout = null)
     {
@@ -240,11 +244,13 @@ class HTTP_Request2_SocketWrapper
             $w = [$this->socket];
             $e = null;
             if (stream_select($r, $w, $e, $timeouts[0], $timeouts[1])) {
-                set_error_handler(static function ($errNo, $errStr) use (&$error) {
-                    if (0 !== (E_NOTICE | E_WARNING) & $errNo) {
-                        $error = $errStr;
+                set_error_handler(
+                    static function ($errNo, $errStr) use (&$error) {
+                        if (0 !== (E_NOTICE | E_WARNING) & $errNo) {
+                            $error = $errStr;
+                        }
                     }
-                });
+                );
                 $written = fwrite($this->socket, $data);
                 restore_error_handler();
             }
@@ -282,8 +288,10 @@ class HTTP_Request2_SocketWrapper
      *
      * @param float|null $deadline Exception will be thrown if request continues
      *                             past this time
-     * @param int $timeout         Original request timeout value, to use in
+     * @param int        $timeout  Original request timeout value, to use in
      *                             Exception message
+     *
+     * @return void
      */
     public function setDeadline($deadline, $timeout)
     {
@@ -297,6 +305,7 @@ class HTTP_Request2_SocketWrapper
     /**
      * Turns on encryption on a socket
      *
+     * @return void
      * @throws HTTP_Request2_ConnectionException
      */
     public function enableCrypto()
@@ -321,6 +330,7 @@ class HTTP_Request2_SocketWrapper
     /**
      * Throws an Exception if stream timed out
      *
+     * @return void
      * @throws HTTP_Request2_MessageException
      */
     protected function checkTimeout()

@@ -85,9 +85,10 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
      * @param string $username Proxy user name
      * @param string $password Proxy password
      *
+     * @return void
      * @throws HTTP_Request2_ConnectionException
      * @throws HTTP_Request2_MessageException
-     * @link http://tools.ietf.org/html/rfc1929
+     * @link   http://tools.ietf.org/html/rfc1929
      */
     protected function performAuthentication($username, $password)
     {
@@ -109,6 +110,7 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
      * @param string $remoteHost Remote host
      * @param int    $remotePort Remote port
      *
+     * @return void
      * @throws HTTP_Request2_ConnectionException
      * @throws HTTP_Request2_MessageException
      */

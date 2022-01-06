@@ -41,7 +41,8 @@ abstract class HTTP_Request2_Adapter
 {
     /**
      * A list of methods that MUST NOT have a request body, per RFC 2616
-     * @var  array
+     *
+     * @var array
      */
     protected static $bodyDisallowed = ['TRACE'];
 
@@ -59,20 +60,23 @@ abstract class HTTP_Request2_Adapter
 
     /**
      * Request being sent
-     * @var  HTTP_Request2
+     *
+     * @var HTTP_Request2
      */
     protected $request;
 
     /**
      * Request body
-     * @var  string|resource|HTTP_Request2_MultipartBody
-     * @see  HTTP_Request2::getBody()
+     *
+     * @var string|resource|HTTP_Request2_MultipartBody
+     * @see HTTP_Request2::getBody()
      */
     protected $requestBody;
 
     /**
      * Length of the request body
-     * @var  integer
+     *
+     * @var integer
      */
     protected $contentLength;
 
@@ -81,17 +85,19 @@ abstract class HTTP_Request2_Adapter
      *
      * @param HTTP_Request2 $request HTTP request message
      *
-     * @return   HTTP_Request2_Response
-     * @throws   HTTP_Request2_Exception
+     * @return HTTP_Request2_Response
+     * @throws HTTP_Request2_Exception
      */
     abstract public function sendRequest(HTTP_Request2 $request);
 
     /**
      * Calculates length of the request body, adds proper headers
      *
-     * @param array &$headers associative array of request headers, this method
-     *                        will add proper 'Content-Length' and 'Content-Type'
-     *                        headers to this array (or remove them if not needed)
+     * @param array $headers associative array of request headers, this method
+     *                       will add proper 'Content-Length' and 'Content-Type'
+     *                       headers to this array (or remove them if not needed)
+     *
+     * @return void
      */
     protected function calculateRequestLength(&$headers)
     {

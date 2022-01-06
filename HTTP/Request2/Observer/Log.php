@@ -119,6 +119,7 @@ class HTTP_Request2_Observer_Log implements SplObserver
     // }}}
     // update() {{{
 
+    #[ReturnTypeWillChange]
     /**
      * Called when the request notifies us of an event.
      *
@@ -126,7 +127,6 @@ class HTTP_Request2_Observer_Log implements SplObserver
      *
      * @return void
      */
-    #[ReturnTypeWillChange]
     public function update(SplSubject $subject)
     {
         $event = $subject->getLastEvent();
@@ -149,10 +149,12 @@ class HTTP_Request2_Observer_Log implements SplObserver
             $this->log('> ' . $event['data'] . ' byte(s) sent');
             break;
         case 'receivedHeaders':
-            $this->log(sprintf(
-                '< HTTP/%s %s %s', $event['data']->getVersion(),
-                $event['data']->getStatus(), $event['data']->getReasonPhrase()
-            ));
+            $this->log(
+                sprintf(
+                    '< HTTP/%s %s %s', $event['data']->getVersion(),
+                    $event['data']->getStatus(), $event['data']->getReasonPhrase()
+                )
+            );
             $headers = $event['data']->getHeader();
             foreach ($headers as $key => $val) {
                 $this->log('< ' . $key . ': ' . $val);
