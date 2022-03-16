@@ -218,7 +218,7 @@ class HTTP_Request2_Response
      */
     public function __construct($statusLine, $bodyEncoded = true, $effectiveUrl = null)
     {
-        if (!preg_match('!^HTTP/(\d\.\d) (\d{3})(?: (.+))?!', $statusLine, $m)) {
+        if (!preg_match('!^HTTP/(\d\.\d) (\d{3})(?: (.+))?!', trim($statusLine), $m)) {
             throw new HTTP_Request2_MessageException(
                 "Malformed response: {$statusLine}",
                 HTTP_Request2_Exception::MALFORMED_RESPONSE
