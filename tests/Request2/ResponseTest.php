@@ -51,6 +51,11 @@ class HTTP_Request2_ResponseTest extends TestCase
         $this->assertEquals(200, $response4->getStatus());
         $this->assertEquals('OK', $response4->getReasonPhrase());
 
+        $response5 = new HTTP_Request2_Response("HTTP/1.1 200  \r\n");
+        $this->assertEquals('1.1', $response5->getVersion());
+        $this->assertEquals(200, $response5->getStatus());
+        $this->assertEquals('OK', $response5->getReasonPhrase());
+
         new HTTP_Request2_Response('Invalid status line');
     }
 
