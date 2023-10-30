@@ -218,7 +218,7 @@ class HTTP_Request2_Response
      */
     public function __construct($statusLine, $bodyEncoded = true, $effectiveUrl = null)
     {
-        if (!preg_match('!^HTTP/(\d\.\d) (\d{3})( [^\r\n]*)?!', $statusLine, $m)) {
+        if (!preg_match('!^HTTP/(\d\.\d) (\d{3}) ([^\r\n]*)!', $statusLine, $m)) {
             throw new HTTP_Request2_MessageException(
                 "Malformed response: {$statusLine}",
                 HTTP_Request2_Exception::MALFORMED_RESPONSE
@@ -226,7 +226,7 @@ class HTTP_Request2_Response
         }
         $this->version      = $m[1];
         $this->code         = intval($m[2]);
-        $this->reasonPhrase = trim($m[3]) ?: self::getDefaultReasonPhrase($this->code);
+        $this->reasonPhrase = '' !== $m[3] ? $m[3] : self::getDefaultReasonPhrase($this->code);
         $this->bodyEncoded  = (bool)$bodyEncoded;
         $this->effectiveUrl = (string)$effectiveUrl;
     }

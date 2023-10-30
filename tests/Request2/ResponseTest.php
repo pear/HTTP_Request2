@@ -51,12 +51,28 @@ class HTTP_Request2_ResponseTest extends TestCase
         $this->assertEquals(200, $response4->getStatus());
         $this->assertEquals('OK', $response4->getReasonPhrase());
 
+        // RFC 9112 gives the following definition for reason-phrase:
+        // > reason-phrase  = 1*( HTAB / SP / VCHAR / obs-text )
+        // so do not use trim() and consider whitespace-only reason-phrase as present
         $response5 = new HTTP_Request2_Response("HTTP/1.1 200  \r\n");
         $this->assertEquals('1.1', $response5->getVersion());
         $this->assertEquals(200, $response5->getStatus());
-        $this->assertEquals('OK', $response5->getReasonPhrase());
+        $this->assertEquals(' ', $response5->getReasonPhrase());
 
         new HTTP_Request2_Response('Invalid status line');
+    }
+
+    /**
+     * https://www.rfc-editor.org/rfc/rfc9112.html#name-status-line
+     *
+     * > A server MUST send the space that separates the status-code from
+     * > the reason-phrase even when the reason-phrase is absent
+     * > (i.e., the status-line would end with the space).
+     */
+    public function testSpaceIsRequiredAfterStatusCode()
+    {
+        $this->expectException(\HTTP_Request2_MessageException::class);
+        new HTTP_Request2_Response('HTTP/1.1 200');
     }
 
     public function testParseHeaders()
