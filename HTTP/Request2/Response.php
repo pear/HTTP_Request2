@@ -403,9 +403,10 @@ class HTTP_Request2_Response
      *
      * @param string $headerName Name of header to return
      *
-     * @return string|array    Value of $headerName header (null if header is
+     * @return string|array|null Value of $headerName header (null if header is
      *                           not present), array of all response headers if
      *                           $headerName is null
+     * @psalm-return ($headerName is null ? array<string, string> : ?string)
      */
     public function getHeader($headerName = null)
     {
@@ -435,12 +436,10 @@ class HTTP_Request2_Response
      */
     public function getBody()
     {
-        if (0 == strlen($this->body) || !$this->bodyEncoded
-            || !in_array(strtolower($this->getHeader('content-encoding') ?: ''), ['gzip', 'deflate'])
+        if ('' !== $this->body
+            && $this->bodyEncoded
+            && in_array(strtolower($this->getHeader('content-encoding') ?: ''), ['gzip', 'deflate'])
         ) {
-            return $this->body;
-
-        } else {
             if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
                 $oldEncoding = mb_internal_encoding();
                 mb_internal_encoding('8bit');
@@ -450,16 +449,17 @@ class HTTP_Request2_Response
                 switch (strtolower($this->getHeader('content-encoding'))) {
                 case 'gzip':
                     return self::decodeGzip($this->body);
-                    break;
                 case 'deflate':
                     return self::decodeDeflate($this->body);
                 }
             } finally {
-                if (!empty($oldEncoding)) {
+                if (extension_loaded('mbstring') && !empty($oldEncoding)) {
                     mb_internal_encoding($oldEncoding);
                 }
             }
         }
+
+        return $this->body;
     }
 
     /**

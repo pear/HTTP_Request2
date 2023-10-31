@@ -1,0 +1,53 @@
+name: "Static Analysis"
+
+on:
+  pull_request:
+  push:
+    branches:
+      - trunk
+
+jobs:
+  static-analysis-psalm:
+    name: "Static Analysis with Psalm"
+    runs-on: ${{ matrix.operating-system }}
+
+    strategy:
+      matrix:
+        operating-system: [ 'ubuntu-latest' ]
+        php-version: [ '7.4', '8.2' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install dependencies with Composer
+        run: |
+          composer update --no-interaction --prefer-dist --no-progress ${{ matrix.composer-flags }}
+
+      - name: Install psalm and pear/Log
+        run: |
+          composer require --dev "vimeo/psalm:^5.15" "pear/log:^1"
+
+      - name: Run a static analysis with vimeo/psalm
+        run: |
+          vendor/bin/psalm --output-format=github

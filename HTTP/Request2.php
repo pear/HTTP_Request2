@@ -219,7 +219,7 @@ class HTTP_Request2 implements SplSubject
      *
      * Also sets a default value for User-Agent header.
      *
-     * @param string|Net_Url2 $url    Request URL
+     * @param string|Net_URL2 $url    Request URL
      * @param string          $method Request method
      * @param array           $config Configuration for this Request instance
      */

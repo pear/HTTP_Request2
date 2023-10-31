@@ -178,7 +178,7 @@ class HTTP_Request2_Observer_UncompressingDownload implements SplObserver
     /**
      * Called when the request notifies us of an event.
      *
-     * @param SplSubject $request The HTTP_Request2 instance
+     * @param HTTP_Request2 $request The HTTP_Request2 instance
      *
      * @return void
      * @throws HTTP_Request2_MessageException

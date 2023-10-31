@@ -52,7 +52,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     /**
      * Connected sockets, needed for Keep-Alive support
      *
-     * @var array
+     * @var HTTP_Request2_SocketWrapper[]
      * @see connect()
      */
     protected static $sockets = [];
@@ -74,7 +74,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     /**
      * Connected socket
      *
-     * @var HTTP_Request2_SocketWrapper
+     * @var HTTP_Request2_SocketWrapper|null
      * @see connect()
      */
     protected $socket;
@@ -143,7 +143,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
 
             } else {
                 $response = $this->readResponse();
-                if (!$response || 100 == $response->getStatus()) {
+                if (null === $response || 100 === $response->getStatus()) {
                     $this->expect100Continue = false;
                     // either got "100 Continue" or timed out -> send body
                     $this->writeBody();
@@ -1011,7 +1011,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     /**
      * Reads the remote server's response
      *
-     * @return HTTP_Request2_Response
+     * @return HTTP_Request2_Response|null
      * @throws HTTP_Request2_Exception
      */
     protected function readResponse()
@@ -1134,7 +1134,11 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 }
             }
         }
-        $data = $this->socket->read(min($this->chunkLength, $bufferSize));
+        if (false === ($data = $this->socket->read(min($this->chunkLength, $bufferSize)))) {
+            // Stop in case of read error
+            $this->chunkLength = -1;
+            return '';
+        }
         $this->chunkLength -= strlen($data);
         if (0 == $this->chunkLength) {
             $this->socket->readLine($bufferSize); // Trailing CRLF

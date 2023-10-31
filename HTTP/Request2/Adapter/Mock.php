@@ -52,7 +52,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
     /**
      * A queue of responses to be returned by sendRequest()
      *
-     * @var array
+     * @var array<int, array{HTTP_Request2_Response|HTTP_Request2_Exception, ?string}>
      */
     protected $responses = [];
 
@@ -80,18 +80,17 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
                 break;
             }
         }
-        if (!$response) {
-            return self::createResponseFromString("HTTP/1.1 400 Bad Request\r\n\r\n");
 
-        } elseif ($response instanceof HTTP_Request2_Response) {
+        if ($response instanceof HTTP_Request2_Response) {
             return $response;
-
-        } else {
+        } elseif ($response instanceof HTTP_Request2_Exception) {
             // rethrow the exception
             $class   = get_class($response);
             $message = $response->getMessage();
             $code    = $response->getCode();
             throw new $class($message, $code);
+        } else {
+            return self::createResponseFromString("HTTP/1.1 400 Bad Request\r\n\r\n");
         }
     }
 

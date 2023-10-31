@@ -66,39 +66,38 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
      * @var array
      */
     protected static $errorMap = [
-        CURLE_UNSUPPORTED_PROTOCOL  => ['HTTP_Request2_MessageException',
+        CURLE_UNSUPPORTED_PROTOCOL  => [HTTP_Request2_MessageException::class,
                                              HTTP_Request2_Exception::NON_HTTP_REDIRECT],
-        CURLE_COULDNT_RESOLVE_PROXY => ['HTTP_Request2_ConnectionException'],
-        CURLE_COULDNT_RESOLVE_HOST  => ['HTTP_Request2_ConnectionException'],
-        CURLE_COULDNT_CONNECT       => ['HTTP_Request2_ConnectionException'],
+        CURLE_COULDNT_RESOLVE_PROXY => [HTTP_Request2_ConnectionException::class],
+        CURLE_COULDNT_RESOLVE_HOST  => [HTTP_Request2_ConnectionException::class],
+        CURLE_COULDNT_CONNECT       => [HTTP_Request2_ConnectionException::class],
         // error returned from write callback
-        CURLE_WRITE_ERROR           => ['HTTP_Request2_MessageException',
+        CURLE_WRITE_ERROR           => [HTTP_Request2_MessageException::class,
                                              HTTP_Request2_Exception::NON_HTTP_REDIRECT],
-        CURLE_OPERATION_TIMEOUTED   => ['HTTP_Request2_MessageException',
+        CURLE_OPERATION_TIMEOUTED   => [HTTP_Request2_MessageException::class,
                                              HTTP_Request2_Exception::TIMEOUT],
-        CURLE_HTTP_RANGE_ERROR      => ['HTTP_Request2_MessageException'],
-        CURLE_SSL_CONNECT_ERROR     => ['HTTP_Request2_ConnectionException'],
-        CURLE_LIBRARY_NOT_FOUND     => ['HTTP_Request2_LogicException',
+        CURLE_HTTP_RANGE_ERROR      => [HTTP_Request2_MessageException::class],
+        CURLE_SSL_CONNECT_ERROR     => [HTTP_Request2_ConnectionException::class],
+        CURLE_LIBRARY_NOT_FOUND     => [HTTP_Request2_LogicException::class,
                                              HTTP_Request2_Exception::MISCONFIGURATION],
-        CURLE_FUNCTION_NOT_FOUND    => ['HTTP_Request2_LogicException',
+        CURLE_FUNCTION_NOT_FOUND    => [HTTP_Request2_LogicException::class,
                                              HTTP_Request2_Exception::MISCONFIGURATION],
-        CURLE_ABORTED_BY_CALLBACK   => ['HTTP_Request2_MessageException',
+        CURLE_ABORTED_BY_CALLBACK   => [HTTP_Request2_MessageException::class,
                                              HTTP_Request2_Exception::NON_HTTP_REDIRECT],
-        CURLE_TOO_MANY_REDIRECTS    => ['HTTP_Request2_MessageException',
+        CURLE_TOO_MANY_REDIRECTS    => [HTTP_Request2_MessageException::class,
                                              HTTP_Request2_Exception::TOO_MANY_REDIRECTS],
-        CURLE_SSL_PEER_CERTIFICATE  => ['HTTP_Request2_ConnectionException'],
-        CURLE_GOT_NOTHING           => ['HTTP_Request2_MessageException'],
-        CURLE_SSL_ENGINE_NOTFOUND   => ['HTTP_Request2_LogicException',
+        CURLE_SSL_PEER_CERTIFICATE  => [HTTP_Request2_ConnectionException::class],
+        CURLE_GOT_NOTHING           => [HTTP_Request2_MessageException::class],
+        CURLE_SSL_ENGINE_NOTFOUND   => [HTTP_Request2_LogicException::class,
                                              HTTP_Request2_Exception::MISCONFIGURATION],
-        CURLE_SSL_ENGINE_SETFAILED  => ['HTTP_Request2_LogicException',
+        CURLE_SSL_ENGINE_SETFAILED  => [HTTP_Request2_LogicException::class,
                                              HTTP_Request2_Exception::MISCONFIGURATION],
-        CURLE_SEND_ERROR            => ['HTTP_Request2_MessageException'],
-        CURLE_RECV_ERROR            => ['HTTP_Request2_MessageException'],
-        CURLE_SSL_CERTPROBLEM       => ['HTTP_Request2_LogicException',
+        CURLE_SEND_ERROR            => [HTTP_Request2_MessageException::class],
+        CURLE_RECV_ERROR            => [HTTP_Request2_MessageException::class],
+        CURLE_SSL_CERTPROBLEM       => [HTTP_Request2_LogicException::class,
                                              HTTP_Request2_Exception::INVALID_ARGUMENT],
-        CURLE_SSL_CIPHER            => ['HTTP_Request2_ConnectionException'],
-        CURLE_SSL_CACERT            => ['HTTP_Request2_ConnectionException'],
-        CURLE_BAD_CONTENT_ENCODING  => ['HTTP_Request2_MessageException'],
+        CURLE_SSL_CIPHER            => [HTTP_Request2_ConnectionException::class],
+        CURLE_BAD_CONTENT_ENCODING  => [HTTP_Request2_MessageException::class],
     ];
 
     /**
@@ -180,6 +179,10 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 'cURL extension not available', HTTP_Request2_Exception::MISCONFIGURATION
             );
         }
+        // These constants have the same value for cURL >= 7.62.0
+        if (CURLE_SSL_CACERT !== CURLE_SSL_PEER_CERTIFICATE) {
+            self::$errorMap[CURLE_SSL_CACERT] = [HTTP_Request2_ConnectionException::class];
+        }
 
         $this->request              = $request;
         $this->response             = null;
@@ -204,6 +207,8 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             unset($this->request, $this->requestBody, $this->response);
         }
 
+        // If no exceptions were thrown, $response should be set here
+        /** @var HTTP_Request2_Response $response */
         if ($jar = $request->getCookieJar()) {
             $jar->addCookiesFromResponse($response);
         }
