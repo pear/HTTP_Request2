@@ -129,6 +129,9 @@ class HTTP_Request2_Observer_Log implements SplObserver
      */
     public function update(SplSubject $subject)
     {
+        if (!$subject instanceof HTTP_Request2) {
+            return;
+        }
         $event = $subject->getLastEvent();
         if (!in_array($event['name'], $this->events)) {
             return;
