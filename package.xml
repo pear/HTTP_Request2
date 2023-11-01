@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2022-01-06</date>
+  <date>2023-11-01</date>
   <version>
-    <release>2.5.1</release>
+    <release>2.6.0</release>
     <api>2.4.0</api>
   </version>
   <stability>
@@ -36,8 +36,10 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
- * The package runs under PHP 8.1 without `E_DEPRECATED` messages
-   https://github.com/pear/HTTP_Request2/issues/25
+ * Tested on PHP 8.2 and 8.3
+ * Use psalm for static analysis, several minor issues fixed
+ * Correctly parse HTTP status line with an empty reason-phrase
+   (see https://github.com/pear/HTTP_Request2/pull/26)
  * Updated Public Suffix List
   </notes>
   <contents>
@@ -253,6 +255,23 @@ deflate encodings, redirects, monitoring the request progress with Observers...
    </filelist>
   </phprelease>
   <changelog>
+    <release>
+      <date>2022-01-06</date>
+      <version>
+        <release>2.5.1</release>
+        <api>2.4.0</api>
+      </version>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <license uri="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
+      <notes>
+       * The package runs under PHP 8.1 without `E_DEPRECATED` messages
+         https://github.com/pear/HTTP_Request2/issues/25
+       * Updated Public Suffix List
+      </notes>
+    </release>
     <release>
       <date>2021-07-12</date>
       <version>
