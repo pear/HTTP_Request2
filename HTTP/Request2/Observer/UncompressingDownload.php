@@ -14,7 +14,7 @@
  * @package   HTTP_Request2
  * @author    Delian Krustev <krustev@krustev.net>
  * @author    Alexey Borzov <avb@php.net>
- * @copyright 2008-2022 Alexey Borzov <avb@php.net>
+ * @copyright 2008-2023 Alexey Borzov <avb@php.net>
  * @license   http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
  * @link      http://pear.php.net/package/HTTP_Request2
  */
