@@ -322,7 +322,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 );
             }
             curl_setopt($ch, CURLOPT_PROXY, $host . ':' . $port);
-            if ($user = $this->request->getConfig('proxy_user')) {
+            if ('' !== ($user = (string)$this->request->getConfig('proxy_user'))) {
                 curl_setopt(
                     $ch, CURLOPT_PROXYUSERPWD,
                     $user . ':' . $this->request->getConfig('proxy_password')

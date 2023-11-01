@@ -306,9 +306,11 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
                 // pear-package-only require_once 'HTTP/Request2/SOCKS5.php';
 
                 $this->socket = new HTTP_Request2_SOCKS5(
-                    $remote, $this->request->getConfig('connect_timeout'),
-                    $options, $this->request->getConfig('proxy_user'),
-                    $this->request->getConfig('proxy_password')
+                    $remote,
+                    $this->request->getConfig('connect_timeout'),
+                    $options,
+                    (string)$this->request->getConfig('proxy_user'),
+                    (string)$this->request->getConfig('proxy_password')
                 );
                 // handle request timeouts ASAP
                 $this->socket->setDeadline($deadline, $this->request->getConfig('timeout'));
@@ -789,7 +791,7 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
     protected function addProxyAuthorizationHeader(&$headers, $requestUrl)
     {
         if (!$this->request->getConfig('proxy_host')
-            || !($user = $this->request->getConfig('proxy_user'))
+            || '' === ($user = (string)$this->request->getConfig('proxy_user'))
             || (0 === strcasecmp('https', (string)$this->request->getUrl()->getScheme())
             && HTTP_Request2::METHOD_CONNECT !== $this->request->getMethod())
         ) {

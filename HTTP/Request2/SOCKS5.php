@@ -50,11 +50,11 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
      */
     public function __construct(
         $address, $timeout = 10, array $contextOptions = [],
-        $username = null, $password = null
+        $username = '', $password = ''
     ) {
         parent::__construct($address, $timeout, $contextOptions);
 
-        if (null !== $username) {
+        if ('' !== $username) {
             $request = pack('C4', 5, 2, 0, 2);
         } else {
             $request = pack('C3', 5, 1, 0);
@@ -70,7 +70,7 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
         }
         switch ($response['method']) {
         case 2:
-            $this->performAuthentication((string)$username, (string)$password);
+            $this->performAuthentication($username, $password);
         case 0:
             break;
         default:
