@@ -63,7 +63,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     /**
      * Mapping of CURLE_* constants to Exception subclasses and error codes
      *
-     * @var array
+     * @var array<int, array{0: class-string<HTTP_Request2_Exception>, 1?: int}>
      */
     protected static $errorMap = [
         CURLE_UNSUPPORTED_PROTOCOL  => [HTTP_Request2_MessageException::class,
@@ -103,7 +103,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
     /**
      * Response being received
      *
-     * @var HTTP_Request2_Response
+     * @var HTTP_Request2_Response|null
      */
     protected $response;
 
@@ -498,7 +498,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
         if (!$this->eventSentHeaders
             // we may receive a second set of headers if doing e.g. digest auth
             // but don't bother with 100-Continue responses (bug #15785)
-            || $this->eventReceivedHeaders && $this->response->getStatus() >= 200
+            || $this->eventReceivedHeaders
+                && null !== $this->response
+                && $this->response->getStatus() >= 200
         ) {
             $this->request->setLastEvent(
                 'sentHeaders', curl_getinfo($ch, CURLINFO_HEADER_OUT)
@@ -534,7 +536,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 }
 
                 if ($this->request->getConfig('follow_redirects') && $this->response->isRedirect()) {
-                    $redirectUrl = new Net_URL2($this->response->getHeader('location'));
+                    $redirectUrl = new Net_URL2((string)$this->response->getHeader('location'));
 
                     // for versions lower than 5.2.10, check the redirection URL protocol
                     if (!defined('CURLOPT_REDIR_PROTOCOLS') && $redirectUrl->isAbsolute()

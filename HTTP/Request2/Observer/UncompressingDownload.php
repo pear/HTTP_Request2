@@ -110,7 +110,7 @@ class HTTP_Request2_Observer_UncompressingDownload implements SplObserver
     /**
      * 'zlib.inflate' filter possibly added to stream
      *
-     * @var resource
+     * @var resource|null
      */
     private $_streamFilter;
 

@@ -55,7 +55,7 @@ class HTTP_Request2_SocketWrapper
     /**
      * Sum of start time and global timeout, exception will be thrown if request continues past this time
      *
-     * @var float
+     * @var float|null
      */
     protected $deadline;
 
@@ -202,6 +202,7 @@ class HTTP_Request2_SocketWrapper
                 $started  = microtime(true);
             } else {
                 $timeouts = $this->_getTimeoutsForStreamSelect();
+                $started  = 0.0;
             }
 
             $r = [$this->socket];
@@ -247,7 +248,7 @@ class HTTP_Request2_SocketWrapper
             if (stream_select($r, $w, $e, $timeouts[0], $timeouts[1])) {
                 set_error_handler(
                     static function ($errNo, $errStr) use (&$error) {
-                        if (0 !== (E_NOTICE | E_WARNING) & $errNo) {
+                        if (0 !== ((E_NOTICE | E_WARNING) & $errNo)) {
                             $error = $errStr;
                         }
                         return true;

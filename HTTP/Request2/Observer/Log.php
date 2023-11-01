@@ -72,11 +72,11 @@ class HTTP_Request2_Observer_Log implements SplObserver
     // properties {{{
 
     /**
-     * The log target, it can be a a resource or a PEAR Log instance.
+     * The log target, it can be a resource or a PEAR Log instance.
      *
      * @var resource|Log $target
      */
-    protected $target = null;
+    protected $target;
 
     /**
      * The events to log.
@@ -98,9 +98,9 @@ class HTTP_Request2_Observer_Log implements SplObserver
     /**
      * Constructor.
      *
-     * @param mixed $target Can be a file path (default: php://output), a resource,
-     *                      or an instance of the PEAR Log class.
-     * @param array $events Array of events to listen to (default: all events)
+     * @param string|resource|Log $target Can be a file path (default: php://output), a resource,
+     *                                    or an instance of the PEAR Log class.
+     * @param array               $events Array of events to listen to (default: all events)
      *
      * @return void
      */

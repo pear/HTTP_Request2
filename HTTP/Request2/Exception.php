@@ -77,7 +77,7 @@ class HTTP_Request2_Exception extends PEAR_Exception
     /**
      * Native error code
      *
-     * @var int
+     * @var int|null
      */
     private $_nativeCode;
 
@@ -88,7 +88,7 @@ class HTTP_Request2_Exception extends PEAR_Exception
      * @param int    $code       package error code, one of class constants
      * @param int    $nativeCode error code from underlying PHP extension
      */
-    public function __construct($message = null, $code = null, $nativeCode = null)
+    public function __construct($message = '', $code = null, $nativeCode = null)
     {
         parent::__construct($message, $code);
         $this->_nativeCode = $nativeCode;
@@ -101,7 +101,7 @@ class HTTP_Request2_Exception extends PEAR_Exception
      * stream_socket_client(), for Curl Adapter this will contain error number
      * returned by curl_errno()
      *
-     * @return integer
+     * @return int|null
      */
     public function getNativeCode()
     {

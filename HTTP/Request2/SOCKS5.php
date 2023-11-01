@@ -54,22 +54,23 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
     ) {
         parent::__construct($address, $timeout, $contextOptions);
 
-        if (strlen($username)) {
+        if (null !== $username) {
             $request = pack('C4', 5, 2, 0, 2);
         } else {
             $request = pack('C3', 5, 1, 0);
         }
         $this->write($request);
-        $response = unpack('Cversion/Cmethod', $this->read(3));
-        if (5 != $response['version']) {
+        $response = unpack('Cversion/Cmethod', (string)$this->read(3));
+        if (!$response || 5 !== $response['version']) {
             throw new HTTP_Request2_MessageException(
-                'Invalid version received from SOCKS5 proxy: ' . $response['version'],
+                'Invalid version received from SOCKS5 proxy: '
+                . ($response ? $response['version'] : 'none'),
                 HTTP_Request2_Exception::MALFORMED_RESPONSE
             );
         }
         switch ($response['method']) {
         case 2:
-            $this->performAuthentication($username, $password);
+            $this->performAuthentication((string)$username, (string)$password);
         case 0:
             break;
         default:
@@ -96,8 +97,8 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
                     . pack('C', strlen($password)) . $password;
 
         $this->write($request);
-        $response = unpack('Cvn/Cstatus', $this->read(3));
-        if (1 != $response['vn'] || 0 != $response['status']) {
+        $response = unpack('Cvn/Cstatus', (string)$this->read(3));
+        if (!$response || 1 !== $response['vn'] || 0 !== $response['status']) {
             throw new HTTP_Request2_ConnectionException(
                 'Connection rejected by proxy due to invalid username and/or password'
             );
@@ -120,13 +121,13 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
                    . $remoteHost . pack('n', $remotePort);
 
         $this->write($request);
-        $response = unpack('Cversion/Creply/Creserved', $this->read(1024));
-        if (5 != $response['version'] || 0 != $response['reserved']) {
+        $response = unpack('Cversion/Creply/Creserved', (string)$this->read(1024));
+        if (!$response || 5 !== $response['version'] || 0 !== $response['reserved']) {
             throw new HTTP_Request2_MessageException(
                 'Invalid response received from SOCKS5 proxy',
                 HTTP_Request2_Exception::MALFORMED_RESPONSE
             );
-        } elseif (0 != $response['reply']) {
+        } elseif (0 !== $response['reply']) {
             throw new HTTP_Request2_ConnectionException(
                 "Unable to connect to {$remoteHost}:{$remotePort} through SOCKS5 proxy",
                 0, $response['reply']

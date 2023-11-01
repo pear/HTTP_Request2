@@ -71,7 +71,7 @@ class HTTP_Request2_Response
     /**
      * Reason phrase
      *
-     * @var  string
+     * @var  string|null
      * @link http://tools.ietf.org/html/rfc2616#section-6.1.1
      */
     protected $reasonPhrase;
@@ -98,11 +98,11 @@ class HTTP_Request2_Response
     protected $cookies = [];
 
     /**
-     * Name of last header processed by parseHederLine()
+     * Name of last header processed by {@see parseHeaderLine()}
      *
      * Used to handle the headers that span multiple lines
      *
-     * @var string
+     * @var string|null
      */
     protected $lastHeader = null;
 
@@ -197,6 +197,8 @@ class HTTP_Request2_Response
      *                           (null if no phrase is available), array of all
      *                           reason phrases if $code is null
      * @link   http://pear.php.net/bugs/18716
+     *
+     * @psalm-return ($code is null ? array<int, string> : ?string)
      */
     public static function getDefaultReasonPhrase($code = null)
     {
@@ -309,14 +311,14 @@ class HTTP_Request2_Response
 
         if (!strpos($cookieString, ';')) {
             // Only a name=value pair
-            $pos = strpos($cookieString, '=');
+            $pos = (int)strpos($cookieString, '=');
             $cookie['name']  = trim(substr($cookieString, 0, $pos));
             $cookie['value'] = trim(substr($cookieString, $pos + 1));
 
         } else {
             // Some optional parameters are supplied
             $elements = explode(';', $cookieString);
-            $pos = strpos($elements[0], '=');
+            $pos = (int)strpos($elements[0], '=');
             $cookie['name']  = trim(substr($elements[0], 0, $pos));
             $cookie['value'] = trim(substr($elements[0], $pos + 1));
 
@@ -331,9 +333,9 @@ class HTTP_Request2_Response
                 if ('secure' == $elName) {
                     $cookie['secure'] = true;
                 } elseif ('expires' == $elName) {
-                    $cookie['expires'] = str_replace('"', '', $elValue);
+                    $cookie['expires'] = str_replace('"', '', (string)$elValue);
                 } elseif ('path' == $elName || 'domain' == $elName) {
-                    $cookie[$elName] = urldecode($elValue);
+                    $cookie[$elName] = urldecode((string)$elValue);
                 } else {
                     $cookie[$elName] = $elValue;
                 }
@@ -380,7 +382,7 @@ class HTTP_Request2_Response
     /**
      * Returns the reason phrase
      *
-     * @return string
+     * @return string|null
      */
     public function getReasonPhrase()
     {
@@ -440,13 +442,13 @@ class HTTP_Request2_Response
             && $this->bodyEncoded
             && in_array(strtolower($this->getHeader('content-encoding') ?: ''), ['gzip', 'deflate'])
         ) {
-            if (extension_loaded('mbstring') && (2 & ini_get('mbstring.func_overload'))) {
+            if (extension_loaded('mbstring') && (2 & (int)ini_get('mbstring.func_overload'))) {
                 $oldEncoding = mb_internal_encoding();
                 mb_internal_encoding('8bit');
             }
 
             try {
-                switch (strtolower($this->getHeader('content-encoding'))) {
+                switch (strtolower((string)$this->getHeader('content-encoding'))) {
                 case 'gzip':
                     return self::decodeGzip($this->body);
                 case 'deflate':

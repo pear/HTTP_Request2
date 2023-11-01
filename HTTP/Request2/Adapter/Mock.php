@@ -52,7 +52,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
     /**
      * A queue of responses to be returned by sendRequest()
      *
-     * @var array<int, array{HTTP_Request2_Response|HTTP_Request2_Exception, ?string}>
+     * @var array<int, array{HTTP_Request2_Response|Exception, ?string}>
      */
     protected $responses = [];
 
@@ -83,7 +83,7 @@ class HTTP_Request2_Adapter_Mock extends HTTP_Request2_Adapter
 
         if ($response instanceof HTTP_Request2_Response) {
             return $response;
-        } elseif ($response instanceof HTTP_Request2_Exception) {
+        } elseif ($response instanceof Exception) {
             // rethrow the exception
             $class   = get_class($response);
             $message = $response->getMessage();
