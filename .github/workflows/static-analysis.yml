@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - trunk
+      - psalm-6
 
 jobs:
   static-analysis-psalm:
