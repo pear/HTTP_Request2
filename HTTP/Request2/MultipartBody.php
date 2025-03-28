@@ -166,17 +166,17 @@ class HTTP_Request2_MultipartBody
                 $param = sprintf(
                     $this->_headerParam, $boundary, $this->_params[$this->_pos[0]][0]
                 ) . $this->_params[$this->_pos[0]][1] . "\r\n";
-                $ret    .= substr($param, $this->_pos[1], $length);
+                $ret    .= (string)substr($param, $this->_pos[1], $length);
                 $length -= min(strlen($param) - $this->_pos[1], $length);
 
             } elseif ($this->_pos[0] < $paramCount + $uploadCount) {
                 $pos    = $this->_pos[0] - $paramCount;
-                $header = sprintf(
+                $header = (string)sprintf(
                     $this->_headerUpload, $boundary, $this->_uploads[$pos]['name'],
                     $this->_uploads[$pos]['filename'], $this->_uploads[$pos]['type']
                 );
                 if ($this->_pos[1] < strlen($header)) {
-                    $ret    .= substr($header, $this->_pos[1], $length);
+                    $ret    .= (string)substr($header, $this->_pos[1], $length);
                     $length -= min(strlen($header) - $this->_pos[1], $length);
                 }
                 $filePos  = max(0, $this->_pos[1] - strlen($header));
@@ -194,13 +194,13 @@ class HTTP_Request2_MultipartBody
                 if ($length > 0) {
                     $start   = $this->_pos[1] + ($oldLength - $length) -
                                strlen($header) - $this->_uploads[$pos]['size'];
-                    $ret    .= substr("\r\n", $start, $length);
+                    $ret    .= (string)substr("\r\n", $start, $length);
                     $length -= min(2 - $start, $length);
                 }
 
             } else {
                 $closing  = '--' . $boundary . "--\r\n";
-                $ret     .= substr($closing, $this->_pos[1], $length);
+                $ret     .= (string)substr($closing, $this->_pos[1], $length);
                 $length  -= min(strlen($closing) - $this->_pos[1], $length);
             }
             if ($length > 0) {

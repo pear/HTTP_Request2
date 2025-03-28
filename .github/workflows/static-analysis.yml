@@ -14,11 +14,11 @@ jobs:
     strategy:
       matrix:
         operating-system: [ 'ubuntu-latest' ]
-        php-version: [ '7.4', '8.2' ]
+        php-version: [ '8.2' ]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -33,7 +33,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -46,7 +46,7 @@ jobs:
 
       - name: Install psalm and pear/Log
         run: |
-          composer require --dev "vimeo/psalm:^5.15" "pear/log:^1"
+          composer require --dev "vimeo/psalm:^6" "pear/log:^1"
 
       - name: Run a static analysis with vimeo/psalm
         run: |

@@ -59,7 +59,7 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
         } else {
             $request = pack('C3', 5, 1, 0);
         }
-        $this->write($request);
+        $this->write((string)$request);
         $response = unpack('Cversion/Cmethod', (string)$this->read(3));
         if (!$response || 5 !== $response['version']) {
             throw new HTTP_Request2_MessageException(
@@ -93,8 +93,8 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
      */
     protected function performAuthentication($username, $password)
     {
-        $request  = pack('C2', 1, strlen($username)) . $username
-                    . pack('C', strlen($password)) . $password;
+        $request  = (string)pack('C2', 1, strlen($username)) . $username
+                    . (string)pack('C', strlen($password)) . $password;
 
         $this->write($request);
         $response = unpack('Cvn/Cstatus', (string)$this->read(3));
@@ -117,8 +117,8 @@ class HTTP_Request2_SOCKS5 extends HTTP_Request2_SocketWrapper
      */
     public function connect($remoteHost, $remotePort)
     {
-        $request = pack('C5', 0x05, 0x01, 0x00, 0x03, strlen($remoteHost))
-                   . $remoteHost . pack('n', $remotePort);
+        $request = (string)pack('C5', 0x05, 0x01, 0x00, 0x03, strlen($remoteHost))
+                   . $remoteHost . (string)pack('n', $remotePort);
 
         $this->write($request);
         $response = unpack('Cversion/Creply/Creserved', (string)$this->read(1024));

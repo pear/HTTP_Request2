@@ -238,7 +238,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
      */
     protected function createCurlHandle()
     {
-        $ch = curl_init();
+        if (false === $ch = curl_init()) {
+            throw new HTTP_Request2_Exception("Failed to initialize a cURL session");
+        }
 
         curl_setopt_array(
             $ch, [
@@ -441,7 +443,7 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 $fp = $this->requestBody;
                 $this->requestBody = '';
                 while (!feof($fp)) {
-                    $this->requestBody .= fread($fp, 16384);
+                    $this->requestBody .= (string)fread($fp, 16384);
                 }
             }
             // curl hangs up if content-length is present
@@ -473,9 +475,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
             return '';
         }
         if (is_string($this->requestBody)) {
-            $string = substr($this->requestBody, $this->position, $length);
+            $string = (string)substr($this->requestBody, $this->position, $length);
         } elseif (is_resource($this->requestBody)) {
-            $string = fread($this->requestBody, $length);
+            $string = (string)fread($this->requestBody, $length);
         } else {
             $string = $this->requestBody->read($length);
         }
