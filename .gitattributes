@@ -3,5 +3,6 @@
 /.gitignore export-ignore
 /package.xml export-ignore
 /pear-package-helper.php export-ignore
+/psalm.xml export-ignore
 /docs/examples export-ignore
 /tests export-ignore
