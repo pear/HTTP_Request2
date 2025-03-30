@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper files for HTTP_Request2 unit tests. Should be accessible via HTTP.
+ * WARNING: This file is a part of test suite for PEAR/HTTP_Request2. It should NOT be served on public websites.
  *
  * PHP version 5
  *
@@ -13,9 +13,9 @@
  * @category  HTTP
  * @package   HTTP_Request2
  * @author    Alexey Borzov <avb@php.net>
- * @copyright 2008-2023 Alexey Borzov <avb@php.net>
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
- * @link      http://pear.php.net/package/HTTP_Request2
+ * @copyright 2008-2025 Alexey Borzov <avb@php.net>
+ * @license   https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
+ * @link      https://pear.php.net/package/HTTP_Request2
  */
 
 $name  = empty($_GET['name'])? 'foo': $_GET['name'];

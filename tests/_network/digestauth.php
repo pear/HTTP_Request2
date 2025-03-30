@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper files for HTTP_Request2 unit tests. Should be accessible via HTTP.
+ * WARNING: This file is a part of test suite for PEAR/HTTP_Request2. It should NOT be served on public websites.
  *
  * PHP version 5
  *
@@ -13,15 +13,15 @@
  * @category  HTTP
  * @package   HTTP_Request2
  * @author    Alexey Borzov <avb@php.net>
- * @copyright 2008-2023 Alexey Borzov <avb@php.net>
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
- * @link      http://pear.php.net/package/HTTP_Request2
+ * @copyright 2008-2025 Alexey Borzov <avb@php.net>
+ * @license   https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
+ * @link      https://pear.php.net/package/HTTP_Request2
  */
 
 /**
  * Mostly borrowed from PHP manual and Socket Adapter implementation
  *
- * @link http://php.net/manual/en/features.http-auth.php
+ * @link https://php.net/manual/en/features.http-auth.php
  */
 
 /**
@@ -78,6 +78,6 @@ if (!$validAuth || empty($_SERVER['PHP_AUTH_DIGEST'])) {
            '",qop="auth",nonce="' . uniqid() . '"', true, 401);
     echo "Login required";
 } else {
-    echo "Username={$data['username']}";
+    echo htmlspecialchars("Username={$data['username']}", ENT_NOQUOTES, 'UTF-8');
 }
 ?>

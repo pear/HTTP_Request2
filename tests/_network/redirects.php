@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper files for HTTP_Request2 unit tests. Should be accessible via HTTP.
+ * WARNING: This file is a part of test suite for PEAR/HTTP_Request2. It should NOT be served on public websites.
  *
  * PHP version 5
  *
@@ -13,9 +13,9 @@
  * @category  HTTP
  * @package   HTTP_Request2
  * @author    Alexey Borzov <avb@php.net>
- * @copyright 2008-2023 Alexey Borzov <avb@php.net>
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
- * @link      http://pear.php.net/package/HTTP_Request2
+ * @copyright 2008-2025 Alexey Borzov <avb@php.net>
+ * @license   https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
+ * @link      https://pear.php.net/package/HTTP_Request2
  */
 
 $redirects = isset($_GET['redirects'])? $_GET['redirects']: 1;
@@ -43,8 +43,8 @@ if ('ftp' == $special) {
     header('Location: ' . $url, true, 302);
 
 } else {
-    echo "Method=" . $_SERVER['REQUEST_METHOD'] . ';';
-    var_dump($_POST);
-    var_dump($_GET);
+    echo "Method=" . htmlspecialchars($_SERVER['REQUEST_METHOD'], ENT_NOQUOTES, 'UTF-8') . ';';
+    echo htmlspecialchars(serialize($_POST), ENT_NOQUOTES, 'UTF-8');
+    echo htmlspecialchars(serialize($_GET), ENT_NOQUOTES, 'UTF-8');
 }
 ?>
