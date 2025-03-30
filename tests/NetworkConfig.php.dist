@@ -13,9 +13,9 @@
  * @category  HTTP
  * @package   HTTP_Request2
  * @author    Alexey Borzov <avb@php.net>
- * @copyright 2008-2023 Alexey Borzov <avb@php.net>
- * @license   http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
- * @link      http://pear.php.net/package/HTTP_Request2
+ * @copyright 2008-2025 Alexey Borzov <avb@php.net>
+ * @license   https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
+ * @link      https://pear.php.net/package/HTTP_Request2
  */
 
 /**
@@ -27,10 +27,13 @@
 /**
  * Base URL for HTTP_Request2 Adapters tests
  *
- * To enable the tests that actually perform network interaction, you should
- * copy the contents of _network directory to a directory under your web
- * server's document root or create a symbolic link to _network directory
- * there. Set this constant to point to the URL of that directory.
+ * The tests that perform network interaction require that the files in the
+ * _network directory are served by a webserver. The below constant should
+ * contain an URI where that directory is served.
+ *
+ * Please note that it is NOT a good idea for that URI to be publicly
+ * accessible, keep it behind a firewall and / or only enable it when
+ * the tests are run.
  */
 define('HTTP_REQUEST2_TESTS_BASE_URL',          null);
 
