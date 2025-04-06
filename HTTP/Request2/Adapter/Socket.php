@@ -709,7 +709,14 @@ class HTTP_Request2_Adapter_Socket extends HTTP_Request2_Adapter
         if (empty($challenge['qop'])) {
             $digest = md5($a1 . ':' . $challenge['nonce'] . ':' . $a2);
         } else {
-            $challenge['cnonce'] = 'Req2.' . rand();
+            $randomBytes = null;
+            if (function_exists('random_bytes')) {
+                try {
+                    $randomBytes = bin2hex(random_bytes(6));
+                } catch (\Exception $e) {
+                }
+            }
+            $challenge['cnonce'] = 'Req2.' . ($randomBytes ?: mt_rand());
             if (empty($challenge['nc'])) {
                 $challenge['nc'] = 1;
             }
