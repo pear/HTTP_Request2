@@ -22,7 +22,7 @@
 
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
-require_once __DIR__ . '/CommonNetworkTest.php';
+// pear-package-only require_once __DIR__ . '/Networked.php';
 
 /**
  * Unit test for Socket Adapter of HTTP_Request2

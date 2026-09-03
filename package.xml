@@ -142,11 +142,11 @@ Fixed:
         </dir>
         <dir name="Request2">
           <dir name="Adapter">
-            <file role="test" name="CommonNetworkTest.php" />
             <file role="test" name="CurlTest.php" />
             <file role="test" name="EventSequenceObserver.php" />
             <file role="test" name="HeaderObserver.php" />
             <file role="test" name="MockTest.php" />
+            <file role="test" name="Networked.php" />
             <file role="test" name="SlowpokeBody.php" />
             <file role="test" name="SocketProxyTest.php" />
             <file role="test" name="SocketTest.php" />
@@ -251,11 +251,11 @@ Fixed:
     <install as="Request2/MultipartBodyTest.php" name="tests/Request2/MultipartBodyTest.php" />
     <install as="Request2/ResponseTest.php" name="tests/Request2/ResponseTest.php" />
 
-    <install as="Request2/Adapter/CommonNetworkTest.php" name="tests/Request2/Adapter/CommonNetworkTest.php" />
     <install as="Request2/Adapter/CurlTest.php" name="tests/Request2/Adapter/CurlTest.php" />
     <install as="Request2/Adapter/EventSequenceObserver.php" name="tests/Request2/Adapter/EventSequenceObserver.php" />
     <install as="Request2/Adapter/HeaderObserver.php" name="tests/Request2/Adapter/HeaderObserver.php" />
     <install as="Request2/Adapter/MockTest.php" name="tests/Request2/Adapter/MockTest.php" />
+    <install as="Request2/Adapter/Networked.php" name="tests/Request2/Adapter/Networked.php" />
     <install as="Request2/Adapter/SlowpokeBody.php" name="tests/Request2/Adapter/SlowpokeBody.php" />
     <install as="Request2/Adapter/SocketProxyTest.php" name="tests/Request2/Adapter/SocketProxyTest.php" />
     <install as="Request2/Adapter/SocketTest.php" name="tests/Request2/Adapter/SocketTest.php" />

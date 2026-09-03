@@ -19,7 +19,7 @@
  */
 
 /** Tests for HTTP_Request2 package that require a working webserver */
-require_once __DIR__ . '/CommonNetworkTest.php';
+// pear-package-only require_once __DIR__ . '/Networked.php';
 
 // pear-package-only require_once __DIR__ . '/UploadSizeObserver.php';
 
