@@ -26,7 +26,7 @@ require_once __DIR__ . '/CommonNetworkTest.php';
 /**
  * Unit test for Curl Adapter of HTTP_Request2
  */
-class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_CommonNetworkTest
+class HTTP_Request2_Adapter_CurlTest extends HTTP_Request2_Adapter_Networked
 {
    /**
     * Configuration for HTTP Request object

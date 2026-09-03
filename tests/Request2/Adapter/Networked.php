@@ -35,7 +35,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  *
  * You need to properly set up this test suite, refer to NetworkConfig.php.dist
  */
-abstract class HTTP_Request2_Adapter_CommonNetworkTest extends TestCase
+abstract class HTTP_Request2_Adapter_Networked extends TestCase
 {
    /**
     * HTTP Request object

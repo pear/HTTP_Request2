@@ -24,7 +24,7 @@ require_once __DIR__ . '/CommonNetworkTest.php';
 /**
  * Unit test for Socket Adapter of HTTP_Request2 working through proxy
  */
-class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_CommonNetworkTest
+class HTTP_Request2_Adapter_SocketProxyTest extends HTTP_Request2_Adapter_Networked
 {
    /**
     * Configuration for HTTP Request object
