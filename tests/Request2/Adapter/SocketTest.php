@@ -19,6 +19,9 @@
  */
 
 /** Tests for HTTP_Request2 package that require a working webserver */
+
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+
 require_once __DIR__ . '/CommonNetworkTest.php';
 
 /**
@@ -37,6 +40,7 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_CommonNetwo
     /**
      * @doesNotPerformAssertions
      */
+    #[DoesNotPerformAssertions]
     public function testBug17826()
     {
         $adapter = new HTTP_Request2_Adapter_Socket();

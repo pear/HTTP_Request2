@@ -21,6 +21,7 @@
 /** Sets up includes */
 require_once dirname(__DIR__) . '/TestHelper.php';
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -44,6 +45,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
      *
      * @dataProvider invalidCookieProvider
      */
+    #[DataProvider('invalidCookieProvider')]
     public function testStoreInvalid($cookie)
     {
         $this->expectException(\HTTP_Request2_LogicException::class);
@@ -57,6 +59,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
      * @link http://pear.php.net/bugs/bug.php?id=20401
      * @dataProvider invalidCookieProvider
      */
+    #[DataProvider('invalidCookieProvider')]
     public function testCanIgnoreInvalidCookies($cookie)
     {
         $this->jar->ignoreInvalidCookies(true);
@@ -85,6 +88,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
     *
     * @dataProvider noPSLDomainsProvider
     */
+    #[DataProvider('noPSLdomainsProvider')]
     public function testDomainMatchNoPSL($requestHost, $cookieDomain, $expected)
     {
         $this->jar->usePublicSuffixList(false);
@@ -95,6 +99,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
     *
     * @dataProvider PSLDomainsProvider
     */
+    #[DataProvider('PSLdomainsProvider')]
     public function testDomainMatchPSL($requestHost, $cookieDomain, $expected)
     {
         $this->jar->usePublicSuffixList(true);
@@ -171,6 +176,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
     *
     * @dataProvider cookieAndSetterProvider
     */
+    #[DataProvider('cookieAndSetterProvider')]
     public function testGetDomainAndPathFromSetter($cookie, $setter, $expected)
     {
         $this->jar->store($cookie, $setter);
@@ -183,6 +189,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
     *
     * @dataProvider cookieMatchProvider
     */
+    #[DataProvider('cookieMatchProvider')]
     public function testGetMatchingCookies($url, $expectedCount)
     {
         $cookies = [

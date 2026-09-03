@@ -62,10 +62,11 @@ abstract class HTTP_Request2_Adapter_CommonNetworkTest extends TestCase
 
         } else {
             $this->baseUrl = rtrim(HTTP_REQUEST2_TESTS_BASE_URL, '/') . '/';
-            $name = strtolower(preg_replace('/^test/i', '', $this->getName())) . '.php';
+            $testName = \method_exists($this, 'getName') ? $this->getName() : $this->name();
+            $fileName = strtolower(preg_replace('/^test/i', '', $testName)) . '.php';
 
             $this->request = new HTTP_Request2(
-                $this->baseUrl . $name, HTTP_Request2::METHOD_GET, $this->config
+                $this->baseUrl . $fileName, HTTP_Request2::METHOD_GET, $this->config
             );
         }
     }
