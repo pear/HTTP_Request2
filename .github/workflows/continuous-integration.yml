@@ -9,18 +9,26 @@ on:
 jobs:
   tests:
     runs-on: ${{ matrix.operating-system }}
+    continue-on-error: ${{ matrix.pre-release || false }}
 
     strategy:
       fail-fast: false
       matrix:
         operating-system: ['ubuntu-latest']
-        php-version: [ '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
+        php-version: [ '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6' ]
+        include:
+          - php-version: '8.5'
+            phpunit-flags: '--display-deprecations --fail-on-deprecation'
+
+          - php-version: '8.6'
+            phpunit-flags: '--display-deprecations --fail-on-deprecation'
+            pre-release: true
 
     name: CI on ${{ matrix.operating-system }} with PHP ${{ matrix.php-version }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -35,12 +43,12 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-composer-
+            ${{ runner.os }}-composer-${{ matrix.php-version }}-
 
       - name: Install dependencies with Composer
         run: |
@@ -55,7 +63,7 @@ jobs:
       - name: Run PHPUnit for Composer install
         run: |
           cp tests/NetworkConfig.php.github tests/NetworkConfig.php
-          vendor/bin/phpunit tests
+          vendor/bin/phpunit ${{ matrix.phpunit-flags }} tests
 
       - name: Install PEAR
         run: |
@@ -71,4 +79,4 @@ jobs:
         run: |
           sudo cp tests/NetworkConfig.php.github `pear config-get test_dir`/HTTP_Request2/NetworkConfig.php
           cd `pear config-get test_dir`
-          ${GITHUB_WORKSPACE}/vendor/bin/phpunit ./HTTP_Request2
+          ${GITHUB_WORKSPACE}/vendor/bin/phpunit ${{ matrix.phpunit-flags }} ./HTTP_Request2
