@@ -92,7 +92,7 @@ class HTTP_Request2_SocketWrapper
             }
             $contextOptions['ssl'] += [
                 // Using "Intermediate compatibility" cipher bundle from
-                // https://wiki.mozilla.org/Security/Server_Side_TLS
+                // https://docs.tlsref.org/server-side-tls.html
                 'ciphers' =>             'TLS_AES_128_GCM_SHA256:'
                                          . 'TLS_AES_256_GCM_SHA384:'
                                          . 'TLS_CHACHA20_POLY1305_SHA256:'
@@ -101,9 +101,7 @@ class HTTP_Request2_SocketWrapper
                                          . 'ECDHE-ECDSA-AES256-GCM-SHA384:'
                                          . 'ECDHE-RSA-AES256-GCM-SHA384:'
                                          . 'ECDHE-ECDSA-CHACHA20-POLY1305:'
-                                         . 'ECDHE-RSA-CHACHA20-POLY1305:'
-                                         . 'DHE-RSA-AES128-GCM-SHA256:'
-                                         . 'DHE-RSA-AES256-GCM-SHA384',
+                                         . 'ECDHE-RSA-CHACHA20-POLY1305',
                 'disable_compression' => true,
                 'crypto_method'       => $cryptoMethod
             ];
