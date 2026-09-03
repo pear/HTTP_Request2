@@ -201,7 +201,9 @@ class HTTP_Request2_Adapter_Curl extends HTTP_Request2_Adapter
                 if (CURLE_OK !== curl_errno($ch)) {
                     $this->request->setLastEvent('warning', curl_error($ch));
                 }
-                curl_close($ch);
+                if (PHP_VERSION_ID < 80000) {
+                    curl_close($ch);
+                }
             }
             $response = $this->response;
             unset($this->request, $this->requestBody, $this->response);
