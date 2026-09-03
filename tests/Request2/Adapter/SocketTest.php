@@ -188,6 +188,14 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_Networked
             $this->markTestSkipped("This test requires SSL support");
         }
 
+        // Won't get "Probably Okay" without this stuff enabled:
+        // https://www.howsmyssl.com/s/about.html#post-quantum-key-agreement
+        $majorVersion = (OPENSSL_VERSION_NUMBER >> 28) & 0xF;
+        $minorVersion = (OPENSSL_VERSION_NUMBER >> 20) & 0xFF;
+        if (3 > $majorVersion || 3 === $majorVersion && 5 > $minorVersion) {
+            $this->markTestSkipped("This test requires PHP built with OpenSSL 3.5+");
+        }
+
         $this->request->setUrl('https://www.howsmyssl.com/a/check')
             ->setConfig('ssl_verify_peer', false);
 
