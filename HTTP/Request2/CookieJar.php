@@ -125,15 +125,15 @@ class HTTP_Request2_CookieJar implements Serializable
      * 'expires' field will be converted to ISO8601 format from COOKIE format,
      * 'domain' and 'path' will be set from setter URL if empty.
      *
-     * @param array    $cookie cookie data, as returned by
-     *                         {@link HTTP_Request2_Response::getCookies()}
-     * @param Net_URL2 $setter URL of the document that sent Set-Cookie header
+     * @param array          $cookie cookie data, as returned by
+     *                               {@link HTTP_Request2_Response::getCookies()}
+     * @param Net_URL2|null $setter URL of the document that sent Set-Cookie header
      *
      * @return array    Updated cookie array
      * @throws HTTP_Request2_LogicException
      * @throws HTTP_Request2_MessageException
      */
-    protected function checkAndUpdateFields(array $cookie, Net_URL2 $setter = null)
+    protected function checkAndUpdateFields(array $cookie, ?Net_URL2 $setter = null)
     {
         if ($missing = array_diff(['name', 'value'], array_keys($cookie))) {
             throw new HTTP_Request2_LogicException(
@@ -206,14 +206,14 @@ class HTTP_Request2_CookieJar implements Serializable
     /**
      * Stores a cookie in the jar
      *
-     * @param array    $cookie cookie data, as returned by
-     *                         {@link HTTP_Request2_Response::getCookies()}
-     * @param Net_URL2 $setter URL of the document that sent Set-Cookie header
+     * @param array         $cookie cookie data, as returned by
+     *                               {@link HTTP_Request2_Response::getCookies()}
+     * @param Net_URL2|null $setter URL of the document that sent Set-Cookie header
      *
      * @return bool whether the cookie was successfully stored
      * @throws HTTP_Request2_Exception
      */
-    public function store(array $cookie, Net_URL2 $setter = null)
+    public function store(array $cookie, ?Net_URL2 $setter = null)
     {
         try {
             $cookie = $this->checkAndUpdateFields($cookie, $setter);
@@ -247,14 +247,14 @@ class HTTP_Request2_CookieJar implements Serializable
      * Adds cookies set in HTTP response to the jar
      *
      * @param HTTP_Request2_Response $response HTTP response message
-     * @param Net_URL2               $setter   original request URL, needed for
+     * @param Net_URL2|null          $setter   original request URL, needed for
      *                                         setting default domain/path. If not given,
      *                                         effective URL from response will be used.
      *
      * @return bool whether all cookies were successfully stored
      * @throws HTTP_Request2_LogicException
      */
-    public function addCookiesFromResponse(HTTP_Request2_Response $response, Net_URL2 $setter = null)
+    public function addCookiesFromResponse(HTTP_Request2_Response $response, ?Net_URL2 $setter = null)
     {
         if (null === $setter) {
             if (!($effectiveUrl = $response->getEffectiveUrl())) {
