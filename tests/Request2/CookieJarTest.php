@@ -317,7 +317,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
             ['anotherexample.com', 'example.com', false],
             ['whatever.msk.ru', '.msk.ru', true],
             ['whatever.co.uk', '.co.uk', true],
-            ['whatever.bd', '.whatever.bd', true],
+            ['whatever.ck', '.whatever.ck', true],
             ['whatever.tokyo.jp', '.whatever.tokyo.jp', true],
             ['metro.tokyo.jp', '.metro.tokyo.jp', true],
             ['foo.bar', '.foo.bar', true]
@@ -337,7 +337,7 @@ class HTTP_Request2_CookieJarTest extends TestCase
             ['anotherexample.com', 'example.com', false],
             ['whatever.msk.ru', '.msk.ru', false],
             ['whatever.co.uk', '.co.uk', false],
-            ['whatever.bd', '.whatever.bd', false],
+            ['whatever.ck', '.whatever.ck', false],
             ['com.bn', '.com.bn', false],
             ['nic.tr', '.nic.tr', true],
             ['foo.bar', '.foo.bar', true]
