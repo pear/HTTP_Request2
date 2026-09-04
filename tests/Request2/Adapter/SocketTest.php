@@ -192,8 +192,11 @@ class HTTP_Request2_Adapter_SocketTest extends HTTP_Request2_Adapter_Networked
         // https://www.howsmyssl.com/s/about.html#post-quantum-key-agreement
         $majorVersion = (OPENSSL_VERSION_NUMBER >> 28) & 0xF;
         $minorVersion = (OPENSSL_VERSION_NUMBER >> 20) & 0xFF;
-        if (3 > $majorVersion || 3 === $majorVersion && 5 > $minorVersion) {
-            $this->markTestSkipped("This test requires PHP built with OpenSSL 3.5+");
+        // PHP 7.1 to 7.3 on GitHub report OpenSSL 3.5 but still doesn't work. Something-something patches, as
+        // officially OpenSSL 3+ is only supported in PHP 8.1+:
+        // https://www.php.net/manual/en/openssl.requirements.php
+        if (70400 > PHP_VERSION_ID  || 3 > $majorVersion || 3 === $majorVersion && 5 > $minorVersion) {
+            $this->markTestSkipped("This test requires PHP 7.4+ built with OpenSSL 3.5+");
         }
 
         $this->request->setUrl('https://www.howsmyssl.com/a/check')
