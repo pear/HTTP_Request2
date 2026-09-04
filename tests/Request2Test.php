@@ -232,7 +232,7 @@ class HTTP_Request2Test extends TestCase
     public function testUpload()
     {
         $this->expectException(\HTTP_Request2_LogicException::class);
-        $this->expectExceptionMessage('missing file');
+        $this->expectExceptionMessage('fopen(');
         $req = new HTTP_Request2(null, HTTP_Request2::METHOD_POST);
         $req->addUpload('upload', __DIR__ . '/_files/plaintext.txt');
 
