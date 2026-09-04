@@ -25,9 +25,9 @@ deflate encodings, redirects, monitoring the request progress with Observers...
     <email>avb@php.net</email>
     <active>yes</active>
   </lead>
-  <date>2025-04-06</date>
+  <date>2026-09-04</date>
   <version>
-    <release>2.7.0</release>
+    <release>2.8.0</release>
     <api>2.4.0</api>
   </version>
   <stability>
@@ -36,19 +36,14 @@ deflate encodings, redirects, monitoring the request progress with Observers...
   </stability>
   <license uri="https://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
   <notes>
-Added:
- * Tested on PHP 8.4;
- * Psalm 6 used for static analysis;
- * Updated Public Suffix List.
-
-Fixed:
- * Prevent XSS when PHP files backing server-side tests are served from
-   a publicly available website, thanks to Peter Potrowl
-   (peter017 at gmail dot com) for the report.
- * data/generate-list.php will only run with a command-line SAPI.
- * Better random value used for `cnonce` parameter in Digest authentication,
-   see https://github.com/pear/HTTP_Request2/issues/30.
-   Digest authentication should be considered deprecated, however.
+ * Tested on PHP 8.5 and 8.6, runs without `E_DEPRECATED` messages:
+    * Explicit nullable types used (implicit ones deprecated in PHP 8.4)
+    * curl_close() omitted in PHP 8 (deprecated in PHP 8.5, no-op since 8.0)
+ * Minimum required PHP version is 7.1 (needed for nullable types)
+ * PHPUnit-Polyfills upgraded to the current version. Deprecation checks from
+   newer PHPUnit are now enabled in GitHub CI for highest PHP versions
+ * Updated Public Suffix List
+ * Updated cipher bundle used by Socket adapter to current &quot;Intermediate compatibility&quot;
   </notes>
   <contents>
     <dir name="/">
@@ -177,7 +172,7 @@ Fixed:
   <dependencies>
     <required>
       <php>
-        <min>5.6.0</min>
+        <min>7.1.0</min>
       </php>
       <pearinstaller>
         <min>1.9.2</min>
@@ -263,6 +258,33 @@ Fixed:
    </filelist>
   </phprelease>
   <changelog>
+    <release>
+      <date>2025-04-06</date>
+      <version>
+        <release>2.7.0</release>
+        <api>2.4.0</api>
+      </version>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <license uri="https://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</license>
+      <notes>
+Added:
+ * Tested on PHP 8.4;
+ * Psalm 6 used for static analysis;
+ * Updated Public Suffix List.
+
+Fixed:
+ * Prevent XSS when PHP files backing server-side tests are served from
+   a publicly available website, thanks to Peter Potrowl
+   (peter017 at gmail dot com) for the report.
+ * data/generate-list.php will only run with a command-line SAPI.
+ * Better random value used for `cnonce` parameter in Digest authentication,
+   see https://github.com/pear/HTTP_Request2/issues/30.
+   Digest authentication should be considered deprecated, however.
+      </notes>
+    </release>
     <release>
       <date>2023-11-01</date>
       <version>

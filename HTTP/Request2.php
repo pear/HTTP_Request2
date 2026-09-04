@@ -41,7 +41,7 @@
  */
 class HTTP_Request2 implements SplSubject
 {
-    const VERSION = '2.7.0';
+    const VERSION = '2.8.0';
 
     /**
      * #@+

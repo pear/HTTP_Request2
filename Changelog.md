@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.8.0] - 2026-09-04
+
+* Tested on PHP 8.5 and 8.6, runs without `E_DEPRECATED` messages:
+  * Explicit nullable types used (implicit ones deprecated in PHP 8.4)
+  * `curl_close()` omitted in PHP 8 (deprecated in PHP 8.5, no-op since 8.0)
+* Minimum required PHP version is 7.1 (needed for nullable types)
+* PHPUnit-Polyfills upgraded to the current version. Deprecation checks from
+  newer PHPUnit are now enabled in GitHub CI for highest PHP versions
+* Updated Public Suffix List
+* Updated cipher bundle used by Socket adapter to current "Intermediate compatibility"
+
 ## [2.7.0] - 2025-04-06
 
 ### Added
@@ -77,3 +88,4 @@ no longer uses include-path and does not contain require_once statements
 [pull request #26]: https://github.com/pear/HTTP_Request2/pull/26
 
 [2.7.0]: https://github.com/pear/HTTP_Request2/compare/v2.6.0...v2.7.0
+[2.8.0]: https://github.com/pear/HTTP_Request2/compare/v2.7.0...v2.8.0
